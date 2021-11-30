@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_inspection.R
 \name{plot_ice}
 \alias{plot_ice}
-\title{Incremental cost-effectiveness plot}
+\title{Plotting the incremental cost-effectiveness plane.}
 \usage{
 plot_ice(df, param_1, param_2, wtp = NULL)
 }
@@ -22,7 +22,7 @@ A ggplot graph.
 This function plots the incremental cost-effectiveness plot.
 }
 \examples{
-# Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
+Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
 data(df_pa)
 plot_ice(df = df_pa, param_1 = "Inc_QALY", param_1 = "Inc_Costs")
 

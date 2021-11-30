@@ -7,7 +7,7 @@
 generate_sum_stats(df, v_params = "ALL")
 }
 \arguments{
-\item{df}{A dataframe.}
+\item{df}{a dataframe.}
 
 \item{v_params}{character or vector of character. Vector of names of the inputs and outputs for which to return summary statistics. Default is "ALL" which returns summary values for all inputs and outputs in the dataframe.}
 }
@@ -15,7 +15,7 @@ generate_sum_stats(df, v_params = "ALL")
 A dataframe with summary data for selected inputs and outputs.
 }
 \description{
-This function generates summary statistics of input and output values of a probabilistic analysis
+This function generates summary statistics of input and output values of a probabilistic analysis.
 }
 \examples{
 # Generating summary data of all inputs using the example dataframe
