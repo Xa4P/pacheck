@@ -18,7 +18,8 @@ A dataframe with summary data for selected inputs and outputs.
 This function generates summary statistics of input and output values of a probabilistic analysis
 }
 \examples{
-# Generating summary data of all inputs
+# Generating summary data of all inputs using the example dataframe
+data(df_pa)
 df_summary <- generate_sum_stats(df_pa)
 
 }

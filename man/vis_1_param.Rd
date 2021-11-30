@@ -19,10 +19,10 @@ vis_1_param(df, param, binwidth = NULL, type = "histogram")
 A ggplot graph.
 }
 \description{
-This function helps visualise the distribution of a single parameter
+This function plots the distribution of a single parameter.
 }
 \examples{
-# Generating plot using the default data for the costs of progression-free health state, and bins of 50 euros.
+# Generating plot using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
 data(df_pa)
 vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
 

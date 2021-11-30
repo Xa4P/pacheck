@@ -11,6 +11,6 @@ An object of class \code{data.frame} with 10000 rows and 18 columns.
 df_pa
 }
 \description{
-A dataframe containing 10,000 iterations (inputs and outputs) of a probabilistic analysis
+A dataframe containing 10,000 iterations (inputs and outputs) of a probabilistic analysis.
 }
 \keyword{datasets}
