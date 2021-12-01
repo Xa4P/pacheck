@@ -4,7 +4,13 @@
 \alias{vis_1_param}
 \title{Visualise the distribution of a single parameter}
 \usage{
-vis_1_param(df, param, binwidth = NULL, type = "histogram")
+vis_1_param(
+  df,
+  param,
+  binwidth = NULL,
+  type = "histogram",
+  dist = c("norm", "beta", "gamma", "lnorm")
+)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -14,6 +20,8 @@ vis_1_param(df, param, binwidth = NULL, type = "histogram")
 \item{binwidth}{numeric. Determine the width of the bins to use, only applied in combination with "histogram". Default is 30 bins.}
 
 \item{type}{character. Determine which plot to return: "histogram" for a histogram, "density" for a density plot. Default is "histogram".}
+
+\item{dist}{character or vector of character. Determine which distribution to fit on the density plot.}
 }
 \value{
 A ggplot graph.
@@ -21,8 +29,11 @@ A ggplot graph.
 \description{
 This function plots the distribution of a single parameter.
 }
+\details{
+The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal)
+}
 \examples{
-# Generating plot using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
+# Generating histogram using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
 data(df_pa)
 vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
 
