@@ -46,6 +46,31 @@ fit_lm_metamodel <- function(df,
   return(lm_out)
 }
 
+#' Perform DSA using linear metamodel
+#'
+#' @description This function performs deterministic sensitivity analyses (DSA) using the results of a linear metamodel.
+#'
+#' @param df a dataframe. This dataframe should contain both the dependent and independent variables of `lm_metamodel`.
+#' @param lm_metamodel a lm object. This object should use variables defined in `df`.
+#'
+#' @details The details of the methods used in for these DSA are described in XXX.
+#'
+#' @return A dataframe with the results of deterministic sensitivity analyses performed using parameter values of the linear metamodel. The dataframe contains the results using the lower and upper bound of the 95% Confidence Interval of the probabilistic parameters.
+#'
+#' @examples
+#' # Fitting meta model with two variables using the summary data
+#' data(df_pa)
+#' lm_res_2 <- fit_lm_metamodel(df = df_pa,
+#'                  y = "Inc_QALY",
+#'                  x = c("p_pfsd", "p_pdd")
+#'                  )
+#'
+#' dsa_lm_metamodel(df = df_pa,
+#'                  lm_metamodel = lm_res_2)
+#'
+#' @export
+#'
+#'
 dsa_lm_metamodel <- function(df,
                              lm_metamodel){
 
@@ -62,12 +87,12 @@ dsa_lm_metamodel <- function(df,
                   ncol = 4,
                   nrow = ncol(df_dsa),
                   dimnames = list(names(df_dsa),
-                                  c("Name", "Low_mean", "Low_low", "Low_upp")))
+                                  c("Parameter", "Lower_Bound", "Lower_Bound_low", "Lower_Bound_upp")))
   m_upp <- matrix(NA,
                   ncol = 4,
                   nrow = ncol(df_dsa),
                   dimnames = list(names(df_dsa),
-                                  c("Name", "Upp_mean", "Upp_low", "Upp_upp")))
+                                  c("Parameter", "Upper_Bound", "Upper_Bound_low", "Upper_Bound_upp")))
 
 
   for (i in 1:ncol(df_dsa)) {
@@ -98,13 +123,45 @@ dsa_lm_metamodel <- function(df,
   return(df_out)
 }
 
-df_res <- dsa_lm_metamodel(df = df_pa, lm_res)
 
-df_res$Upp_mean - df_res$Low_mean
-
+#' Plot results of DSA in a Tornado diagram
+#'
+#' @description This function plots the results of the deterministic sensitivity analyses (DSA) in a Tornado diagram.
+#'
+#' @param df a dataframe. This dataframe should contain the results of the function \code{\link{fit_lm_metamodel}}.
+#' @param df_basecase a dataframe. This object should contain the original probabilistic analysis inputs and outputs, and the variable defined in `outcome`.
+#' @param outcome character. Name of the output variable of the DSA.
+#'
+#' @details The code to draw the Tornado diagram was obtained from \url{https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given}{Stakoverflow}.
+#' The `df` object should contain the following variables; "Parameters" (the parameters to include in the Tornado diagram), "Lower_Bound" (the model outcomes when using the lower bound of the parameter value), "Upper_Bound" (the model outcomes when using the upper bound of the parameter value).
+#'
+#' @return A ggplot graph.
+#'
+#' @examples
+#' # Fitting meta model with two variables using the summary data
+#' data(df_pa)
+#' lm_res_2 <- fit_lm_metamodel(df = df_pa,
+#'                  y = "Inc_QALY",
+#'                  x = c("p_pfsd", "p_pdd")
+#'                  )
+#'
+#' # Estimating DSA inputs
+#' df_res_dsa <- dsa_lm_metamodel(df = df_pa,
+#'                                lm_metamodel = lm_res_2)
+#'
+#' # Plotting Tornado diagram
+#' plot_tornado(df = df_res_dsa,
+#'              df_basecase = df_pa,
+#'              outcome = "Inc_QALY")
+#'
+#'
+#' @export
+#'
+#'
 
 plot_tornado <- function(df,
-                         df_basecase) {
+                         df_basecase,
+                         outcome) {
 
   #Draw tornado diagram
   ##SOURCE tornado diagram: https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given
@@ -114,18 +171,15 @@ plot_tornado <- function(df,
   require(ggplot2)
   require(scales)
 
-  df$UL_Difference <- df$Upp_mean - df$Low_mean
-  names(df)[which(names(df) == "Low_mean")] <- "Lower_Bound"
-  names(df)[which(names(df) == "Upp_mean")] <- "Upper_Bound"
-  names(df)[which(names(df) == "Name")] <- "Parameter"
+  df$UL_Difference <- df$Upper_Bound - df$Lower_Bound
 
-  df <- df[, c("Parameter", "Lower_Bound", "Upper_Bound", "UL_Difference")]
+  df <- df[, c("Parameter", "Lower_Bound", "Upper_Bound")]
 
   df <- df[order(df$UL_Difference, decreasing = TRUE),] #order
   df <- head(df, 15) # select 15 most influential parameters
 
   # original value of output
-  base.value <- mean(df_basecase$iNMB)
+  base.value <- mean(df_basecase[, outcome])
 
   # get order of parameters according to size of intervals
   # (I use this to define the ordering of the factors
