@@ -294,16 +294,14 @@ fit_dist <- function(df,
 #' @param block_size numeric. Define the number of iterations at which the mean outcome has to be defined and plotted. NOT USED YET!
 #' @param conv_limit numeric. Define the convergence limit, under which the relative change between block of iterations should lie.  NOT USED YET!
 #'
-#' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). The arguments of the lists are "AIC" which contains the Akaike Information Criteria for each fitted distribution and "Dist_parameters" which contains the parameters of the fitted distributions.
-#'
-#' @return A list with two arguments
+#' @return A ggplot graph.
 #'
 #' @examples
-#' # Fitting normal and beta distribution to the "u_pfs" variable of the example dataframe.
+#' # Checking the moving average of the incremental QALYs using the example data.
 #' data(df_pa)
-#' fit_dist(df = df_pa,
-#'          param = "u_pfs",
-#'          dist = c("norm", "beta"))
+#' plot_convergence(df = df_pa,
+#'                  outcome = "Inc_QALY"
+#'                  ))
 #'
 #' @export
 #'
