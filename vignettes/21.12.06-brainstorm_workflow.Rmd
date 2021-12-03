@@ -13,6 +13,7 @@ output:
 library(pacheck)
 library(knitr)
 library(plotly)
+library(ggplot2)
 data(df_pa)
 ```
 
@@ -78,8 +79,6 @@ p_2p <- vis_2_params(df = df_pa,
                      slope = 1,
                      check = "param_2 > param_1")
 p_2p
-#p_2p_interact <- ggplotly(p_2p)
-#p_2p_interact
 ```
 
 ### c.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation.
@@ -107,6 +106,8 @@ p_3 <- plot_ice(df = df_pa,
                 param_2 = "Inc_Costs",
                 wtp = 80000)
 p_3
+p_3_interact <- ggplotly(p_3)
+p_3_interact
 ```
 
 
@@ -142,6 +143,16 @@ plot_convergence(df = df_pa,
 lm_rr <- fit_lm_metamodel(df = df_pa,
                           x = "rr",
                           y = "iNMB")
+lm_pred <- unlist(predict(lm_rr, data.frame(rr = df_pa$rr)))
+df_obs_pred <- data.frame(
+  Values = df_pa$rr,
+  Observed = df_pa$iNMB,
+  Predicted = lm_pred
+)
+ggplot(data = df_obs_pred, aes(x = Values, y = Observed)) +
+  geom_point(shape = 1, colour = "lightgrey") +
+  geom_smooth(method = "lm") +
+  theme_bw()
 plot(lm_rr)
 ```
 
@@ -150,14 +161,41 @@ plot(lm_rr)
 lm_full <- fit_lm_metamodel(df = df_pa,
                           x = c("rr", "u_pfs", "u_pd", "c_pfs", "c_pd", "c_thx", "p_pfspd", "p_pfsd", "p_pdd"),
                           y = "iNMB")
+lm_pred_full <- predict(lm_full, data.frame(rr = df_pa$rr,
+                            u_pfs = mean(df_pa$u_pfs),
+                            u_pd = mean(df_pa$u_pd),
+                            c_pfs = mean(df_pa$c_pfs),
+                            c_pd = mean(df_pa$c_pd),
+                            c_thx = mean(df_pa$c_thx),
+                            p_pfspd = mean(df_pa$p_pfspd),
+                            p_pfsd = mean(df_pa$p_pfsd),
+                            p_pdd = mean(df_pa$p_pdd)))
+
+df_obs_pred_full <- data.frame(
+  Values = df_pa$rr,
+  Observed = df_pa$iNMB,
+  Predicted = lm_pred_full
+)
+
+ggplot(data = df_obs_pred_full, aes(x = Values, y = Observed)) +
+  geom_point(shape = 1, colour = "lightgrey") +
+  geom_line(data = df_obs_pred_full, aes(x = Values, y = Predicted), colour = "blue") +
+  theme_bw()
+
+plot(lm_full)
+
 df_dsa <- dsa_lm_metamodel(df = df_pa,
                            lm_metamodel = lm_full)
 plot_tornado(df = df_dsa,
              df_basecase = df_pa,
              outcome = "iNMB")
+
 ```
 
-# Other activities
+# Other activities/ questions/ to do's
+- Add R^2^ statistic metamodel.  
+- Two-way sensitivity analysis based on metamodel.  
+- Include other functional forms of metamodels?  
+- Include predictions of outcome based on metamodels?  
+- Unit tests of data using `testthat`? (automatic check of costs are positive for instance, or utility values between 0-1).
 - Check results of deterministic sensitivity analyses using original model and metamodel.  
-- Unit tests of data using `testthat`?  
-
