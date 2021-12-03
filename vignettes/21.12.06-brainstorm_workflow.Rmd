@@ -19,6 +19,9 @@ data(df_pa)
 # Aim (grant application)
 The aim of this project is to develop a generic dashboard, e.g. a R shiny application to 1) inspect model inputs and outputs, 2) visualise the original inputs and outputs, 3) investigate the relationship between model inputs and outputs through metamodelling and data visualisation methods, 4) save the performed analyses.
 
+# For info
+Package with supporting functions can be found here: https://github.com/Xa4P/pacheck.
+
 # Structure shiny app
 The envisoned R Shiny app will have the following tabs.
 I've developed some functions already to implement.

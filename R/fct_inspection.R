@@ -96,7 +96,7 @@ vis_1_param <- function(df,
       geom_histogram(aes(y = ..density..),
                      colour = "grey",
                      fill = "lightgrey") +
-      geom_density(aes(colour = "Data"))
+      geom_density(aes(colour = "Original"))
 
     if("beta" %in% dist) {
       df_beta <- data.frame(
