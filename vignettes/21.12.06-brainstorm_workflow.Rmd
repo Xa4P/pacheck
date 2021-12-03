@@ -12,6 +12,7 @@ output:
 ```{r setup, include = FALSE}
 library(pacheck)
 library(knitr)
+library(plotly)
 data(df_pa)
 ```
 
@@ -48,18 +49,110 @@ df_pa <- calculate_nb(df = df_pa,
 
 ```{r smmr, echo = T}
 df <- generate_sum_stats(df_pa)
-df
+kable(df)
+rm(df)
 ```
 
-### b.	Histogram, density distribution of (user-selected) model inputs and outputs - done
+### b.	Histogram, density distribution of (user-selected) model inputs and outputs
 *To visually investigate the parameter distributions*
 
 #### Single parameter
 ```{r dist_plot, echo = T}
-
+p_1 <- vis_1_param(df = df_pa,
+            param = "u_pfs",
+            binwidth = NULL,
+            type = "histogram",
+            dist = c("norm", "beta", "gamma", "lnorm"))
+p_1
 ```
 
 
+### Two parameters
+```{r vis_2_pars, wcho = T}
+p_2p <- vis_2_params(df = df_pa,
+                     param_1 = "u_pfs",
+                     param_2 = "u_pd",
+                     slope = 1,
+                     check = "param_2 > param_1")
+
+p_2p_interact <- ggplotly(p_2p)
+p_2p_interact
+```
+
+### c.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation.
+*To cross check with parameters reported in documentation/report/ journal article, as an implementation check*
+```{r dist_plot_2, echo = T}
+p_2 <- vis_1_param(df = df_pa,
+            param = "u_pfs",
+            binwidth = NULL,
+            type = "density",
+            dist = c("norm", "beta", "gamma", "lnorm"))
+p_2
+```
+
+## 3.	Investigate model outputs
+### a.	Incremental cost-effectiveness plane
+***Questions:***  
+
+- ***Interactive plot? Possibility to select some outputs and see which probabilistic input parameters combination has led to these outputs***  
+- ***Plotting relative density as well as introduced [here](https://resource-allocation.biomedcentral.com/articles/10.1186/s12962-020-00251-7)?***  
+- ***Combination of incremental cost-effectiveness plane and histogram of the distribution of incremental costs and effects?***
+
+```{r dist_plot_2p, echo = T}
+p_3 <- plot_ice(df = df_pa,
+                param_1 = "Inc_QALY",
+                param_2 = "Inc_Costs",
+                wtp = 80000)
+p_3
+```
+
+
+### b.	Cost-effectiveness acceptability curve.
+```{r ceac, echo = T}
+df_ceac <- calculate_ceac(df = df_pa,
+                     e_int = "QALY_int",
+                     e_comp = "QALY_comp",
+                     c_int = "Costs_int",
+                     c_comp = "Costs_comp")
+
+plot_ceac(df = df_ceac,
+          wtp = "WTP_threshold")
+```
+
+### c.	Histogram and density distribution of total and incremental costs and effects.
+**Can use the function above!  **
+
+###d.	Convergence graph of outcomes
+```{r conv, echo = T}
+plot_convergence(df = df_pa,
+                 outcome = "iNMB"
+                 )
+```
+
+### e.	Question: EVPI? Expected net loss? It is in een package van de DARTH.
+
+## 4.	Investigate relation between inputs and outputs
+### Single
+```{r fit_metamod_single, echo = T}
+lm_rr <- fit_lm_metamodel(df = df_pa,
+                          x = "rr",
+                          y = "iNMB")
+plot(lm_rr)
+```
+
+### Multiple
+```{r fit_metamod_mult, echo = T}
+lm_full <- fit_lm_metamodel(df = df_pa,
+                          x = c("rr", "u_pfs", "u_pd", "c_pfs", "c_pd", "c_thx", "p_pfspd", "p_pfsd", "p_pdd"),
+                          y = "iNMB")
+df_dsa <- dsa_lm_metamodel(df = df_pa,
+                           lm_metamodel = lm_full)
+plot_tornado(df = df_dsa,
+             df_basecase = df_pa,
+             outcome = "iNMB")
+```
 
 # Other activities
-- Check results of deterministic sensitivity analyses using original model and metamodel.
+- Check results of deterministic sensitivity analyses using original model and metamodel.  
+- Unit tests of data using `testthat`?  
+

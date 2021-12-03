@@ -118,7 +118,7 @@ plot_ceac <- function(df,
   require(reshape2)
   require(scales)
 
-  df_graph <- melt(data = df_ceac_p, id.vars = wtp)
+  df_graph <- melt(data = df, id.vars = wtp)
 
   p_out <- ggplot(data = df_graph, aes_string(x = wtp, y = "value", colour = "variable")) +
     geom_line() +
