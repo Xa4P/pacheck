@@ -74,9 +74,9 @@ p_2p <- vis_2_params(df = df_pa,
                      param_2 = "u_pd",
                      slope = 1,
                      check = "param_2 > param_1")
-
-p_2p_interact <- ggplotly(p_2p)
-p_2p_interact
+p_2p
+#p_2p_interact <- ggplotly(p_2p)
+#p_2p_interact
 ```
 
 ### c.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation.
