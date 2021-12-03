@@ -216,8 +216,6 @@ vis_2_params <- function(df,
   p_out
 }
 
-
-
 #' Fit distribution to parameter
 #'
 #' @description This function fits statistical distributions to a parameter.
@@ -284,4 +282,82 @@ fit_dist <- function(df,
 
   return(l_out)
 
+}
+
+
+#' Plot moving average
+#'
+#' @description This function plots the moving average of a outcome variable
+#'
+#' @param df a dataframe.
+#' @param outcome character string. Name of variable of the dataframe for which to plot the moving average.
+#' @param block_size numeric. Define the number of iterations at which the mean outcome has to be defined and plotted. NOT USED YET!
+#' @param conv_limit numeric. Define the convergence limit, under which the relative change between block of iterations should lie.  NOT USED YET!
+#'
+#' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). The arguments of the lists are "AIC" which contains the Akaike Information Criteria for each fitted distribution and "Dist_parameters" which contains the parameters of the fitted distributions.
+#'
+#' @return A list with two arguments
+#'
+#' @examples
+#' # Fitting normal and beta distribution to the "u_pfs" variable of the example dataframe.
+#' data(df_pa)
+#' fit_dist(df = df_pa,
+#'          param = "u_pfs",
+#'          dist = c("norm", "beta"))
+#'
+#' @export
+#'
+#'
+plot_convergence <- function(df,
+                             outcome,
+                             block_size = 500,
+                             conv_limit = 0.01) {
+  require(ggplot2)
+
+  l_output <- list()
+  v_output <- df[, outcome]
+
+  v_av_mov  <- unname(cumsum(v_output)/c(1:length(v_output))) # moving average
+  v_blocks <- seq(from = block_size, to = length(v_av_mov), by = block_size)
+  v_av_blocks <- v_av_mov[v_blocks] # average at each block
+
+  v_rel_diff_blocks <- abs(c(v_av_blocks[1], diff(v_av_blocks))/ v_av_blocks) # Check relative difference a block and the previous
+
+  v_conv_rel <- which(v_rel_diff_blocks < conv_limit)
+
+  l_output <- list(v_av_mov = v_av_mov,
+                   v_blocks = v_blocks,
+                   v_av_blocks = v_av_blocks,
+                   v_rel_diff_blocks = v_rel_diff_blocks,
+                   v_conv_rel = v_conv_rel)
+
+  # Dataframe for plotting the results
+  df_plot <- data.frame(
+    Iterations = c(1:length(l_output$v_av_mov)),
+    Res = l_output$v_av_mov
+  )
+  names(df_plot)[2] <- outcome
+
+  # Determine breaks for plot
+  v_breaks <- vector()
+  v_breaks[1] <- block_size
+  for (i in 2:length(l_output$v_av_mov)) {
+    v_breaks[i] <- v_breaks[i - 1] * 3
+
+    if(v_breaks[i] >= length(l_output$v_av_mov)) {
+      break
+    }
+  }
+  v_breaks[length(v_breaks)] <- length(l_output$v_av_mov)
+
+  # Plot
+  p_out <- ggplot(data = df_plot, aes_string(x = "log(Iterations)", y = outcome)) +
+    xlab("Iterations (log scale)") +
+    scale_x_continuous(breaks = log(v_breaks),
+                       labels = v_breaks) +
+    geom_line() +
+    theme_bw()
+
+
+  return(p_out)
 }
