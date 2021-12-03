@@ -64,10 +64,10 @@ generate_sum_stats <- function(df,
 #'
 #'
 vis_1_param <- function(df,
-                        param,
+                        param = "u_pfs",
                         binwidth = NULL,
                         type = "histogram",
-                        dist = c("norm", "beta", "gamma", "lnorm")) {
+                        dist = c("lnorm", "norm", "beta")) {
   require(ggplot2)
   require(fitdistrplus)
 
@@ -76,14 +76,16 @@ vis_1_param <- function(df,
   if("norm" %in% dist) {norm_dist <- fitdist(df[, param], distr = "norm")}
   if("lnorm" %in% dist) {lnorm_dist <- fitdist(df[, param], distr = "lnorm")}
 
-  v_dist <- c("Original", dist)
+  v_dist <- c("original", dist)
 
   df_legend <- data.frame(
-    dist_call = c("Original", "norm", "beta", "gamma", "lnorm"),
-    col = c("Original" = "black", "Normal" = "orange", "Beta" = "red", "Gamma" = "blue", "Lognormal" = "green")
+    dist_call = c("original", "norm", "beta", "gamma", "lnorm"),
+    col = c("black", "orange", "red", "blue", "green")
   )
 
+
   df_legend <- df_legend[which(df_legend$dist_call %in% v_dist),]
+  df_legend <- df_legend[order(df_legend$dist_call),]
 
   p <- ggplot(data = df, aes_string(x = param)) +
     theme_bw()
