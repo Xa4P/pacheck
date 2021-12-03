@@ -74,7 +74,7 @@ fit_lm_metamodel <- function(df,
 dsa_lm_metamodel <- function(df,
                              lm_metamodel){
 
-  df <- df[, names(lm_res$model)[2:length(names(lm_res$model))]]
+  df <- df[, names(lm_metamodel$model)[2:length(names(lm_metamodel$model))]]
 
   df_dsa <- data.frame(
     rbind(apply(df, 2, mean),
@@ -98,7 +98,7 @@ dsa_lm_metamodel <- function(df,
   for (i in 1:ncol(df_dsa)) {
     df_temp <- df_dsa[1,]
     df_temp[, i] <- df_dsa[2, i]
-    v_res <- predict(lm_res , df_temp,
+    v_res <- predict(lm_metamodel , df_temp,
                      interval = "confidence")
 
     m_low[i, ] <- c(names(df_dsa)[[i]], v_res)
@@ -107,7 +107,7 @@ dsa_lm_metamodel <- function(df,
   for (i in 1:ncol(df_dsa)) {
     df_temp <- df_dsa[1,]
     df_temp[, i] <- df_dsa[3, i]
-    v_res <- predict(lm_res , df_temp,
+    v_res <- predict(lm_metamodel , df_temp,
                      interval = "confidence")
 
     m_upp[i, ] <- c(names(df_dsa)[[i]], v_res)
@@ -166,14 +166,13 @@ plot_tornado <- function(df,
   #Draw tornado diagram
   ##SOURCE tornado diagram: https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given
 
-  df = df_res
-  df_basecase = df_pa
   require(ggplot2)
   require(scales)
+  require(tidyr)
 
   df$UL_Difference <- df$Upper_Bound - df$Lower_Bound
 
-  df <- df[, c("Parameter", "Lower_Bound", "Upper_Bound")]
+  df <- df[, c("Parameter", "Lower_Bound", "Upper_Bound", "UL_Difference")]
 
   df <- df[order(df$UL_Difference, decreasing = TRUE),] #order
   df <- head(df, 15) # select 15 most influential parameters

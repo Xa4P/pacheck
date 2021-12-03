@@ -109,11 +109,13 @@ p_3
 
 ### b.	Cost-effectiveness acceptability curve.
 ```{r ceac, echo = T}
-df_ceac <- calculate_ceac(df = df_pa,
+m_ceac <- calculate_ceac(df = df_pa,
                      e_int = "QALY_int",
                      e_comp = "QALY_comp",
                      c_int = "Costs_int",
                      c_comp = "Costs_comp")
+
+df_ceac <- as.data.frame(m_ceac)
 
 plot_ceac(df = df_ceac,
           wtp = "WTP_threshold")
