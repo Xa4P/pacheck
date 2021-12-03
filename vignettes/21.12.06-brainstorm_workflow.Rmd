@@ -1,0 +1,65 @@
+---
+title: "PACHBOARD"
+author: "X. Pouwels"
+date: "3-12-2021"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+---
+
+```{r setup, include = FALSE}
+library(pacheck)
+library(knitr)
+data(df_pa)
+```
+
+# Aim (grant application)
+The aim of this project is to develop a generic dashboard, e.g. a R shiny application to 1) inspect model inputs and outputs, 2) visualise the original inputs and outputs, 3) investigate the relationship between model inputs and outputs through metamodelling and data visualisation methods, 4) save the performed analyses.
+
+# Structure shiny app
+The envisoned R Shiny app will have the following tabs.
+I've developed some functions already to implement.
+Currently, I've only considered 2 strategies ("intervention" (`_in`) and "comparator" (`_comp`)).
+What is shown in this document is based on the probabilistic analysis of a (toy) 3-states Health state transition model (Progression-free (PF), Progressed disease(PD), Dead(D)) depicted in Figure 1. The intervention is only having an effect on the probability of progression, and incurs costs in the Progression-Free health state.
+
+## 1.	Upload of original health economic model inputs and outputs
+Content:
+
+- Welcome message
+- Instructions
+- Upload 1 file with inputs and outputs (or 2? inputs and outputs separately?)
+- Select variables representing total costs and effects for each strategy (to calculate increments and (incremental) net benefits)
+
+```{r calc_nb, echo = T}
+df_pa <- calculate_nb(df = df_pa,
+                      e_int = "QALY_int",
+                      e_comp = "QALY_comp",
+                      c_int = "Costs_int",
+                      c_comp = "Costs_comp",
+                      wtp = 80000)# calculate net benefits
+
+```
+
+## 2. Investigate model inputs and outputs
+### a.	Summary statistics of (user-selected) model inputs and outputs
+*To examine whether cost inputs are always positive for instance*
+
+```{r smmr, echo = T}
+df <- generate_sum_stats(df_pa)
+df
+```
+
+### b.	Histogram, density distribution of (user-selected) model inputs and outputs - done
+*To visually investigate the parameter distributions*
+
+#### Single parameter
+```{r dist_plot, echo = T}
+
+```
+
+
+
+# Other activities
+- Check results of deterministic sensitivity analyses using original model and metamodel.

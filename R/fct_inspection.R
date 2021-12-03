@@ -25,7 +25,7 @@ generate_sum_stats <- function(df,
     data.frame(df[, v_params])
   }
 
-  df_out <- data.frame(Parameter = if(length(v_params) == 1){v_params} else{ colnames(df) },
+  df_out <- data.frame(Parameter = if(length(v_params) == 1 & v_params!= "ALL") { v_params } else{ names(df) },
                            Mean = apply(df, 2, mean),
                            SD = apply(df, 2, sd),
                            Percentile_2.5th = apply(df, 2, function(x) quantile(x, 0.025)),
