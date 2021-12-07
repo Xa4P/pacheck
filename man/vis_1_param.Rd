@@ -6,10 +6,10 @@
 \usage{
 vis_1_param(
   df,
-  param,
+  param = "u_pfs",
   binwidth = NULL,
   type = "histogram",
-  dist = c("norm", "beta", "gamma", "lnorm")
+  dist = c("lnorm", "norm", "beta")
 )
 }
 \arguments{

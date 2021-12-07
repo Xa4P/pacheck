@@ -27,7 +27,7 @@ calculate_ceac(
 \item{v_wtp}{vector of numerical values. Vectors of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.}
 }
 \value{
-A ggplot graph.
+A dataframe.
 }
 \description{
 This function calculates the probabilities that each strategy is the most cost effective.

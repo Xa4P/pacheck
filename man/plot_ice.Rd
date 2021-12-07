@@ -22,8 +22,10 @@ A ggplot graph.
 This function plots the incremental cost-effectiveness plot.
 }
 \examples{
-Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
+# Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
 data(df_pa)
-plot_ice(df = df_pa, param_1 = "Inc_QALY", param_1 = "Inc_Costs")
+plot_ice(df = df_pa,
+         param_1 = "Inc_QALY",
+         param_2 = "Inc_Costs")
 
 }

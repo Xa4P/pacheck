@@ -21,7 +21,8 @@ data(df_pa)
 The aim of this project is to develop a generic dashboard, e.g. a R shiny application to 1) inspect model inputs and outputs, 2) visualise the original inputs and outputs, 3) investigate the relationship between model inputs and outputs through metamodelling and data visualisation methods, 4) save the performed analyses.
 
 # For info
-Package with supporting functions can be found here: https://github.com/Xa4P/pacheck.
+Package with supporting functions can be found here: https://github.com/Xa4P/pacheck.  
+This App should focus on validation of the health economic model (using the probabilistic inputs/ outputs).  
 
 # Structure shiny app
 The envisoned R Shiny app will have the following tabs.
@@ -57,7 +58,16 @@ kable(df)
 rm(df)
 ```
 
-### b.	Histogram, density distribution of (user-selected) model inputs and outputs
+### b.	Correlation matrix inputs (and outputs)
+Question Karel:  
+- kan dit met kleuren om de sterke van de associatie te onderbouwen?   
+- Add user selection voor welke variabel er (niet) in komt te staan  
+```{r corr, echo = T}
+generate_cor(df_pa)
+```
+
+
+### c.	Histogram, density distribution of (user-selected) model inputs and outputs
 *To visually investigate the parameter distributions*
 
 #### Single parameter
@@ -82,7 +92,10 @@ p_2p
 ```
 
 ### c.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation.
-*To cross check with parameters reported in documentation/report/ journal article, as an implementation check*
+*To cross check with parameters reported in documentation/report/ journal article, as an implementation check*  
+- To do XP: hier ook user-defined, originele distributie eraan toevoegen  
+- To do XP: Add deterministic value van de parameter  
+- To do XP: Add probabilistic mean value per distribution  
 ```{r dist_plot_2, echo = T}
 p_2 <- vis_1_param(df = df_pa,
             param = "u_pfs",
@@ -93,12 +106,10 @@ p_2
 ```
 
 ## 3.	Investigate model outputs
-### a.	Incremental cost-effectiveness plane
-***Questions:***  
-
-- ***Interactive plot? Possibility to select some outputs and see which probabilistic input parameters combination has led to these outputs***  
-- ***Plotting relative density as well as introduced [here](https://resource-allocation.biomedcentral.com/articles/10.1186/s12962-020-00251-7)?***  
-- ***Combination of incremental cost-effectiveness plane and histogram of the distribution of incremental costs and effects?***
+### a.	Incremental cost-effectiveness plane & summary
+Questions met Karel te bespreken:  
+- Interactive plot where you can click on a dot, or select some dots and see which input parameters combination has led to these outputs --> ook mogelijkheid om een bepaalde 'gebied' te selecteren (invoeren) en te zien welke inputs daarbij behoren.  
+- Combineren van de plot hierbeneden met de histogrammen van de waarden op de x en y as, of als niet overzichtelijk: met ticks op de axes als er een datapunt is.  
 
 ```{r dist_plot_2p, echo = T}
 p_3 <- plot_ice(df = df_pa,
@@ -108,21 +119,27 @@ p_3 <- plot_ice(df = df_pa,
 p_3
 p_3_interact <- ggplotly(p_3)
 p_3_interact
+
+summary_ice(df_pa,
+           "Inc_QALY",
+           "Inc_Costs")
 ```
+
+
+- Plot hierboven koppelen aan een graphs van 1 en 2 input parameters. Al gedaan in tentative shiny app voor onderwijs: selectie van punten in de 'input graph' wordt gehighlight in andere plot. Voorbeeld, laatste tabs van volgende shiny app: `shiny::runGitHub("Teaching", "Xa4P", subdir = "Basics/shiny_app_cea/", ref = "main")`.  
 
 
 ### b.	Cost-effectiveness acceptability curve.
 ```{r ceac, echo = T}
-m_ceac <- calculate_ceac(df = df_pa,
+df_ceac <- calculate_ceac(df = df_pa,
                      e_int = "QALY_int",
                      e_comp = "QALY_comp",
                      c_int = "Costs_int",
                      c_comp = "Costs_comp")
 
-df_ceac <- as.data.frame(m_ceac)
-
 plot_ceac(df = df_ceac,
           wtp = "WTP_threshold")
+df_ceac
 ```
 
 ### c.	Histogram and density distribution of total and incremental costs and effects.
@@ -134,8 +151,6 @@ plot_convergence(df = df_pa,
                  outcome = "iNMB"
                  )
 ```
-
-### e.	Question: EVPI? Expected net loss? It is in een package van de DARTH.
 
 ## 4.	Investigate relation between inputs and outputs
 ### Single
@@ -195,7 +210,9 @@ plot_tornado(df = df_dsa,
 # Other activities/ questions/ to do's
 - Add R^2^ statistic metamodel.  
 - Two-way sensitivity analysis based on metamodel.  
-- Include other functional forms of metamodels?  
-- Include predictions of outcome based on metamodels?  
-- Unit tests of data using `testthat`? (automatic check of costs are positive for instance, or utility values between 0-1).
+- Include other functional forms of metamodels  
+- Include predictions of outcome based on metamodels  
+- Unit tests of data using `testthat`? (automatic check of costs are positive for instance, or utility values between 0-1). XAVIER to check
 - Check results of deterministic sensitivity analyses using original model and metamodel.  
+- Add possibility of having multiple scenarios loaded.  
+- Shapley value, zou dat kunnen lukken? Zou het mogelijk zijn om dat op de originele data set te doen?   

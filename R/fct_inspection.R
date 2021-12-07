@@ -17,7 +17,7 @@
 #'
 
 generate_sum_stats <- function(df,
-                               v_params = "ALL"){ # doesn't work with 1 parameter!
+                               v_params = "ALL"){
 
   df <- if(v_params == "ALL") {
     df
@@ -40,6 +40,40 @@ generate_sum_stats <- function(df,
   return(df_out)
 
 }
+
+
+#' Generate correlation matrix
+#'
+#' @description This function generates the correlation matrix of input and output values of a probabilistic analysis.
+#'
+#' @param df a dataframe.
+#' @param v_params character or vector of character. Vector of names of the inputs and outputs for which to return the correlation matrix. Default is "ALL" which returns the correlation matrix for all inputs and outputs in the dataframe.
+#'
+#' @return A table with summary data for selected inputs and outputs.
+#'
+#' @examples
+#' # Generating summary data of all inputs using the example dataframe
+#' data(df_pa)
+#' generate_cor(df_pa)
+#'
+#' @export
+#'
+#'
+generate_cor <- function(df,
+                         v_params = "ALL"){ # doesn't work with 1 parameter!
+
+  df <- if(v_params == "ALL") {
+    df
+  } else {
+    data.frame(df[, v_params])
+  }
+
+  df_out <- cor(df)
+
+  return(df_out)
+
+}
+
 
 #' Visualise the distribution of a single parameter
 #'

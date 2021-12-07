@@ -10,9 +10,11 @@
 #' @return A ggplot graph.
 #'
 #' @examples
-#' Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
+#' # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
 #' data(df_pa)
-#' plot_ice(df = df_pa, param_1 = "Inc_QALY", param_1 = "Inc_Costs")
+#' plot_ice(df = df_pa,
+#'          param_1 = "Inc_QALY",
+#'          param_2 = "Inc_Costs")
 #'
 #' @export
 #'
@@ -39,6 +41,45 @@ plot_ice <- function(df,
   p_out
 }
 
+
+
+#' Summary statistics of the incremental cost-effectiveness plane.
+#'
+#' @description This function computes the probability that the probabilistic outcome is in each of the quadrant.
+#'
+#' @param df a dataframe.
+#' @param inc_e character string. Name of variable containing the incremental effects.
+#' @param inc_c character string. Name of variable containing the incremental costs
+#'
+#' @return A dataframe.
+#'
+#' @examples
+#' # Generating statistics of the incremental cost-effectiveness plane using the example data.
+#' data(df_pa)
+#' plot_ice(df = df_pa,
+#'          inc_e = "Inc_QALY",
+#'          inc_c = "Inc_Costs")
+#'
+#' @export
+#'
+#'
+summary_ice <- function(df,
+                        inc_e,
+                        inc_c) {
+
+  df_out <- data.frame(
+    Quadrant = c("NorthEast (more effective, more expensive)", "SouthEast (more effective, less expensive)",
+                 "NorthWest (less effective, more expensive)", "SouthWest (less effective, less expensive)"),
+    Percentage = c(paste(round(length(which(df[, inc_e] > 0 & df[, inc_c] > 0)) / nrow(df) * 100, 0), "%", sep = ""),
+                   paste(round(length(which(df[, inc_e] > 0 & df[, inc_c] < 0)) / nrow(df) * 100, 0), "%", sep = ""),
+                   paste(round(length(which(df[, inc_e] < 0 & df[, inc_c] > 0)) / nrow(df) * 100, 0), "%", sep = ""),
+                   paste(round(length(which(df[, inc_e] < 0 & df[, inc_c] < 0)) / nrow(df) * 100, 0), "%", sep = "")
+    )
+  )
+    return(df_out)
+
+  }
+
 #' Calculate cost-effectiveness probabilities.
 #'
 #' @description This function calculates the probabilities that each strategy is the most cost effective.
@@ -50,7 +91,7 @@ plot_ice <- function(df,
 #' @param c_comp character. Name of variable of the dataframe containing total costs of the comparator strategy.
 #' @param v_wtp vector of numerical values. Vectors of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.
 #'
-#' @return A ggplot graph.
+#' @return A dataframe.
 #'
 #' @examples
 #' # Calculate probabilities of cost effectiveness using the example dataframe, for willlingness-to-pay thresholds of 0 to 50,0000 euros.
@@ -83,8 +124,9 @@ calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from =
   }
 
   rownames(m_res) <- NULL
+  df_res <- as.data.frame(m_res)
 
-  return(m_res)
+  return(df_res)
 }
 
 #' Plot cost-effectiveness acceptability curves.
