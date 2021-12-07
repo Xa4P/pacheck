@@ -1,7 +1,7 @@
 ---
 title: "PACHBOARD"
 author: "X. Pouwels"
-date: "3-12-2021"
+date: "7-12-2021"
 output: 
   html_document:
     toc: true
@@ -29,6 +29,8 @@ The envisoned R Shiny app will have the following tabs.
 I've developed some functions already to implement.
 Currently, I've only considered 2 strategies ("intervention" (`_in`) and "comparator" (`_comp`)).
 What is shown in this document is based on the probabilistic analysis of a (toy) 3-states Health state transition model (Progression-free (PF), Progressed disease(PD), Dead(D)) depicted in Figure 1. The intervention is only having an effect on the probability of progression, and incurs costs in the Progression-Free health state.
+
+**Voor Karel**: elke cijfer is een aparte tab van de app.  
 
 ## 1.	Upload of original health economic model inputs and outputs
 Content:
@@ -61,7 +63,6 @@ rm(df)
 ### b.	Correlation matrix inputs (and outputs)
 Question Karel:  
 - kan dit met kleuren om de sterke van de associatie te onderbouwen?   
-- Add user selection voor welke variabel er (niet) in komt te staan  
 ```{r corr, echo = T}
 generate_cor(df_pa)
 ```
@@ -244,3 +245,5 @@ plot_tornado(df = df_dsa,
 - XP to do: Add possibility of having multiple scenarios loaded.  
 - XP to do: Add intermediaire outcomes.  
 - Shapley value, zou dat kunnen lukken? Zou het mogelijk zijn om dat op de originele data set te doen? **KernelExplainer** on this github: https://github.com/slundberg/shap. Of is dit iets? https://github.com/nredell/shapFlex, maar ziet eruit dat je ook een model moet fitten (niet model agnostic)  
+- Check whether violin plot have added value  
+- Karel, voor selectie variabelen voor de verschillende functies: gebruik van buttons? wat zou handig zijn?
