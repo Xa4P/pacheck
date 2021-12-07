@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_inspection.R
 \name{vis_2_params}
 \alias{vis_2_params}
-\title{Visualise the distribution of a two parameters}
+\title{Visualise the distribution of two parameters}
 \usage{
 vis_2_params(df, param_1, param_2, slope = NULL, check = NULL)
 }

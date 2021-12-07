@@ -84,8 +84,12 @@ generate_cor <- function(df,
 #' @param binwidth numeric. Determine the width of the bins to use, only applied in combination with "histogram". Default is 30 bins.
 #' @param type character. Determine which plot to return: "histogram" for a histogram, "density" for a density plot. Default is "histogram".
 #' @param dist character or vector of character. Determine which distribution to fit on the density plot.
+#' @param user_dist character string. User-defined distribution to fit. Default value is NULL.
+#' @param user_param_1 character string. First parameter of the user-defined distribution to fit.
+#' @param user_param_2 character string. Second parameter of the user-defined distribution to fit.
+#' @param user_mean numeric value. mean value to plot on the graph. Default is NULL
 #'
-#' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal)
+#' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). TO CHECK --> ask for mean and SD/SE for the user-defined distribution???
 #'
 #' @return A ggplot graph.
 #'
@@ -101,7 +105,11 @@ vis_1_param <- function(df,
                         param = "u_pfs",
                         binwidth = NULL,
                         type = "histogram",
-                        dist = c("lnorm", "norm", "beta")) {
+                        dist = c("lnorm", "norm", "beta"),
+                        user_dist = NULL,
+                        user_param_1 = NULL,
+                        user_param_2 = NULL,
+                        user_mean = NULL) {
   require(ggplot2)
   require(fitdistrplus)
 
@@ -110,15 +118,17 @@ vis_1_param <- function(df,
   if("norm" %in% dist) {norm_dist <- fitdist(df[, param], distr = "norm")}
   if("lnorm" %in% dist) {lnorm_dist <- fitdist(df[, param], distr = "lnorm")}
 
-  v_dist <- c("original", dist)
-
   df_legend <- data.frame(
-    dist_call = c("original", "norm", "beta", "gamma", "lnorm"),
+    dist_call = c("user", "norm", "beta", "gamma", "lnorm"),
     col = c("black", "orange", "red", "blue", "green")
   )
 
+  if(!is.null(user_dist)) {
+    dist <- c("user", dist)
+  }
 
-  df_legend <- df_legend[which(df_legend$dist_call %in% v_dist),]
+
+  df_legend <- df_legend[which(df_legend$dist_call %in% dist),]
   df_legend <- df_legend[order(df_legend$dist_call),]
 
   p <- ggplot(data = df, aes_string(x = param)) +
@@ -131,8 +141,7 @@ vis_1_param <- function(df,
     p_out <- p +
       geom_histogram(aes(y = ..density..),
                      colour = "grey",
-                     fill = "lightgrey") +
-      geom_density(aes(colour = "Original"))
+                     fill = "lightgrey")
 
     if("beta" %in% dist) {
       df_beta <- data.frame(
@@ -166,8 +175,8 @@ vis_1_param <- function(df,
       p_out <- p_out + geom_line(data = df_norm,
                                  aes(x = x,
                                      y = y,
-                                     colour = "Normal"),
-      )
+                                     colour = "Normal")
+                                 )
     }
 
     if("lnorm" %in% dist) {
@@ -178,8 +187,31 @@ vis_1_param <- function(df,
       p_out <- p_out + geom_line(data = df_lnorm,
                                  aes(x = x,
                                      y = y,
-                                     colour = "Lognormal"),
+                                     colour = "Lognormal")
+                                 )
+    }
+
+    if("user" %in% dist) {
+      df_user <- data.frame(
+        x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
+
+        if(user_dist == "norm") {
+          y <- dnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), user_param_1, user_param_2)
+        } else if(user_dist == "beta") {
+          y <- dbeta(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), user_param_1, user_param_2)
+        } else if(user_dist == "gamma") {
+          y <- dgamma(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), user_param_1, user_param_2)
+        } else if(user_dist == "lnorm") {
+          y <- dlnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), user_param_1, user_param_2)
+
+        }
       )
+
+      p_out <- p_out + geom_line(data = df_user,
+                                 aes(x = x,
+                                     y = y,
+                                     colour = "User")
+                                 )
     }
 
   }
@@ -189,10 +221,48 @@ vis_1_param <- function(df,
                         values = df_legend$col) +
     theme(legend.key = element_rect(fill = "lightgrey"))
 
+  if(!is.null(user_mean)) {
+    p_out <- p_out + geom_vline(xintercept = user_mean, lty = 3)
+  }
+
   p_out
 }
 
-#' Visualise the distribution of a two parameters
+#' Check range
+#'
+#' @description This function checks the probability that an input or output falls within a user-defined range.
+#'
+#' @param df a dataframe.
+#' @param outcome character string. Name of variable of the dataframe for which to plot the moving average.
+#' @param min_val numeric. Define the minimum value of the range.
+#' @param max_val numeric. Define the maximum value of the range.
+#'
+#' @return A numeric.
+#'
+#' @examples
+#' # Checking how often the "u_pfs" values falls within 0.55 and 0.72.
+#' data(df_pa)
+#' check_range(df = df_pa,
+#'             outcome = "u_pfs",
+#'             min_val = 0.55,
+#'             max_val = 0.72
+#'                  ))
+#'
+#' @export
+#'
+#'
+check_range <- function(df,
+                        outcome,
+                        min_val,
+                        max_val) {
+
+  n_out <- round(length(which(df[, outcome] >= min_val &
+                                df[, outcome] <= max_val)) / nrow(df) * 100, 0)
+
+  return(n_out)
+}
+
+#' Visualise the distribution of two parameters
 #'
 #' @description This function plots the distribution of two parameters in a scatterplot.
 #'

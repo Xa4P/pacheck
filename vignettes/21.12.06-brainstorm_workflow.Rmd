@@ -78,7 +78,15 @@ p_1 <- vis_1_param(df = df_pa,
             type = "histogram",
             dist = c("norm", "beta", "gamma", "lnorm"))
 p_1
+
+paste("Probability to be in user-defined range: ",
+      check_range(df_pa,
+                  outcome = "u_pfs",
+                  min_val = 0.77,
+                  max_val = 0.80
+                  ), "%") # add this to plot? + lines of min/ max on plot?
 ```
+
 
 
 ### Two parameters
@@ -91,18 +99,29 @@ p_2p <- vis_2_params(df = df_pa,
 p_2p
 ```
 
-### c.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation.
+### c.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation + parameters of the fitted distribution.
 *To cross check with parameters reported in documentation/report/ journal article, as an implementation check*  
-- To do XP: hier ook user-defined, originele distributie eraan toevoegen  
-- To do XP: Add deterministic value van de parameter  
 - To do XP: Add probabilistic mean value per distribution  
 ```{r dist_plot_2, echo = T}
 p_2 <- vis_1_param(df = df_pa,
             param = "u_pfs",
             binwidth = NULL,
             type = "density",
-            dist = c("norm", "beta", "gamma", "lnorm"))
+            dist = c("norm", "beta", "gamma", "lnorm"),
+            user_dist = "beta",
+            user_param_1 = 0.8,
+            user_param_2 = 0.2,
+            user_mean = 0.75)
 p_2
+```
+
+#### Distributions' parameters & statistical fit
+```{r fit_dists, echo = T}
+l_dist <- fit_dist(df = df_pa,
+                   param = "u_pfs",
+                   dist = c("norm", "beta", "gamma", "lnorm"))
+l_dist[[1]]
+l_dist[[2]]
 ```
 
 ## 3.	Investigate model outputs
@@ -153,7 +172,10 @@ plot_convergence(df = df_pa,
 ```
 
 ## 4.	Investigate relation between inputs and outputs
-### Single
+### Single  
+
+- To do XP: Add R^2^  
+
 ```{r fit_metamod_single, echo = T}
 lm_rr <- fit_lm_metamodel(df = df_pa,
                           x = "rr",
@@ -172,6 +194,9 @@ plot(lm_rr)
 ```
 
 ### Multiple
+
+- To do XP: Add R^2^  
+
 ```{r fit_metamod_mult, echo = T}
 lm_full <- fit_lm_metamodel(df = df_pa,
                           x = c("rr", "u_pfs", "u_pd", "c_pfs", "c_pd", "c_thx", "p_pfspd", "p_pfsd", "p_pdd"),
@@ -204,15 +229,18 @@ df_dsa <- dsa_lm_metamodel(df = df_pa,
 plot_tornado(df = df_dsa,
              df_basecase = df_pa,
              outcome = "iNMB")
-
 ```
 
+## 5. Add predictions based on metamodel  
+
+
+
 # Other activities/ questions/ to do's
-- Add R^2^ statistic metamodel.  
 - Two-way sensitivity analysis based on metamodel.  
 - Include other functional forms of metamodels  
 - Include predictions of outcome based on metamodels  
-- Unit tests of data using `testthat`? (automatic check of costs are positive for instance, or utility values between 0-1). XAVIER to check
+- Unit tests of data using `testthat`? (automatic check of costs are positive for instance, or utility values between 0-1, sum of transition probabilities not > 1). XAVIER to check whether it has added value to use package or just do it 'by hand'. Question to Karel: I neem aan dat het mogelijk is om groepen van variabelen te 'labellen' (dus alle kosten, utiliteiten, probabiliteiten) en dat de Shiny App het als 'groep' ziet?     
 - Check results of deterministic sensitivity analyses using original model and metamodel.  
-- Add possibility of having multiple scenarios loaded.  
-- Shapley value, zou dat kunnen lukken? Zou het mogelijk zijn om dat op de originele data set te doen?   
+- XP to do: Add possibility of having multiple scenarios loaded.  
+- XP to do: Add intermediaire outcomes.  
+- Shapley value, zou dat kunnen lukken? Zou het mogelijk zijn om dat op de originele data set te doen? **KernelExplainer** on this github: https://github.com/slundberg/shap. Of is dit iets? https://github.com/nredell/shapFlex, maar ziet eruit dat je ook een model moet fitten (niet model agnostic)  

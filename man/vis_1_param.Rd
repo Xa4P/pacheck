@@ -9,7 +9,11 @@ vis_1_param(
   param = "u_pfs",
   binwidth = NULL,
   type = "histogram",
-  dist = c("lnorm", "norm", "beta")
+  dist = c("lnorm", "norm", "beta"),
+  user_dist = NULL,
+  user_param_1 = NULL,
+  user_param_2 = NULL,
+  user_mean = NULL
 )
 }
 \arguments{
@@ -22,6 +26,14 @@ vis_1_param(
 \item{type}{character. Determine which plot to return: "histogram" for a histogram, "density" for a density plot. Default is "histogram".}
 
 \item{dist}{character or vector of character. Determine which distribution to fit on the density plot.}
+
+\item{user_dist}{character string. User-defined distribution to fit. Default value is NULL.}
+
+\item{user_param_1}{character string. First parameter of the user-defined distribution to fit.}
+
+\item{user_param_2}{character string. Second parameter of the user-defined distribution to fit.}
+
+\item{user_mean}{numeric value. mean value to plot on the graph. Default is NULL}
 }
 \value{
 A ggplot graph.
@@ -30,7 +42,7 @@ A ggplot graph.
 This function plots the distribution of a single parameter.
 }
 \details{
-The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal)
+The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). TO CHECK --> ask for mean and SD/SE for the user-defined distribution???
 }
 \examples{
 # Generating histogram using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
