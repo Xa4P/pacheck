@@ -465,3 +465,21 @@ plot_convergence <- function(df,
 
   return(p_out)
 }
+
+#' Check sum probabilities
+#'
+#' @description This function check whether the sum of user-defined probabilities is below or equal to one
+#'
+#' @param ... numeric vector.
+#' @param df a dataframe.
+#'
+#' @param digits numeric. Define the number of digits at which the mean outcome has to be defined and plotted. NOT USED YET!
+#'
+#' @return A ggplot graph.
+#'
+#' @examples
+#' # Checking the sum of the two probabilities
+#'
+#' @export
+#'
+#'
