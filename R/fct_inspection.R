@@ -265,7 +265,8 @@ check_range <- function(df,
 #' @param df a dataframe.
 #' @param param_1 character. Name of variable of the dataframe to be plotted on the x-axis.
 #' @param param_2 character. Name of variable of the dataframe to be plotted on the y-axis.
-#' @param slope numeric. Default is NULL. If different than 0, plots a linear line with intercept 0 and the defined slope.
+#' @param slope numeric. Default is NULL. If different than 0, plots a linear line with a user-defined intercept and the defined slope.
+#' @param intercept numeric. Default is 0. Intercept of the user-defined slope.
 #' @param check character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.
 #'
 #' @return A ggplot graph.
@@ -282,6 +283,7 @@ vis_2_params <- function(df,
                          param_1,
                          param_2,
                          slope = NULL,
+                         intercept = 0,
                          check = NULL) {
   require(ggplot2)
 
@@ -289,7 +291,7 @@ vis_2_params <- function(df,
     theme_bw()
 
   if(!is.null(slope)) {
-    p <- p + geom_abline(intercept = 0, slope = slope, lty = 2, colour = "orange")
+    p <- p + geom_abline(intercept = intercept, slope = slope, lty = 2, colour = "orange")
   }
 
   if(!is.null(check)) {

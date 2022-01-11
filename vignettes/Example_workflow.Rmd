@@ -258,7 +258,6 @@ plot_tornado(df = df_dsa,
 - Two-way sensitivity analysis based on metamodel.  
 - Include other functional forms of metamodels  
 - Include predictions of outcome based on metamodels  
-
 - Check results of deterministic sensitivity analyses using original model and metamodel.  
 - XP to do: Add possibility of having multiple scenarios loaded.  
 - Shapley values, zou dat kunnen ? Zou het mogelijk zijn om dat op de originele data set te doen? **KernelExplainer** on this github: https://github.com/slundberg/shap. Of is dit iets? https://github.com/nredell/shapFlex, maar ziet eruit dat je ook een model moet fitten (niet model agnostic)  

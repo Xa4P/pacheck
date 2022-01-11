@@ -4,7 +4,7 @@
 \alias{vis_2_params}
 \title{Visualise the distribution of two parameters}
 \usage{
-vis_2_params(df, param_1, param_2, slope = NULL, check = NULL)
+vis_2_params(df, param_1, param_2, slope = NULL, intercept = 0, check = NULL)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -13,7 +13,9 @@ vis_2_params(df, param_1, param_2, slope = NULL, check = NULL)
 
 \item{param_2}{character. Name of variable of the dataframe to be plotted on the y-axis.}
 
-\item{slope}{numeric. Default is NULL. If different than 0, plots a linear line with intercept 0 and the defined slope.}
+\item{slope}{numeric. Default is NULL. If different than 0, plots a linear line with a user-defined intercept and the defined slope.}
+
+\item{intercept}{numeric. Default is 0. Intercept of the user-defined slope.}
 
 \item{check}{character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.}
 }
