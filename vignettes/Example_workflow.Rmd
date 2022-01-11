@@ -1,12 +1,8 @@
 ---
 title: "PACHBOARD"
 author: "X. Pouwels"
-date: "7-12-2021"
-output: 
-  html_document:
-    toc: true
-    toc_float: true
-    toc_depth: 3
+date: "`r paste(Sys.Date())`"
+output: github_document
 ---
 
 ```{r setup, include = FALSE}
@@ -15,6 +11,7 @@ library(knitr)
 library(plotly)
 library(ggplot2)
 data(df_pa)
+Sys.Date()
 ```
 
 # Aim (grant application)
@@ -67,8 +64,14 @@ Question Karel:
 generate_cor(df_pa)
 ```
 
+### c. Inspect sum probability
+*To check whether the sum is lower than or equal to, or equal to 1* 
 
-### c.	Histogram, density distribution of (user-selected) model inputs and outputs
+```{r dist_plot, echo = T}
+check_sum_probs("p_pfspd", "p_pfsd", df = df_pa, check = "lower") # output is a text
+```
+
+### d.	Histogram, density distribution of (user-selected) model inputs and outputs
 *To visually investigate the parameter distributions*
 
 #### Single parameter
@@ -88,8 +91,6 @@ paste("Probability to be in user-defined range: ",
                   ), "%") # add this to plot? + lines of min/ max on plot?
 ```
 
-
-
 ### Two parameters
 ```{r vis_2_pars, wcho = T}
 p_2p <- vis_2_params(df = df_pa,
@@ -100,7 +101,7 @@ p_2p <- vis_2_params(df = df_pa,
 p_2p
 ```
 
-### c.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation + parameters of the fitted distribution.
+### e.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation + parameters of the fitted distribution.
 *To cross check with parameters reported in documentation/report/ journal article, as an implementation check*  
 - To do XP: Add probabilistic mean value per distribution  
 ```{r dist_plot_2, echo = T}

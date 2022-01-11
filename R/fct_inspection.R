@@ -476,7 +476,7 @@ plot_convergence <- function(df,
 #' @param check logical. Define which check to perform."lower" checks whether the sum of the selected variables is lower than or equal to 1 for each iteration. "equal" checks whether the sum of the selected variables is equal to 1 for each iteration. Default is "lower".
 #' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 100.
 #'
-#' @return A character string.
+#' @return A text.
 #'
 #' @examples
 #' # Checking whether the sum of the two probabilities is lower than or equal to 1
@@ -485,10 +485,6 @@ plot_convergence <- function(df,
 #' # Checking the sum of the two probabilities equals 1 using a vector to select them,
 #' # Rounding off to two digits, and extending the number of iterations to display to 250.
 #' check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
-#'
-#' @export
-#'
-#'
 check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 100){
 
   l_vars <- list(...)

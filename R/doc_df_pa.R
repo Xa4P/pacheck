@@ -3,7 +3,7 @@
 #' A dataframe containing 10,000 iterations of a probabilistic analysis.
 #'
 #'
-#' @format A dataframe with 10,000 rows, each row being an input or output of a single probabilistic iteration, and 35 variables:
+#' @format A dataframe with 10,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 35 variables:
 #' \describe{
 #'   \item{p_pfspd}{Probability to transit from the progression-free survival (PFS) to progressed disease (PD) health state}
 #'   \item{p_pfsd}{Probability to transit from the PFS to Death (D) health state}
