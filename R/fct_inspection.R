@@ -468,18 +468,54 @@ plot_convergence <- function(df,
 
 #' Check sum probabilities
 #'
-#' @description This function check whether the sum of user-defined probabilities is below or equal to one
+#' @description This function check whether the sum of user-defined probabilities is below or equal to 1
 #'
-#' @param ... numeric vector.
+#' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
+#' @param digits numeric. Define the number of digits at which the sum of probabilities is rounded
+#' @param check logical. Define which check to perform."lower" checks whether the sum of the selected variables is lower than or equal to 1 for each iteration. "equal" checks whether the sum of the selected variables is equal to 1 for each iteration. Default is "lower".
+#' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 100.
 #'
-#' @param digits numeric. Define the number of digits at which the mean outcome has to be defined and plotted. NOT USED YET!
-#'
-#' @return A ggplot graph.
+#' @return A character string.
 #'
 #' @examples
-#' # Checking the sum of the two probabilities
+#' # Checking whether the sum of the two probabilities is lower than or equal to 1
+#' check_sum_probs("p_pfspd", "p_pfsd", df = df_pa, check = "lower")
+#'
+#' # Checking the sum of the two probabilities equals 1 using a vector to select them,
+#' # Rounding off to two digits, and extending the number of iterations to display to 250.
+#' check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
 #'
 #' @export
 #'
 #'
+check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 100){
+
+  l_vars <- list(...)
+  v_vars <- unlist(l_vars, use.names = FALSE)
+  v_calc <- rowSums(df[, as.character(v_vars)])
+
+  if(!is.null(digits)) {
+    v_calc <- v_calc <- round(v_calc, digits)
+  }
+
+  if(check == "lower") {
+
+    v_id_higher <- which(v_calc > 1)
+    if(length(v_id_higher) > 0) {
+      return(paste("The sum of probabilities is higher than 1 in the following iterations:", paste(v_id_higher[1:max_view], collapse = ", ")))
+    } else {
+      return("The sum of probabilities in all iterations is lower or equal to 1")
+    }
+
+  } else if(check == "equal") {
+
+    v_id_diff <- which(v_calc != 1)
+    if(length(v_id_diff) > 0) {
+      return(paste("The sum of probabilities is different than 1 in the following iterations:", paste(v_id_diff[1:max_view], collapse = ", ")))
+    } else {
+      return("The sum of probabilities in all iterations is equal to 1")
+    }
+  }
+
+}
