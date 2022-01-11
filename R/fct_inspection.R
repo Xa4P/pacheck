@@ -12,10 +12,6 @@
 #' data(df_pa)
 #' df_summary <- generate_sum_stats(df_pa)
 #'
-#' @export
-#'
-#'
-
 generate_sum_stats <- function(df,
                                v_params = "ALL"){
 
@@ -409,9 +405,6 @@ fit_dist <- function(df,
 #'                  outcome = "Inc_QALY"
 #'                  ))
 #'
-#' @export
-#'
-#'
 plot_convergence <- function(df,
                              outcome,
                              block_size = 500,
@@ -468,7 +461,7 @@ plot_convergence <- function(df,
 
 #' Check sum probabilities
 #'
-#' @description This function check whether the sum of user-defined probabilities is below or equal to 1
+#' @description This function checks whether the sum of user-defined probabilities is below or equal to 1
 #'
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
@@ -485,6 +478,7 @@ plot_convergence <- function(df,
 #' # Checking the sum of the two probabilities equals 1 using a vector to select them,
 #' # Rounding off to two digits, and extending the number of iterations to display to 250.
 #' check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
+#'
 check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 100){
 
   l_vars <- list(...)
@@ -517,9 +511,32 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 }
 
 
+#' Check costs
+#'
+#' @description This function checks whether variables are strictly positive (for instance for costs inputs)
+#'
+#' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
+#' @param df a dataframe.
+#' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 50.
+#'
+#' @return A dataframe.
+#'
+#' @examples
+#' # Checking whether a variable is strictly positive
+#' check_costs("c_pfs", df = df_pa)
+#'
+#' # Checking whether two variables are strictly positive
+#' # Descreasing the number of iterations to display to 20.
+#' check_costs("c_pfs", "c_pd", df = df_pa)
+#'
 check_costs <- function(..., df, max_view = 50){
 
-  require(stringi)
+  if (!requireNamespace("stringi", quietly = TRUE)) {
+    stop(
+      "Package \"stringi\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
 
@@ -557,9 +574,33 @@ check_costs <- function(..., df, max_view = 50){
 }
 
 
-check_utilities <- function(..., df, max_view = 50){
+#' Check binary
+#'
+#' @description This function checks whether the value of variables remain between 0 and 1 (for instance for utility and probability inputs)
+#'
+#' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
+#' @param df a dataframe.
+#' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 50.
+#'
+#' @return A dataframe.
+#'
+#' @examples
+#' # Checking whether a variable is strictly positive
+#' check_binary("u_pfs", df = df_pa)
+#'
+#' # Checking whether two variables are strictly positive
+#' # Descreasing the number of iterations to display to 20.
+#' check_binary("u_pfs", "p_pfspd", df = df_pa)
+#'
+check_binary <- function(..., df, max_view = 50){
 
-  require(stringi)
+  if (!requireNamespace("stringi", quietly = TRUE)) {
+    stop(
+      "Package \"stringi\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
 
