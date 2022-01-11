@@ -16,9 +16,6 @@
 #'          param_1 = "Inc_QALY",
 #'          param_2 = "Inc_Costs")
 #'
-#' @export
-#'
-#'
 plot_ice <- function(df,
                      param_1,
                      param_2,
@@ -37,17 +34,17 @@ plot_ice <- function(df,
     )
   }
 
-  p_out <- ggplot(data = df, aes_string(x = param_1, y = param_2)) +
-    geom_point(shape = 1, colour = "grey") +
-    geom_hline(yintercept = 0) +
-    geom_vline(xintercept = 0) +
-    xlab ("Incremental Effects") +
-    ylab("Incremental Costs") +
-    scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
-    theme_bw()
+  p_out <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
+    ggplot2::geom_point(shape = 1, colour = "grey") +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::xlab ("Incremental Effects") +
+    ggplot2::ylab("Incremental Costs") +
+    ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
+    ggplot2::theme_bw()
 
 
-  if(!is.null(wtp)) {p_out <- p_out + geom_abline(intercept = 0, slope = wtp, lty = 2, colour = "blue")}
+  if(!is.null(wtp)) {p_out <- p_out + ggplot2::geom_abline(intercept = 0, slope = wtp, lty = 2, colour = "blue")}
 
   p_out
 }
