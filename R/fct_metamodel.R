@@ -168,7 +168,7 @@ plot_tornado <- function(df,
 
   require(ggplot2)
   require(scales)
-  require(tidyverse)
+  require(tidyverse) # is this twice the same with "ggplot2"?
 
   df$UL_Difference <- df$Upper_Bound - df$Lower_Bound
 

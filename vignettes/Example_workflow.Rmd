@@ -2,7 +2,11 @@
 title: "PACHBOARD"
 author: "X. Pouwels"
 date: "`r paste(Sys.Date())`"
-output: github_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
 ---
 
 ```{r setup, include = FALSE}
@@ -11,7 +15,6 @@ library(knitr)
 library(plotly)
 library(ggplot2)
 data(df_pa)
-Sys.Date()
 ```
 
 # Aim (grant application)
@@ -27,7 +30,7 @@ I've developed some functions already to implement.
 Currently, I've only considered 2 strategies ("intervention" (`_in`) and "comparator" (`_comp`)).
 What is shown in this document is based on the probabilistic analysis of a (toy) 3-states Health state transition model (Progression-free (PF), Progressed disease(PD), Dead(D)) depicted in Figure 1. The intervention is only having an effect on the probability of progression, and incurs costs in the Progression-Free health state.
 
-**Voor Karel**: elke cijfer is een aparte tab van de app.  
+**Karel**: elke cijfer is een aparte tab van de app.  
 
 ## 1.	Upload of original health economic model inputs and outputs
 Content:
@@ -67,7 +70,7 @@ generate_cor(df_pa)
 ### c. Inspect sum probability
 *To check whether the sum is lower than or equal to, or equal to 1* 
 
-```{r dist_plot, echo = T}
+```{r check_sum, echo = T}
 check_sum_probs("p_pfspd", "p_pfsd", df = df_pa, check = "lower") # output is a text
 ```
 
@@ -244,7 +247,6 @@ plot_tornado(df = df_dsa,
 - Unit tests of data using `testthat`? (automatic check of costs are positive for instance, or utility values between 0-1, sum of transition probabilities not > 1). XAVIER to check whether it has added value to use package or just do it 'by hand'. Question to Karel: I neem aan dat het mogelijk is om groepen van variabelen te 'labellen' (dus alle kosten, utiliteiten, probabiliteiten) en dat de Shiny App het als 'groep' ziet?     
 - Check results of deterministic sensitivity analyses using original model and metamodel.  
 - XP to do: Add possibility of having multiple scenarios loaded.  
-- XP to do: Add intermediaire outcomes.  
 - Shapley value, zou dat kunnen lukken? Zou het mogelijk zijn om dat op de originele data set te doen? **KernelExplainer** on this github: https://github.com/slundberg/shap. Of is dit iets? https://github.com/nredell/shapFlex, maar ziet eruit dat je ook een model moet fitten (niet model agnostic)  
 - Check whether violin plot have added value  
 - Karel, voor selectie variabelen voor de verschillende functies: gebruik van buttons? wat zou handig zijn?
