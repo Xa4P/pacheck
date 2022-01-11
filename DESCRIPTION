@@ -2,7 +2,7 @@ Package: pacheck
 Type: Package
 Title: Probabilistic Analysis Check Package
 Version: 0.1.0
-Author@R: c(person(given = "Xavier",
+Author: c(person(given = "Xavier",
              family = "Pouwels",
              role = c("aut", "cre"),
              email = "x.g.l.v.pouwels@utwente.nl"))
