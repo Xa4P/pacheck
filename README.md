@@ -1,1 +1,21 @@
-The `pacheck` package provides easy-to-use functions to investigate, analytically and visually, the results of probabilistic results from health economic models.    
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# pacheck
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+The goal of pacheck is to provide a suite of functions to investigate
+the probabilistic analysis results of a health economic model.
+
+## Installation
+
+You can install the development version from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("Xa4P/pacheck")
+```
