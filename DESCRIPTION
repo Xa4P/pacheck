@@ -2,14 +2,12 @@ Package: pacheck
 Type: Package
 Title: Probabilistic Analysis Check Package
 Version: 0.1.0
-Author: c(person(given = "Xavier",
+Author@: c(person(given = "Xavier",
              family = "Pouwels",
              role = c("aut", "cre"),
              email = "x.g.l.v.pouwels@utwente.nl"))
-Maintainer: c(person(given = "Xavier",
-             family = "Pouwels",
-             role = c("aut", "cre"),
-             email = "x.g.l.v.pouwels@utwente.nl"))
+Author: Xavier G.L.V. Pouwels [aut, cre]
+Maintainer: Xavier G.L.V. Pouwels <x.g.l.v.pouwels@utwente.nl>
 Description: This package contains a suite of functions to investigate (analytically or visually) the inputs and outputs of probabilistic analyses of health economic models. The package makes use of standard health economic visualisation and metamodelling methods.    
 License: GNU GPLv3
 Encoding: UTF-8
