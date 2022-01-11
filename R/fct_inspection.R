@@ -511,9 +511,9 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 }
 
 
-#' Check costs
+#' Check whether variable is strictly positive
 #'
-#' @description This function checks whether variables are strictly positive (for instance for costs inputs)
+#' @description This function checks whether variables are strictly positive (for instance for costs and relative risks inputs)
 #'
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
@@ -523,13 +523,13 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 #'
 #' @examples
 #' # Checking whether a variable is strictly positive
-#' check_costs("c_pfs", df = df_pa)
+#' check_positive("c_pfs", df = df_pa)
 #'
 #' # Checking whether two variables are strictly positive
 #' # Descreasing the number of iterations to display to 20.
-#' check_costs("c_pfs", "c_pd", df = df_pa)
+#' check_positive("c_pfs", "c_pd", df = df_pa)
 #'
-check_costs <- function(..., df, max_view = 50){
+check_positive <- function(..., df, max_view = 50){
 
   if (!requireNamespace("stringi", quietly = TRUE)) {
     stop(
