@@ -18,7 +18,7 @@ check_sum_probs(..., df, digits = NULL, check = "lower", max_view = 100)
 \item{max_view}{numeric. Determines the number of iterations to display which do not fulfil the check. Default is 100.}
 }
 \value{
-A character string.
+A text.
 }
 \description{
 This function check whether the sum of user-defined probabilities is below or equal to 1
@@ -30,5 +30,4 @@ check_sum_probs("p_pfspd", "p_pfsd", df = df_pa, check = "lower")
 # Checking the sum of the two probabilities equals 1 using a vector to select them,
 # Rounding off to two digits, and extending the number of iterations to display to 250.
 check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
-
 }

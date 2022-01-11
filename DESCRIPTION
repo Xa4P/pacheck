@@ -15,7 +15,8 @@ Imports:
     ggplot2,
     magrittr,
     reshape2,
-    scales
+    scales,
+    stringi
 Suggests: 
     testthat (>= 3.0.0)
 Author@: c(person(given = "Xavier", family = "Pouwels", role = c("aut",

@@ -23,8 +23,19 @@ plot_ice <- function(df,
                      param_1,
                      param_2,
                      wtp = NULL) {
-  require(ggplot2)
-  require(scales)
+
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop(
+      "Package \"ggplot2\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+  if (!requireNamespace("scales", quietly = TRUE)) {
+    stop(
+      "Package \"scales\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
 
   p_out <- ggplot(data = df, aes_string(x = param_1, y = param_2)) +
     geom_point(shape = 1, colour = "grey") +
@@ -32,7 +43,7 @@ plot_ice <- function(df,
     geom_vline(xintercept = 0) +
     xlab ("Incremental Effects") +
     ylab("Incremental Costs") +
-    scale_y_continuous(labels = dollar_format(prefix = "\u20ac ", suffix = "")) +
+    scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
     theme_bw()
 
 

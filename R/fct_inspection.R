@@ -515,3 +515,110 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
   }
 
 }
+
+
+check_costs <- function(..., df, max_view = 50){
+
+  require(stringi)
+  l_vars <- list(...)
+  v_vars <- unlist(l_vars, use.names = FALSE)
+
+  # Create list of negative values per input, or a single list when only 1 input is selected
+  list_neg <- if(length(v_vars) > 1){
+    lapply(df[, v_vars], function(x) which(x < 0))
+  } else {
+    list(which(df[, v_vars] < 0))
+  }
+
+  m_neg <- stringi::stri_list2matrix(list_neg, byrow = TRUE)
+  n_col <- ifelse(ncol(m_neg) < max_view, ncol(m_neg), max_view)
+  m_neg <- if(n_col == 0) {
+    "None"} else {
+      m_neg[, c(1:n_col)]
+    }
+
+  v_neg <- if(length(v_vars) > 1 & n_col > 0){
+    apply(m_neg, 1, function(x) paste(x, collapse = ","))
+  } else if(length(v_vars) == 1 & n_col > 0){
+    paste(m_neg, collapse = ",")
+  } else {
+    rep("None", length(v_vars))
+  }
+
+  v_neg <- gsub(",NA", "", v_neg)
+  v_neg <- gsub("NA", "None", v_neg)
+  v_neg <- gsub(",", ", ", v_neg)
+
+  df_res <- data.frame(
+    Input = v_vars,
+    Negative_values = v_neg
+  )
+  return(df_res)
+}
+
+
+check_utilities <- function(..., df, max_view = 50){
+
+  require(stringi)
+  l_vars <- list(...)
+  v_vars <- unlist(l_vars, use.names = FALSE)
+
+  # Create list of negative values per input, or a single list when only 1 input is selected
+  list_neg <- if(length(v_vars) > 1){
+    lapply(df[, v_vars], function(x) which(x < 0))
+  } else {
+    list(which(df[, v_vars] < 0))
+  }
+
+  m_neg <- stringi::stri_list2matrix(list_neg, byrow = TRUE)
+  n_col <- ifelse(ncol(m_neg) < max_view, ncol(m_neg), max_view)
+  m_neg <- if(n_col == 0) {
+    "None"} else {
+      m_neg[, c(1:n_col)]
+    }
+
+  v_neg <- if(length(v_vars) > 1 & n_col > 0){
+    apply(m_neg, 1, function(x) paste(x, collapse = ","))
+  } else if(length(v_vars) == 1 & n_col > 0){
+    paste(m_neg, collapse = ",")
+  } else {
+    rep("None", length(v_vars))
+  }
+
+  v_neg <- gsub(",NA", "", v_neg)
+  v_neg <- gsub("NA", "None", v_neg)
+  v_neg <- gsub(",", ", ", v_neg)
+
+  # Create list of negative values per input, or a single list when only 1 input is selected
+  list_high <- if(length(v_vars) > 1){
+    lapply(df[, v_vars], function(x) which(x > 1))
+  } else {
+    list(which(df[, v_vars] > 1))
+  }
+
+  m_high <- stringi::stri_list2matrix(list_high, byrow = TRUE)
+  n_col  <- ifelse(ncol(m_high) < max_view, ncol(m_high), max_view)
+  m_high <- if(n_col == 0) {
+    "None"} else {
+      m_high[, c(1:n_col)]
+    }
+
+  v_high <- if(length(v_vars) > 1 & n_col > 0){
+    apply(m_high, 1, function(x) paste(x, collapse = ","))
+  } else if(length(v_vars) == 1 & n_col > 0){
+    paste(m_high, collapse = ",")
+  } else {
+    rep("None", length(v_vars))
+  }
+
+  v_high <- gsub(",NA", "", v_high)
+  v_high <- gsub("NA", "None", v_high)
+  v_high <- gsub(",", ", ", v_high)
+
+  df_res <- data.frame(
+    Input = v_vars,
+    Negative_values = v_neg,
+    Values_above_1 = v_high
+  )
+  return(df_res)
+}
