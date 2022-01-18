@@ -77,7 +77,7 @@ check_positive("c_pfs", "c_pd", df = df_pa)
 
 #### Variables between 0-1
 *Are these variables strictly positive?* 
-```{r check_positive, echo = T}
+```{r check_positive2, echo = T}
 check_binary("u_pfs", "p_pfspd", df = df_pa)
 ```
 
