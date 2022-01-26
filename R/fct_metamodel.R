@@ -46,6 +46,60 @@ fit_lm_metamodel <- function(df,
   return(lm_out)
 }
 
+#' Predict using linear metamodel
+#'
+#' @description This function computes a result using a pre-defined linear metamodel, and user-defined inputs to make the prediction.
+#'
+#' @param lm_metamodel a lm object. This object should use variables defined in `df`.
+#' @param inputs a numeric value or vector of numeric values. These inputs value will be used for the prediction using the metamodel.
+#'
+#' @return A dataframe with the results of deterministic sensitivity analyses performed using parameter values of the linear metamodel. The dataframe contains the results using the lower and upper bound of the 95% Confidence Interval of the probabilistic parameters.
+#'
+#' @details The number of element of `inputs` should equal the number of predictors included in `lm_metamodel`.
+#'
+#' @examples
+#' # Fitting meta modelwith two variables using the summary data
+#' data(df_pa)
+#' lm_res <- fit_lm_metamodel(df = df_pa,
+#'                  y = "Inc_QALY",
+#'                  x = c("p_pfsd", "p_pdd")
+#'                  )
+#'
+#' # Predicting using this metamodel
+#' predict_lm_metamodel(lm_metamodel = lm_res,
+#'                      inputs = c(0.75, 0.2)
+#'                      )
+#'
+predict_lm_metamodel <- function(lm_metamodel,
+                                 inputs){
+
+  if (!requireNamespace("stats", quietly = TRUE)) {
+    stop(
+      "Package \"stats\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
+  v_names <- names(lm_metamodel$coefficients[c(2:length(lm_metamodel$coefficients))])
+
+  if(length(inputs) < length(v_names)) {
+    stop("Number of inputs is lower than number of coefficients of the metamodel.")
+  }
+
+  if(length(inputs) > length(v_names)) {
+    stop("Number of inputs is higher than number of coefficients of the metamodel.")
+  }
+
+  newdata <- data.frame(t(inputs))
+  names(newdata) <- v_names
+
+  pred <- stats::predict.lm(mod, newdata = newdata)
+  names(pred) <- "prediction"
+
+  df_out <- cbind(newdata, t(pred))
+  return(df_out)
+}
+
 #' Perform DSA using linear metamodel
 #'
 #' @description This function performs deterministic sensitivity analyses (DSA) using the results of a linear metamodel.
@@ -163,7 +217,7 @@ plot_tornado <- function(df,
                          df_basecase,
                          outcome) {
 
-  #Draw tornado diagram
+  # Draw tornado diagram
   ##SOURCE tornado diagram: https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given
 
   require(ggplot2)
