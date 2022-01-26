@@ -6,6 +6,7 @@
 #' @param param_1 character. Name of variable of the dataframe to be plotted on the x-axis.
 #' @param param_2 character. Name of variable of the dataframe to be plotted on the y-axis.
 #' @param wtp numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.
+#' @param col character. Name of variable of the dataframe to use to colour the plotted dots. Default is NULL which results in grey dots.
 #'
 #' @return A ggplot graph.
 #'
@@ -19,6 +20,7 @@
 plot_ice <- function(df,
                      param_1,
                      param_2,
+                     col = NULL,
                      wtp = NULL) {
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
@@ -34,12 +36,14 @@ plot_ice <- function(df,
     )
   }
 
-  p_out <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
-    ggplot2::geom_point(shape = 1, colour = "grey") +
+  col <- ifelse(is.null(col), "grey", col)
+
+  p_out <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2, colour = col)) +
+    ggplot2::geom_point(shape = 1) +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::geom_vline(xintercept = 0) +
-    ggplot2::xlab ("Incremental Effects") +
-    ggplot2::ylab("Incremental Costs") +
+    ggplot2::xlab ("Incremental effects") +
+    ggplot2::ylab("Incremental costs") +
     ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
     ggplot2::theme_bw()
 
@@ -48,8 +52,6 @@ plot_ice <- function(df,
 
   p_out
 }
-
-
 
 #' Summary statistics of the incremental cost-effectiveness plane.
 #'
