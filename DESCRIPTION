@@ -16,6 +16,7 @@ Imports:
     magrittr,
     reshape2,
     scales,
+    stats,
     stringi
 Suggests: 
     testthat (>= 3.0.0)
