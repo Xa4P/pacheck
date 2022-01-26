@@ -4,7 +4,7 @@
 \alias{plot_ice}
 \title{Plotting the incremental cost-effectiveness plane.}
 \usage{
-plot_ice(df, param_1, param_2, wtp = NULL)
+plot_ice(df, param_1, param_2, col = NULL, wtp = NULL)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -12,6 +12,8 @@ plot_ice(df, param_1, param_2, wtp = NULL)
 \item{param_1}{character. Name of variable of the dataframe to be plotted on the x-axis.}
 
 \item{param_2}{character. Name of variable of the dataframe to be plotted on the y-axis.}
+
+\item{col}{character. Name of variable of the dataframe to use to colour the plotted dots. Default is NULL which results in grey dots.}
 
 \item{wtp}{numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.}
 }
