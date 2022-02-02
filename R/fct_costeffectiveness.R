@@ -5,8 +5,9 @@
 #' @param df a dataframe.
 #' @param param_1 character. Name of variable of the dataframe to be plotted on the x-axis.
 #' @param param_2 character. Name of variable of the dataframe to be plotted on the y-axis.
+#' @param col character. Name of variable of the dataframe to use to colour (in blue) the plotted dots. Default is NULL which results in grey dots.
+#' @param n_it (vector of) numeric value(s). Designate which iteration should be coloured in the colour red.
 #' @param wtp numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.
-#' @param col character. Name of variable of the dataframe to use to colour the plotted dots. Default is NULL which results in grey dots.
 #'
 #' @return A ggplot graph.
 #'
@@ -14,13 +15,14 @@
 #' # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
 #' data(df_pa)
 #' plot_ice(df = df_pa,
-#'          param_1 = "Inc_QALY",
-#'          param_2 = "Inc_Costs")
+#'          param_1 = "inc_qaly",
+#'          param_2 = "inc_costs")
 #'
 plot_ice <- function(df,
                      param_1,
                      param_2,
                      col = NULL,
+                     n_it = NULL,
                      wtp = NULL) {
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
@@ -36,19 +38,29 @@ plot_ice <- function(df,
     )
   }
 
-  col <- ifelse(is.null(col), "grey", col)
+  p_out <- if(is.null(col)){
+    ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
+      ggplot2::geom_point(shape = 1, colour = "grey") +
+      ggplot2::geom_hline(yintercept = 0) +
+      ggplot2::geom_vline(xintercept = 0) +
+      ggplot2::xlab ("Incremental effects") +
+      ggplot2::ylab("Incremental costs") +
+      ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
+      ggplot2::geom_point(data = df[n_it, ], ggplot2::aes_string(x = param_1, y = param_2), colour = "red", shape = 1) +
+      ggplot2::theme_bw()
+    } else {
+        ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2, colour = col)) +
+          ggplot2::geom_point(shape = 1) +
+          ggplot2::geom_hline(yintercept = 0) +
+          ggplot2::geom_vline(xintercept = 0) +
+          ggplot2::xlab ("Incremental effects") +
+          ggplot2::ylab("Incremental costs") +
+          ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
+          ggplot2::geom_point(data = df[n_it, ], ggplot2::aes_string(x = param_1, y = param_2), colour = "red", shape = 1) +
+          ggplot2::theme_bw()
+      }
 
-  p_out <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2, colour = col)) +
-    ggplot2::geom_point(shape = 1) +
-    ggplot2::geom_hline(yintercept = 0) +
-    ggplot2::geom_vline(xintercept = 0) +
-    ggplot2::xlab ("Incremental effects") +
-    ggplot2::ylab("Incremental costs") +
-    ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
-    ggplot2::theme_bw()
-
-
-  if(!is.null(wtp)) {p_out <- p_out + ggplot2::geom_abline(intercept = 0, slope = wtp, lty = 2, colour = "blue")}
+  if(!is.null(wtp)) {p_out <- p_out + ggplot2::geom_abline(intercept = 0, slope = wtp, lty = 2, colour = "orange")}
 
   p_out
 }
