@@ -98,7 +98,6 @@ generate_cor <- function(df,
 #'
 #' @export
 #'
-#'
 vis_1_param <- function(df,
                         param = "u_pfs",
                         binwidth = NULL,
@@ -248,7 +247,6 @@ vis_1_param <- function(df,
 #'
 #' @export
 #'
-#'
 check_range <- function(df,
                         outcome,
                         min_val,
@@ -278,6 +276,8 @@ check_range <- function(df,
 #' # Generating plot using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
 #' data(df_pa)
 #' vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
+#'
+#' @export
 #'
 vis_2_params <- function(df,
                          param_1,
@@ -367,7 +367,6 @@ vis_2_params <- function(df,
 #'
 #' @export
 #'
-#'
 fit_dist <- function(df,
                      param,
                      dist = c("norm", "beta", "gamma", "lnorm")) {
@@ -432,6 +431,8 @@ fit_dist <- function(df,
 #' plot_convergence(df = df_pa,
 #'                  outcome = "Inc_QALY"
 #'                  ))
+#'
+#' @export
 #'
 plot_convergence <- function(df,
                              outcome,
@@ -507,6 +508,9 @@ plot_convergence <- function(df,
 #' # Rounding off to two digits, and extending the number of iterations to display to 250.
 #' check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
 #'
+#' @export
+#'
+
 check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 100){
 
   l_vars <- list(...)
@@ -556,6 +560,8 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 #' # Checking whether two variables are strictly positive
 #' # Descreasing the number of iterations to display to 20.
 #' check_positive("c_pfs", "c_pd", df = df_pa)
+#'
+#' @export
 #'
 check_positive <- function(..., df, max_view = 50){
 
@@ -619,6 +625,8 @@ check_positive <- function(..., df, max_view = 50){
 #' # Checking whether two variables are strictly positive
 #' # Descreasing the number of iterations to display to 20.
 #' check_binary("u_pfs", "p_pfspd", df = df_pa)
+#'
+#' @export
 #'
 check_binary <- function(..., df, max_view = 50){
 
@@ -712,6 +720,8 @@ check_binary <- function(..., df, max_view = 50){
 #'                u_values = c("u_pfs", "u_pd")
 #'                )
 #'
+#' @export
+#'
 check_mean_qol <- function(df,
                            t_qaly,
                            t_ly,
@@ -781,6 +791,8 @@ check_mean_qol <- function(df,
 #'                v_utilites = c("u_pfs", "u_pd"),
 #'                v_costs = c("c_pfs", "c_pd", "c_thx")
 #'                )
+#'
+#' @export
 #'
 do_quick_check <- function(df,
                            v_probs = NULL,
@@ -967,6 +979,8 @@ do_quick_check <- function(df,
 #'                   v_outcomes = c("t_qaly_comp", "t_qaly_int"),
 #'                   v_outcomes_d = c("t_qaly_d_comp", "t_qaly_d_int")
 #'                   )
+#'
+#' @export
 #'
 do_discount_check <- function(df,
                               v_outcomes = NULL,

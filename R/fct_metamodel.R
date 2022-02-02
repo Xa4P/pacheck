@@ -25,7 +25,6 @@
 #'
 #' @export
 #'
-#'
 fit_lm_metamodel <- function(df,
                              y,
                              x) {
@@ -69,6 +68,8 @@ fit_lm_metamodel <- function(df,
 #' predict_lm_metamodel(lm_metamodel = lm_res,
 #'                      inputs = c(0.75, 0.2)
 #'                      )
+#'
+#' @export
 #'
 predict_lm_metamodel <- function(lm_metamodel,
                                  inputs){
@@ -123,7 +124,6 @@ predict_lm_metamodel <- function(lm_metamodel,
 #'                  lm_metamodel = lm_res_2)
 #'
 #' @export
-#'
 #'
 dsa_lm_metamodel <- function(df,
                              lm_metamodel){
@@ -211,8 +211,6 @@ dsa_lm_metamodel <- function(df,
 #'
 #' @export
 #'
-#'
-
 plot_tornado <- function(df,
                          df_basecase,
                          outcome) {
