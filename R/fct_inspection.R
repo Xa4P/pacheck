@@ -268,7 +268,7 @@ check_range <- function(df,
 #' @param slope numeric. Default is NULL. If different than 0, plots a linear line with a user-defined intercept and the defined slope.
 #' @param intercept numeric. Default is 0. Intercept of the user-defined slope.
 #' @param check character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.
-#' @param fit character. Designate the type of smooth model to fit to the relation of `param_1` (x) and `param_2` (y). It can take the values "lm, "glm", "gam", and "loess". A model will be fitted according to the methods described in \code{\link{[ggplot2]{method}}}.
+#' @param fit character. Designate the type of smooth model to fit to the relation of `param_1` (x) and `param_2` (y). It can take the values "lm, "glm", "gam", and "loess". A model will be fitted according to the methods described in \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}.
 #'
 #' @return A ggplot graph.
 #'
