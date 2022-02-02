@@ -689,3 +689,71 @@ check_binary <- function(..., df, max_view = 50){
   )
   return(df_res)
 }
+
+#' Check mean quality of life
+#'
+#' @description This function checks whether the mean quality of life outcome of each iteration remain between the maximum and minimum utility values of the specific iteration.
+#'
+#' @param df a dataframe.
+#' @param t_ly character. Name of the variable containing the total undiscounted life years.
+#' @param t_qaly character. Name of the variable containing the total undiscounted quality-adjusted life years.
+#' @param u_values (vector of) character. Name(s) of the variable containing the utility values.
+#' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 100.
+#'
+#' @return A matrix.
+#'
+#' @examples
+#' # Checking whether the mean quality of life of the comparator strategy falls within the range of the max and min utility values
+#' check_mean_qol(df = df_pa,
+#'                t_ly = "t_ly_comp",
+#'                t_qaly = "t_qaly_comp",
+#'                u_values = c("u_pfs", "u_pd")
+#'                )
+#'
+check_mean_qol <- function(df,
+                           t_qaly,
+                           t_ly,
+                           u_values,
+                           max_view = 100){
+  n_sim <- nrow(df)
+  m_res <- matrix(NA,
+                  ncol = 2,
+                  nrow = n_sim)
+  m_res_fct <- matrix()
+
+  for (i in 1:n_sim){
+
+    m_res[i, 1] <- df[i, t_qaly] / df[i, t_ly] >= min(df[i, u_values])
+    m_res[i, 2] <- df[i, t_qaly] / df[i, t_ly] <= max(df[i, u_values])
+  }
+
+  if(length(which(m_res != TRUE)) == 0) {
+    m_res_fct <- matrix("None",
+                        ncol = 2,
+                        nrow = 1,
+                        dimnames = list(" ",
+                                        c("Mean_QoL_below_min",
+                                          "Mean_QoL_above_max")
+                        )
+    )
+  } else {
+    n_it_below <- length(which(m_res[, 1] == FALSE))
+    n_it_above <- length(which(m_res[, 2] == FALSE))
+
+    v_it_below <- paste(which(m_res[, 1][1:max_view] == FALSE), collapse = ", ")
+    v_it_above <- paste(which(m_res[, 2][1:max_view] == FALSE), collapse = ", ")
+
+    m_res_fct <- matrix(c(n_it_below, n_it_above,
+                          v_it_below, v_it_above),
+                        ncol = 2,
+                        nrow = 2,
+                        byrow = TRUE,
+                        dimnames = list(c("Number of iteration with issue",
+                                          "Iteration number with issue"),
+                                        c("Mean_QoL_below_min",
+                                          "Mean_QoL_above_max")
+                        )
+    )
+  }
+  return(m_res_fct)
+}
