@@ -5,52 +5,40 @@
 \alias{df_pa}
 \title{Dataframe for testing}
 \format{
-A dataframe with 10,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 44 variables:
+A dataframe with 10,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 35 variables:
 \describe{
   \item{p_pfspd}{Probability to transit from the progression-free survival (PFS) to progressed disease (PD) health state}
   \item{p_pfsd}{Probability to transit from the PFS to Death (D) health state}
   \item{p_pdd}{Probability to transit from the PD to D health state}
   \item{p_dd}{Probability to transit from the D to D health state}
-  \item{p_ae}{Probability of experiencing an adverse event in the `_int` strategy}
   \item{rr}{Relative effectiveness of the treatment (_int)}
   \item{u_pfs}{Utility value (per cycle) associated with PFS health state}
   \item{u_pd}{Utility value (per cycle) associated with PD health state}
   \item{u_d}{Utility value (per cycle) associated with D health state}
   \item{c_pfs}{Costs (per cycle) associated with PFS health state}
-  \item{u_ae}{Utility decrement incurred by the occurence of an adverse event}
   \item{c_pd}{Costs (per cycle) associated with PD health state}
   \item{c_d}{Costs (per cycle) associated with D health state}
   \item{c_thx}{Costs (per cycle) associated receiving treatment, in the PFS health state}
-  \item{c_ae}{Costs incurred by the occurence of an adverse event}
-  \item{t_qaly_comp}{Total undiscounted QALYs obtained with the comparator, i.e. no treatment administered}
-  \item{t_qaly_int}{Total undiscounted QALYs obtained with the intervention, i.e. treatment administered}
-  \item{t_qaly_d_comp}{Total discounted QALYs obtained with the comparator, i.e. no treatment administered}
-  \item{t_qaly_d_int}{Total discounted QALYs obtained with the intervention, i.e. treatment administered}
-  \item{t_costs_d_comp}{Total undiscounted costs obtained with the comparator, i.e. no treatment administered}
-  \item{t_costs_d_int}{Total undiscounted costs obtained with the intervention, i.e. treatment administered}
-  \item{t_costs_d_comp}{Total discounted costs obtained with the comparator, i.e. no treatment administered}
-  \item{t_costs_d_int}{Total discounted costs obtained with the intervention, i.e. treatment administered}
-  \item{t_ly_comp}{Total undiscounted LYs obtained with the comparator, i.e. no treatment administered}
-  \item{t_ly_int}{Total undiscounted LYs obtained with the intervention, i.e. treatment administered}
-  \item{t_ly_d_comp}{Total discounted LYs obtained with the comparator, i.e. no treatment administered}
-  \item{t_ly_d_int}{Total discounted LYs obtained with the intervention, i.e. treatment administered}
-  \item{t_ly_pfs_d_comp}{Discounted LYs accrued in PFS health state, comparator strategy}
-  \item{t_ly_pfs_d_int}{Discounted LYs accrued in PFS health state, intervention strategy}
-  \item{t_ly_pd_d_comp}{Discounted LYs accrued in PD health state, comparator strategy}
-  \item{t_ly_pd_d_int}{Discounted LYs accrued in PD health state, intervention strategy}
-  \item{t_qaly_pfs_d_comp}{Discounted QALYs accrued in PFS health state, comparator strategy}
-  \item{t_qaly_pfs_d_int}{Discounted QALYs accrued in PFS health state, intervention strategy}
-  \item{t_qaly_pd_d_comp}{Discounted QALYs accrued in PD health state, comparator strategy}
-  \item{t_qaly_pd_d_int}{Discounted QALYs accrued in PD health state, intervention strategy}
-  \item{t_costs_pfs_d_comp}{Discounted costs accrued in PFS health state, comparator strategy}
-  \item{t_costs_pfs_d_int}{Discounted costs accrued in PFS health state, intervention strategy}
-  \item{t_costs_pd_d_comp}{Discounted costs accrued in PD health state, comparator strategy}
-  \item{t_costs_pd_d_int}{Discounted costs accrued in PD health state, intervention strategy}
-  \item{t_qaly_ae_int}{Quality-adjusted life year impact of the occurence of adverse events, intervention strategy}
-  \item{t_costs_ae_int}{Costs associated with the occurence of adverse events, intervention strategy}
-  \item{inc_ly}{Incremental LYs obtained with the intervention versus the comparator}
-  \item{inc_qaly}{Incremental QALYs obtained with the intervention versus the comparator}
-  \item{inc_costs}{Incremental costs obtained with the intervention versus the comparator}
+  \item{QALY_comp}{Total QALY obtained with the comparator, i.e. no treatment administered}
+  \item{QALY_int}{Total QALY obtained with the intervention, i.e. treatment administered}
+  \item{Costs_comp}{Total costs obtained with the comparator, i.e. no treatment administered}
+  \item{Costs_int}{Total costs obtained with the intervention, i.e. treatment administered}
+  \item{LY_pfs_comp}{Life years accrued in PFS health state, comparator strategy}
+  \item{LY_pfs_int}{Life years accrued in PFS health state, intervention strategy}
+  \item{LY_pd_comp}{Life years accrued in PD health state, comparator strategy}
+  \item{LY_pd_int}{Life years accrued in PD health state, intervention strategy}
+  \item{QALY_pfs_comp}{Quality-adjusted life years accrued in PFS health state, comparator strategy}
+  \item{QALY_pfs_int}{Quality-adjusted life years accrued in PFS health state, intervention strategy}
+  \item{QALY_pd_comp}{Quality-adjusted life years accrued in PD health state, comparator strategy}
+  \item{QALY_pd_int}{Quality-adjusted life years accrued in PD health state, intervention strategy}
+  \item{Costs_pfs_comp}{Costs accrued in PFS health state, comparator strategy}
+  \item{Costs_pfs_int}{Costs accrued in PFS health state, intervention strategy}
+  \item{Costs_pd_comp}{Costs accrued in PD health state, comparator strategy}
+  \item{Costs_pd_int}{Costs accrued in PD health state, intervention strategy}
+  \item{QALY_ae_int}{Quality-adjusted life year impact of the occurence of adverse events, intervention strategy}
+  \item{Costs_ae_int}{Costs associated with the occurence of adverse events, intervention strategy}
+  \item{Inc_QALY}{Incremental QALYs obtained with the intervention versus the comparator}
+  \item{Inc_Costs}{Incremental costs obtained with the intervention versus the comparator}
 }
 }
 \usage{

@@ -4,7 +4,15 @@
 \alias{vis_2_params}
 \title{Visualise the distribution of two parameters}
 \usage{
-vis_2_params(df, param_1, param_2, slope = NULL, intercept = 0, check = NULL)
+vis_2_params(
+  df,
+  param_1,
+  param_2,
+  slope = NULL,
+  intercept = 0,
+  check = NULL,
+  fit = NULL
+)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -18,6 +26,8 @@ vis_2_params(df, param_1, param_2, slope = NULL, intercept = 0, check = NULL)
 \item{intercept}{numeric. Default is 0. Intercept of the user-defined slope.}
 
 \item{check}{character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.}
+
+\item{fit}{character. Designate the type of smooth model to fit to the relation of `param_1` (x) and `param_2` (y). It can take the values "lm, "glm", "gam", and "loess". A model will be fitted according to the methods described in \code{\link{[ggplot2]{method}}}.}
 }
 \value{
 A ggplot graph.
