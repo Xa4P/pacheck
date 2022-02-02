@@ -4,7 +4,7 @@
 \alias{plot_ice}
 \title{Plotting the incremental cost-effectiveness plane.}
 \usage{
-plot_ice(df, param_1, param_2, col = NULL, wtp = NULL)
+plot_ice(df, param_1, param_2, col = NULL, n_it = NULL, wtp = NULL)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -13,7 +13,9 @@ plot_ice(df, param_1, param_2, col = NULL, wtp = NULL)
 
 \item{param_2}{character. Name of variable of the dataframe to be plotted on the y-axis.}
 
-\item{col}{character. Name of variable of the dataframe to use to colour the plotted dots. Default is NULL which results in grey dots.}
+\item{col}{character. Name of variable of the dataframe to use to colour (in blue) the plotted dots. Default is NULL which results in grey dots.}
+
+\item{n_it}{(vector of) numeric value(s). Designate which iteration should be coloured in the colour red.}
 
 \item{wtp}{numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.}
 }
@@ -27,7 +29,7 @@ This function plots the incremental cost-effectiveness plot.
 # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
 data(df_pa)
 plot_ice(df = df_pa,
-         param_1 = "Inc_QALY",
-         param_2 = "Inc_Costs")
+         param_1 = "inc_qaly",
+         param_2 = "inc_costs")
 
 }
