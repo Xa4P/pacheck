@@ -38,14 +38,18 @@ Content:
 - Welcome message
 - Instructions
 - Upload 1 file with inputs and outputs (or 2? inputs and outputs separately?)
-- Select variables representing total costs and effects for each strategy (to calculate increments and (incremental) net benefits)
+- Select variables representing total costs and effects for each strategy (to calculate increments and (incremental) net benefits)  
+- Determine whether the NMBs have been calculated (if not perform calculations)  
+- Make groups of variables per type of inputs (e.g. for costs, utility values, probabilities), is that possible Karel?  
+- If multiple scenario's of the model have been uploaded, select the one you want to work with  
+
 
 ```{r calc_nb, echo = T}
 df_pa <- calculate_nb(df = df_pa,
-                      e_int = "QALY_int",
-                      e_comp = "QALY_comp",
-                      c_int = "Costs_int",
-                      c_comp = "Costs_comp",
+                      e_int = "t_qaly_d_int",
+                      e_comp = "t_qaly_d_comp",
+                      c_int = "t_costs_d_int",
+                      c_comp = "t_costs_d_comp",
                       wtp = 80000)# calculate net benefits
 
 ```
@@ -62,12 +66,30 @@ rm(df)
 
 ### b.	Correlation matrix inputs (and outputs)
 Question Karel:  
-- kan dit met kleuren om de sterke van de associatie te onderbouwen?   
+- Karel: kan dit met kleuren om de sterke van de associatie te onderbouwen?   
 ```{r corr, echo = T}
 generate_cor(df_pa)
 ```
 
 ### c. Inspect types of variables
+
+#### Perform quick checks on input values
+*Are utility values/probabilities between 0-1, costs positive etc...*
+```{r quick_check, echo = T}
+do_quick_check(df = df_pa,
+               v_utilites = c("u_pfs", "u_pd"),
+               v_costs = c("c_pfs", "c_pd", "c_thx")
+               )
+```
+
+#### Perform quick comparison discounted and undiscounted results
+*Are utility values/probabilities between 0-1, costs positive etc...*
+```{r quick_discount_check, echo = T}
+do_discount_check(df = df_pa,
+                   v_outcomes = c("t_qaly_comp", "t_qaly_int"),
+                   v_outcomes_d = c("t_qaly_d_comp", "t_qaly_d_int")
+                   )
+```
 
 #### Positive variables
 *Are these variables strictly positive?* 
@@ -151,29 +173,28 @@ Questions met Karel te bespreken:
 
 ```{r dist_plot_2p, echo = T}
 p_3 <- plot_ice(df = df_pa,
-                param_1 = "Inc_QALY",
-                param_2 = "Inc_Costs",
+                param_1 = "inc_qaly",
+                param_2 = "inc_costs",
                 wtp = 80000)
 p_3
 p_3_interact <- ggplotly(p_3)
 p_3_interact
 
 summary_ice(df_pa,
-           "Inc_QALY",
-           "Inc_Costs")
+           "inc_qaly",
+           "inc_costs")
 ```
 
 
 - Plot hierboven koppelen aan een graphs van 1 en 2 input parameters. Al gedaan in tentative shiny app voor onderwijs: selectie van punten in de 'input graph' wordt gehighlight in andere plot. Voorbeeld, laatste tabs van volgende shiny app: `shiny::runGitHub("Teaching", "Xa4P", subdir = "Basics/shiny_app_cea/", ref = "main")`.  
 
-
 ### b.	Cost-effectiveness acceptability curve.
 ```{r ceac, echo = T}
 df_ceac <- calculate_ceac(df = df_pa,
-                     e_int = "QALY_int",
-                     e_comp = "QALY_comp",
-                     c_int = "Costs_int",
-                     c_comp = "Costs_comp")
+                     e_int = "t_qaly_d_int",
+                     e_comp = "t_qaly_d_comp",
+                     c_int = "t_costs_d_int",
+                     c_comp = "t_costs_d_comp")
 
 plot_ceac(df = df_ceac,
           wtp = "WTP_threshold")
@@ -183,11 +204,20 @@ df_ceac
 ### c.	Histogram and density distribution of total and incremental costs and effects.
 **Can use the function above!  **
 
-###d.	Convergence graph of outcomes
+### d.	Convergence graph of outcomes
 ```{r conv, echo = T}
 plot_convergence(df = df_pa,
                  outcome = "iNMB"
                  )
+```
+
+### e.	Check whetherthe mean quality of life outcome of each iteration remain between the maximum and minimum utility values of the specific iteration.
+```{r mean_qol, echo = T}
+check_mean_qol(df = df_pa,
+               t_ly = "t_ly_comp",
+               t_qaly = "t_qaly_comp",
+               u_values = c("u_pfs", "u_pd")
+               )
 ```
 
 ## 4.	Investigate relation between inputs and outputs
@@ -250,16 +280,24 @@ plot_tornado(df = df_dsa,
              outcome = "iNMB")
 ```
 
-## 5. Add predictions based on metamodel  
-
-
+## 5. Predictions based on metamodel  
+```{r metamodel_pred, echo = T}
+# fit metamodel
+lm_res <- fit_lm_metamodel(df = df_pa,
+                           y = "inc_qaly",
+                           x = c("p_pfsd", "p_pdd")
+                           )
+# Predicting using this metamodel
+predict_lm_metamodel(lm_metamodel = lm_res,
+                     inputs = c(0.75, 0.2)
+                     )
+```
 
 # Other activities/ questions/ to do's
 - Two-way sensitivity analysis based on metamodel.  
 - Include other functional forms of metamodels  
-- Include predictions of outcome based on metamodels  
 - Check results of deterministic sensitivity analyses using original model and metamodel.  
-- XP to do: Add possibility of having multiple scenarios loaded.  
+- XP/Karel to do: Add possibility of having multiple scenarios loaded. --> door selectie aan het begin van de app?    
 - Shapley values, zou dat kunnen ? Zou het mogelijk zijn om dat op de originele data set te doen? **KernelExplainer** on this github: https://github.com/slundberg/shap. Of is dit iets? https://github.com/nredell/shapFlex, maar ziet eruit dat je ook een model moet fitten (niet model agnostic)  
 - Check whether violin plot have added value  
 - KAREL: voor selectie variabelen voor de verschillende functies: gebruik van buttons lijkt me het handigste, wat denk jij?  
