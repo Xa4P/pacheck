@@ -17,9 +17,8 @@ Imports:
     reshape2,
     scales,
     stats,
-    stringi
-Suggests: 
-    testthat (>= 3.0.0)
+    stringi,
+    testthat
 Author@: c(person(given = "Xavier", family = "Pouwels", role = c("aut",
     "cre"), email = "x.g.l.v.pouwels@utwente.nl"))
 Config/testthat/edition: 3
