@@ -93,7 +93,7 @@ predict_lm_metamodel <- function(lm_metamodel,
   newdata <- data.frame(t(inputs))
   names(newdata) <- v_names
 
-  pred <- stats::predict.lm(mod, newdata = newdata)
+  pred <- stats::predict.lm(lm_metamodel, newdata = newdata)
   names(pred) <- "prediction"
 
   df_out <- cbind(newdata, t(pred))
