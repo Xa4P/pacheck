@@ -3,9 +3,9 @@
 #' @description This function generates summary statistics of input and output values of a probabilistic analysis.
 #'
 #' @param df a dataframe.
-#' @param v_params character or vector of character. Vector of names of the inputs and outputs for which to return summary statistics. Default is "ALL" which returns summary values for all inputs and outputs in the dataframe.
+#' @param v_params character or vector of character. Vector of names of the variables of `df` for which to return summary statistics. Default is "ALL" which returns summary values for all inputs and outputs in the dataframe.
 #'
-#' @return A dataframe with summary data for selected inputs and outputs.
+#' @return A dataframe with summary data for the selected variables.
 #'
 #' @examples
 #' # Generating summary data of all inputs using the example dataframe
@@ -756,4 +756,239 @@ check_mean_qol <- function(df,
     )
   }
   return(m_res_fct)
+}
+
+#' Perform a quick check of the inputs or results
+#'
+#' @description This function performs multiple checks on user-defined columns.
+#'
+#' @param df a dataframe.
+#' @param v_probs (a vector of) character. Name of variables containing probabilities.
+#' @param v_utilities (a vector of) character. Name of the variables containing utility values.
+#' @param v_costs (a vector of) character. Name of the variables containing cost estimates.
+#' @param v_hr (a vector of) character. Name of the variables containing hazard ratios.
+#' @param v_rr (a vector of) character. Name of the variables containing relative risks.
+#' @param v_r (a vector of) character. Name of the variables containing rates.
+#' @param v_outcomes (a vector of) character. Name of the variables containing outcomes of the model.
+#'
+#' @return A matrix.
+#'
+#' @examples
+#' # Checking costs and utility values of the example data
+#' do_quick_check(df = df_pa,
+#'                v_utilites = c("u_pfs", "u_pd"),
+#'                v_costs = c("c_pfs", "c_pd", "c_thx")
+#'                )
+#'
+do_quick_check <- function(df,
+                           v_probs = NULL,
+                           v_utilities = NULL,
+                           v_costs = NULL,
+                           v_hr = NULL,
+                           v_rr = NULL,
+                           v_r = NULL,
+                           v_outcomes = NULL
+) {
+
+
+  if(!is.null(v_probs)) {
+
+    res_probs_1 <- test_that("All probabilities are positive", {
+      for (i in v_probs) {
+        for (j in 1:length(df)) {
+          expect_gte(df[j, i], 0)
+        }
+      }
+    }
+    )
+  } else {
+    res_probs_1 <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_probs)) {
+
+    res_probs_2 <- test_that("All probabilities are lower or equal to 1", {
+      for (i in v_probs) {
+        for (j in 1:length(df)) {
+          expect_lte(df[j, i], 1)
+        }
+      }
+    }
+    )
+  } else {
+    res_probs_2 <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_utilities)) {
+
+    res_utilities_1 <- test_that("All utility values are positive", {
+      for (i in v_utilities) {
+        for (j in 1:length(df)) {
+          expect_gte(df[j, i], 0)
+        }
+      }
+    }
+    )
+  } else {
+    res_utilities_1 <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_utilities)) {
+
+    res_utilities_2 <- test_that("All utility values are lower or equal to 1", {
+      for (i in v_utilities) {
+        for (j in 1:length(df)) {
+          expect_lte(df[j, i], 1)
+        }
+      }
+    }
+    )
+  } else {
+    res_utilities_2 <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_costs)) {
+
+    res_costs <- test_that("All costs parameters are positive", {
+      for (i in v_costs) {
+        for (j in 1:length(df)) {
+          expect_gte(df[j, i], 0)
+        }
+      }
+    }
+    )
+  } else {
+    res_costs <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_hr)) {
+
+    res_hr <- test_that("All hazard ratios are positive", {
+      for (i in v_hr) {
+        for (j in 1:length(df)) {
+          expect_gte(df[j, i], 0)
+        }
+      }
+    }
+    )
+  } else {
+    res_hr <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_rr)) {
+
+    res_rr <- test_that("All relative risks are positive", {
+      for (i in v_rr) {
+        for (j in 1:length(df)) {
+          expect_gte(df[j, i], 0)
+        }
+      }
+    }
+    )
+  } else {
+    res_rr <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_r)) {
+
+    res_r <- test_that("All rates are positive", {
+      for (i in v_r) {
+        for (j in 1:length(df)) {
+          expect_gte(df[j, i], 0)
+        }
+      }
+    }
+    )
+  } else {
+    res_r <- "NOT PERFORMED"
+  }
+
+  if(!is.null(v_outcomes)) {
+
+    res_outcomes <- test_that("All outcomes are positive", {
+      for (i in v_outcomes) {
+        for (j in 1:length(df)) {
+          expect_gte(df[j, i], 0)
+        }
+      }
+    }
+    )
+  } else {
+    res_outcomes <- "NOT PERFORMED"
+  }
+
+  df_res <- data.frame(
+    Test = c("All probabilities are positive",
+             "All probabilities are lower or equal to 1",
+             "All utility values are positive",
+             "All utility values are lower or equal to 1",
+             "All costs parameters are positive",
+             "All hazard ratios are positive",
+             "All relative risks are positive",
+             "All rates are positive",
+             "All outcomes are positive"),
+    Result = c(res_probs_1,
+               res_probs_2,
+               res_utilities_1,
+               res_utilities_2,
+               res_costs,
+               res_hr,
+               res_rr,
+               res_r,
+               res_outcomes)
+  )
+  return(df_res)
+}
+
+#' Perform a quick comparison of discounted and undiscounted results
+#'
+#' @description This function performs multiple checks on user-defined columns.
+#'
+#' @param df a dataframe.
+#' @param v_outcomes (a vector of) character. Name of the variables containing undiscounted outcomes of the model.
+#' @param v_outcomes_d (a vector of) character. Name of the variables containing discounted outcomes of the model.
+#'
+#' @details The variables contained in `v_outcomes` and `v_outcomes_d` should be in the same order.
+#'
+#' @return A matrix.
+#'
+#' @examples
+#' # Checking whether discounted QALYs are lower than undiscounted QALYs using the example data
+#' do_discount_check(df = df_pa,
+#'                   v_outcomes = c("t_qaly_comp", "t_qaly_int"),
+#'                   v_outcomes_d = c("t_qaly_d_comp", "t_qaly_d_int")
+#'                   )
+#'
+do_discount_check <- function(df,
+                              v_outcomes = NULL,
+                              v_outcomes_d = NULL
+) {
+
+  if (!requireNamespace("testthat", quietly = TRUE)) {
+    stop(
+      "Package \"testthat\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
+  if(length(v_outcomes) != length(v_outcomes_d)){
+    stop("Number of variables with discounted and undiscounted outcomes is different.")
+  }
+
+  res <- testthat::test_that("All discounted outcomes are lower than undiscounted outcomes", {
+
+    for (i in c(1:length(v_outcomes))) {
+      for (j in 1:length(df)) {
+        testthat::expect_lt(df[j, v_outcomes_d[i]], df[j, v_outcomes[i]])
+      }
+    }
+  }
+  )
+
+  df_res <- data.frame(
+    Test = "All discounted outcomes are lower than undiscounted outcomes",
+    Result = res
+  )
+
+  return(df_res)
 }
