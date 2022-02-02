@@ -12,6 +12,8 @@
 #' data(df_pa)
 #' df_summary <- generate_sum_stats(df_pa)
 #'
+#' @export
+#'
 generate_sum_stats <- function(df,
                                v_params = "ALL"){
 
