@@ -31,5 +31,4 @@ data(df_pa)
 plot_ice(df = df_pa,
          param_1 = "inc_qaly",
          param_2 = "inc_costs")
-
 }
