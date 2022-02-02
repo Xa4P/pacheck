@@ -793,10 +793,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_probs)) {
 
-    res_probs_1 <- test_that("All probabilities are positive", {
+    res_probs_1 <- testthat::test_that("All probabilities are positive", {
       for (i in v_probs) {
         for (j in 1:length(df)) {
-          expect_gte(df[j, i], 0)
+          testthat::expect_gte(df[j, i], 0)
         }
       }
     }
@@ -807,10 +807,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_probs)) {
 
-    res_probs_2 <- test_that("All probabilities are lower or equal to 1", {
+    res_probs_2 <- testthat::test_that("All probabilities are lower or equal to 1", {
       for (i in v_probs) {
         for (j in 1:length(df)) {
-          expect_lte(df[j, i], 1)
+          testthat::expect_lte(df[j, i], 1)
         }
       }
     }
@@ -821,10 +821,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_utilities)) {
 
-    res_utilities_1 <- test_that("All utility values are positive", {
+    res_utilities_1 <- testthat::test_that("All utility values are positive", {
       for (i in v_utilities) {
         for (j in 1:length(df)) {
-          expect_gte(df[j, i], 0)
+          testthat::expect_gte(df[j, i], 0)
         }
       }
     }
@@ -835,10 +835,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_utilities)) {
 
-    res_utilities_2 <- test_that("All utility values are lower or equal to 1", {
+    res_utilities_2 <- testthat::test_that("All utility values are lower or equal to 1", {
       for (i in v_utilities) {
         for (j in 1:length(df)) {
-          expect_lte(df[j, i], 1)
+          testthat::expect_lte(df[j, i], 1)
         }
       }
     }
@@ -849,10 +849,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_costs)) {
 
-    res_costs <- test_that("All costs parameters are positive", {
+    res_costs <- testthat::test_that("All costs parameters are positive", {
       for (i in v_costs) {
         for (j in 1:length(df)) {
-          expect_gte(df[j, i], 0)
+          testthat::expect_gte(df[j, i], 0)
         }
       }
     }
@@ -863,10 +863,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_hr)) {
 
-    res_hr <- test_that("All hazard ratios are positive", {
+    res_hr <- testthat::test_that("All hazard ratios are positive", {
       for (i in v_hr) {
         for (j in 1:length(df)) {
-          expect_gte(df[j, i], 0)
+          testthat::expect_gte(df[j, i], 0)
         }
       }
     }
@@ -877,10 +877,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_rr)) {
 
-    res_rr <- test_that("All relative risks are positive", {
+    res_rr <- testthat::test_that("All relative risks are positive", {
       for (i in v_rr) {
         for (j in 1:length(df)) {
-          expect_gte(df[j, i], 0)
+          testthat::expect_gte(df[j, i], 0)
         }
       }
     }
@@ -891,10 +891,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_r)) {
 
-    res_r <- test_that("All rates are positive", {
+    res_r <- testthat::test_that("All rates are positive", {
       for (i in v_r) {
         for (j in 1:length(df)) {
-          expect_gte(df[j, i], 0)
+          testthat::expect_gte(df[j, i], 0)
         }
       }
     }
@@ -905,10 +905,10 @@ do_quick_check <- function(df,
 
   if(!is.null(v_outcomes)) {
 
-    res_outcomes <- test_that("All outcomes are positive", {
+    res_outcomes <- testthat::test_that("All outcomes are positive", {
       for (i in v_outcomes) {
         for (j in 1:length(df)) {
-          expect_gte(df[j, i], 0)
+          testthat::expect_gte(df[j, i], 0)
         }
       }
     }
