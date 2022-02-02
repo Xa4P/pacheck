@@ -77,8 +77,9 @@ generate_cor(df_pa)
 *Are utility values/probabilities between 0-1, costs positive etc...*
 ```{r quick_check, echo = T}
 do_quick_check(df = df_pa,
-               v_utilites = c("u_pfs", "u_pd"),
-               v_costs = c("c_pfs", "c_pd", "c_thx")
+               v_utilities = c("u_pfs", "u_pd"),
+               v_costs = c("c_pfs", "c_pd", "c_thx"),
+               v_rr = "rr"
                )
 ```
 
