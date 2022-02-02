@@ -17,6 +17,7 @@
 #' plot_ice(df = df_pa,
 #'          param_1 = "inc_qaly",
 #'          param_2 = "inc_costs")
+#' @export
 #'
 plot_ice <- function(df,
                      param_1,
@@ -84,7 +85,6 @@ plot_ice <- function(df,
 #'
 #' @export
 #'
-#'
 summary_ice <- function(df,
                         inc_e,
                         inc_c) {
@@ -126,7 +126,6 @@ summary_ice <- function(df,
 #'               v_wtp = seq(from = 0, to = 50000, by = 1000))
 #'
 #' @export
-#'
 #'
 calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from = 0, to = 100000, by = 1000)){
 
@@ -175,7 +174,6 @@ calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from =
 #'
 #' @export
 #'
-#'
 plot_ceac <- function(df,
                       wtp) {
   require(ggplot2)
@@ -220,7 +218,6 @@ plot_ceac <- function(df,
 #'              wtp = 80000)
 #'
 #' @export
-#'
 #'
 calculate_nb <- function(df,
                          e_int,
