@@ -790,6 +790,13 @@ do_quick_check <- function(df,
                            v_outcomes = NULL
 ) {
 
+  if (!requireNamespace("testthat", quietly = TRUE)) {
+    stop(
+      "Package \"testthat\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
 
   if(!is.null(v_probs)) {
 
