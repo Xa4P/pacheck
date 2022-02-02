@@ -106,8 +106,8 @@ vis_1_param <- function(df,
                         user_param_1 = NULL,
                         user_param_2 = NULL,
                         user_mean = NULL) {
-  require(ggplot2)
-  require(fitdistrplus)
+  require(ggplot2, quietly = TRUE)
+  require(fitdistrplus, quietly = TRUE)
 
   if("beta" %in% dist) {beta_dist <- fitdist(df[, param], distr = "beta")}
   if("gamma" %in% dist) {gamma_dist <- fitdist(df[, param], distr = "gamma")}
@@ -268,6 +268,7 @@ check_range <- function(df,
 #' @param slope numeric. Default is NULL. If different than 0, plots a linear line with a user-defined intercept and the defined slope.
 #' @param intercept numeric. Default is 0. Intercept of the user-defined slope.
 #' @param check character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.
+#' @param fit character. Designate the type of smooth model to fit to the relation of `param_1` (x) and `param_2` (y). It can take the values "lm, "glm", "gam", and "loess". A model will be fitted according to the methods described in \code{\link{[ggplot2]{method}}}.
 #'
 #' @return A ggplot graph.
 #'
@@ -276,22 +277,26 @@ check_range <- function(df,
 #' data(df_pa)
 #' vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
 #'
-#' @export
-#'
-#'
 vis_2_params <- function(df,
                          param_1,
                          param_2,
                          slope = NULL,
                          intercept = 0,
-                         check = NULL) {
-  require(ggplot2)
+                         check = NULL,
+                         fit = NULL) {
 
-  p <- ggplot(data = df, aes_string(x = param_1, y = param_2)) +
-    theme_bw()
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop(
+      "Package \"ggplot2\" must be installed to use this function.",
+      call. = FALSE
+    )
+  }
+
+  p <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
+    ggplot2::theme_bw()
 
   if(!is.null(slope)) {
-    p <- p + geom_abline(intercept = intercept, slope = slope, lty = 2, colour = "orange")
+    p <- p + ggplot2::geom_abline(intercept = intercept, slope = slope, lty = 2, colour = "orange")
   }
 
   if(!is.null(check)) {
@@ -304,17 +309,36 @@ vis_2_params <- function(df,
       p_true <- round(length(which(df$col == "TRUE"))/ length(df$col) * 100, 0)
 
       p_out <- p +
-        geom_point(data = df, aes_string(x = param_1, y = param_2, colour = "col"), shape = 1) +
-        scale_colour_manual(name = "Check",
-                            values = c("TRUE" = "Red",
-                                       "FALSE" = "grey"
-                            )) +
-        annotate("text", label = print(paste("P(TRUE):", p_true, "%")), x = min(df[, param_1]) + (max(df[, param_1]) - min(df[, param_1])) * 0.2,  y = max(df[, param_2]))
+        ggplot2::geom_point(data = df, ggplot2::aes_string(x = param_1, y = param_2, colour = "col"), shape = 1) +
+        ggplot2::scale_colour_manual(name = "Check",
+                                     values = c("TRUE" = "Red",
+                                                "FALSE" = "grey"
+                                                )) +
+        ggplot2::annotate("text", label = print(paste("P(TRUE):", p_true, "%")), x = min(df[, param_1]) + (max(df[, param_1]) - min(df[, param_1])) * 0.2,  y = max(df[, param_2]))
 
     }
 
   } else {
-    p_out <- p + geom_point(shape = 1, colour = "grey")
+    p_out <- p + ggplot2::geom_point(shape = 1, colour = "grey")
+  }
+
+  if(!is.null(fit)){
+    if(fit == "lm") {
+    p_out <- p_out +
+      ggplot2::geom_smooth(method = "lm")
+    }
+    if(fit == "glm") {
+      p_out <- p_out +
+        ggplot2::geom_smooth(method = "glm")
+    }
+    if(fit == "loess") {
+      p_out <- p_out +
+        ggplot2::geom_smooth(method = "loess")
+    }
+    if(fit == "gam") {
+      p_out <- p_out +
+        ggplot2::geom_smooth(method = "gam")
+    }
   }
 
   p_out
