@@ -788,7 +788,7 @@ check_mean_qol <- function(df,
 #' @examples
 #' # Checking costs and utility values of the example data
 #' do_quick_check(df = df_pa,
-#'                v_utilites = c("u_pfs", "u_pd"),
+#'                v_utilities = c("u_pfs", "u_pd"),
 #'                v_costs = c("c_pfs", "c_pd", "c_thx")
 #'                )
 #'
