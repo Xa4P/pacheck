@@ -630,19 +630,19 @@ check_positive <- function(..., df, max_view = 50){
 #' check_range(df_pa, c("u_pfs", "p_pfspd"))
 #' @export
 check_range <- function(df, vars, min = 0, max = 1){
-  gte_min <- do_check(df, vars, ~all(.x >= min), glue("greater than or equal to {min}"))
-  lte_max <- do_check(df, vars, ~all(.x <= max), glue("less than or equal to {max}"))
+  gte_min <- do_check(df, vars, ~all(.x >= min), glue::glue("greater than or equal to {min}"))
+  lte_max <- do_check(df, vars, ~all(.x <= max), glue::glue("less than or equal to {max}"))
 
-  return(list(checks = tibble(vars, min = gte_min$check, max = lte_max$check), messages = bind_rows(gte_min$messages, lte_max$messages)))
+  return(list(checks = tibble(vars, min = gte_min$check, max = lte_max$check), messages = dplyr::bind_rows(gte_min$messages, lte_max$messages)))
 }
 
 do_check <- function(df, vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
-  pass <- summarise(df, across(!!vars, check))
+  pass <- dplyr::summarise(df, dplyr::across(!!vars, check))
 
   if (all(pass)){
-    messages <- tibble(ok = TRUE, message = glue(template_ok))
+    messages <- tibble::tibble(ok = TRUE, message = glue::glue(template_ok))
   } else {
-    messages <- tibble(ok = FALSE, message = glue(template_fail, var = vars[!pass]))
+    messages <- tibble::tibble(ok = FALSE, message = glue::glue(template_fail, var = vars[!pass]))
   }
   return(list(check = unlist(pass), messages = messages))
 }
