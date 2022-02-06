@@ -625,7 +625,6 @@ check_positive <- function(..., df, max_view = 50){
 #' or if a test failed for one or more variables, a line for each failure. 
 #' @import glue
 #' @import dplyr
-#' @import magrittr
 #' @examples 
 #' data(df_pa)
 #' check_range(df_pa, c("u_pfs", "p_pfspd"))
@@ -638,8 +637,7 @@ check_range <- function(df, vars, min = 0, max = 1){
 }
 
 do_check <- function(df, vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
-  pass <- df %>%
-    summarise(across(!!vars, check))
+  pass <- summarise(df, across(!!vars, check))
 
   if (all(pass)){
     messages <- tibble(ok = TRUE, message = glue(template_ok))
