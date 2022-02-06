@@ -646,8 +646,6 @@ do_check <- function(df, vars, check, label_check, template_ok = "all variables 
   }
   return(list(check = unlist(pass), messages = messages))
 }
-do_check(df_pa, c("u_pfs", "rr"), ~all(.x >= .2), "strictly greater than or equal to 0.2")
-do_check(df_pa, c("u_pfs", "rr"), ~all(.x >= .5), "strictly greater than or equal to 0.5")
 
 #' Check binary
 #'
