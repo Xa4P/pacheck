@@ -607,6 +607,49 @@ check_positive <- function(..., df, max_view = 50){
   return(df_res)
 }
 
+#' Check range
+#' 
+#' @description Checks whether variables always fall within a given range.
+#' @param df Data
+#' @param vars Character vector of variables to check
+#' @param min Minimum allowed value (default: 0)
+#' @param max Maximum allowed value (default: 1)
+#' @value List containing the results of the check (checks), and a tibble
+#' of status and message for each test (messages). 
+#' @details Note that both the minimum and maximum are _inclusive_, that is, 
+#' the range is given as [min, max]. For _exclusive_ checks, e.g. (0,1], or 
+#' greater than 0, lesser than or equal to 1, the user will have to manually
+#' give a minimum value with a certain error applied (e.g., 1e-6).
+#' 
+#' The list of messages in the result contains a single line if the test passed,
+#' or if a test failed for one or more variables, a line for each failure. 
+#' @import glue
+#' @import dplyr
+#' @import magrittr
+#' @examples 
+#' data(df_pa)
+#' check_range(df_pa, c("u_pfs", "p_pfspd"))
+#' @export
+check_range <- function(df, vars, min = 0, max = 1){
+  gte_min <- do_check(df, vars, ~all(.x >= min), glue("greater than or equal to {min}"))
+  lte_max <- do_check(df, vars, ~all(.x <= max), glue("less than or equal to {max}"))
+
+  return(list(checks = tibble(vars, min = gte_min$check, max = lte_max$check), messages = bind_rows(gte_min$messages, lte_max$messages)))
+}
+
+do_check <- function(df, vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
+  pass <- df %>%
+    summarise(across(!!vars, check))
+
+  if (all(pass)){
+    messages <- tibble(ok = TRUE, message = glue(template_ok))
+  } else {
+    messages <- tibble(ok = FALSE, message = glue(template_fail, var = vars[!pass]))
+  }
+  return(list(check = unlist(pass), messages = messages))
+}
+do_check(df_pa, c("u_pfs", "rr"), ~all(.x >= .2), "strictly greater than or equal to 0.2")
+do_check(df_pa, c("u_pfs", "rr"), ~all(.x >= .5), "strictly greater than or equal to 0.5")
 
 #' Check binary
 #'
@@ -628,7 +671,7 @@ check_positive <- function(..., df, max_view = 50){
 #'
 #' @export
 #'
-check_binary <- function(..., df, max_view = 50){
+check_binary <- function(..., df, max_view = 50) {
 
   if (!requireNamespace("stringi", quietly = TRUE)) {
     stop(
