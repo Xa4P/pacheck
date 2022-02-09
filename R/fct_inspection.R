@@ -230,7 +230,7 @@ vis_1_param <- function(df,
 #' @description This function checks the probability that an input or output falls within a user-defined range.
 #'
 #' @param df a dataframe.
-#' @param outcome character string. Name of variable of the dataframe for which to plot the moving average.
+#' @param outcome character string. Name of variable of the dataframe for which to check the range.
 #' @param min_val numeric. Define the minimum value of the range.
 #' @param max_val numeric. Define the maximum value of the range.
 #'
@@ -608,24 +608,24 @@ check_positive <- function(..., df, max_view = 50){
 }
 
 #' Check range
-#' 
+#'
 #' @description Checks whether variables always fall within a given range.
 #' @param df Data
 #' @param vars Character vector of variables to check
 #' @param min Minimum allowed value (default: 0)
 #' @param max Maximum allowed value (default: 1)
 #' @value List containing the results of the check (checks), and a tibble
-#' of status and message for each test (messages). 
-#' @details Note that both the minimum and maximum are _inclusive_, that is, 
-#' the range is given as [min, max]. For _exclusive_ checks, e.g. (0,1], or 
+#' of status and message for each test (messages).
+#' @details Note that both the minimum and maximum are _inclusive_, that is,
+#' the range is given as [min, max]. For _exclusive_ checks, e.g. (0,1], or
 #' greater than 0, lesser than or equal to 1, the user will have to manually
 #' give a minimum value with a certain error applied (e.g., 1e-6).
-#' 
+#'
 #' The list of messages in the result contains a single line if the test passed,
-#' or if a test failed for one or more variables, a line for each failure. 
+#' or if a test failed for one or more variables, a line for each failure.
 #' @import glue
 #' @import dplyr
-#' @examples 
+#' @examples
 #' data(df_pa)
 #' check_range(df_pa, c("u_pfs", "p_pfspd"))
 #' @export
