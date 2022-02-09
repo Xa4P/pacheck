@@ -236,6 +236,10 @@ vis_1_param <- function(df,
 #'
 #' @return A numeric.
 #'
+#' @details
+#' If only `min_val` is specified, the proportion of iteration above this value will be computed.
+#' If only `max_val` is specified, the proportion of iteration below this value will be computed.
+#'
 #' @examples
 #' # Checking how often the "u_pfs" values falls within 0.55 and 0.72.
 #' data(df_pa)
@@ -249,11 +253,26 @@ vis_1_param <- function(df,
 #'
 check_range <- function(df,
                         outcome,
-                        min_val,
-                        max_val) {
+                        min_val = NULL,
+                        max_val = NULL) {
+
+  if(is.null(min_val) & !is.null(max_val)) {
+
+    n_out <- round(length(which(df[, outcome] <= max_val)) / nrow(df) * 100, 0)
+    n_out <- paste("The proportion of iterations below ", max_val, " is ", n_out, "%", sep = "")
+
+    }  else if(!is.null(min_val) & is.null(max_val)) {
+
+    n_out <- round(length(which(df[, outcome] >= min_val)) / nrow(df) * 100, 0)
+    n_out <- paste("The proportion of iterations above ", min_val, " is ", n_out, "%", sep = "")
+
+
+  } else if(!is.null(min_val) & !is.null(max_val)) {
 
   n_out <- round(length(which(df[, outcome] >= min_val &
                                 df[, outcome] <= max_val)) / nrow(df) * 100, 0)
+  n_out <- paste("The proportion of iterations between ", min_val, " and ", max_val, " is ", n_out, "%", sep = "")
+  }
 
   return(n_out)
 }
@@ -629,12 +648,12 @@ check_positive <- function(..., df, max_view = 50){
 #' data(df_pa)
 #' check_range(df_pa, c("u_pfs", "p_pfspd"))
 #' @export
-check_range <- function(df, vars, min = 0, max = 1){
-  gte_min <- do_check(df, vars, ~all(.x >= min), glue::glue("greater than or equal to {min}"))
-  lte_max <- do_check(df, vars, ~all(.x <= max), glue::glue("less than or equal to {max}"))
-
-  return(list(checks = tibble(vars, min = gte_min$check, max = lte_max$check), messages = dplyr::bind_rows(gte_min$messages, lte_max$messages)))
-}
+# check_range <- function(df, vars, min = 0, max = 1){
+#   gte_min <- do_check(df, vars, ~all(.x >= min), glue::glue("greater than or equal to {min}"))
+#   lte_max <- do_check(df, vars, ~all(.x <= max), glue::glue("less than or equal to {max}"))
+#
+#   return(list(checks = tibble(vars, min = gte_min$check, max = lte_max$check), messages = dplyr::bind_rows(gte_min$messages, lte_max$messages)))
+# } #@KAREL: DIT ZORGT VOOR CONFLICTEN MET `check_range()` HIERBOVEN
 
 do_check <- function(df, vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
   pass <- dplyr::summarise(df, dplyr::across(!!vars, check))
