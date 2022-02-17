@@ -772,7 +772,6 @@ check_binary <- function(..., df, max_view = 50) {
 #'                )
 #'
 #' @export
-#'
 check_mean_qol <- function(df,
                            t_qaly,
                            t_ly,
@@ -803,8 +802,11 @@ check_mean_qol <- function(df,
     n_it_below <- length(which(m_res[, 1] == FALSE))
     n_it_above <- length(which(m_res[, 2] == FALSE))
 
-    v_it_below <- paste(which(m_res[, 1][1:max_view] == FALSE), collapse = ", ")
-    v_it_above <- paste(which(m_res[, 2][1:max_view] == FALSE), collapse = ", ")
+    max_view_1 <- ifelse(n_it_below < max_view, n_it_below, max_view)
+    max_view_2 <- ifelse(n_it_above < max_view, n_it_above, max_view)
+
+    v_it_below <- ifelse(n_it_below == 0, 0, paste(which(m_res[, 1] == FALSE)[1:max_view_1], collapse = ", "))
+    v_it_above <- ifelse(n_it_above == 0, 0, paste(which(m_res[, 2] == FALSE)[1:max_view_2], collapse = ", "))
 
     m_res_fct <- matrix(c(n_it_below, n_it_above,
                           v_it_below, v_it_above),
