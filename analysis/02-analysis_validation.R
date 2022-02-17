@@ -57,7 +57,37 @@ res_sum_probs_error_sum <- check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa_hi
 
 # Check positive values
 res_check_pos_no_error <- check_positive(c("c_pfs", "c_pd", "u_pfs", "u_pd", "c_ae", "u_ae", "t_qaly_d_comp", "t_qaly_d_int", "t_costs_d_comp", "t_costs_d_int"), df = df_pa) # ok!
-res_check_pos_error <- check_positive(c("c_pfs", "c_pd", "u_pfs", "u_pd", "c_ae", "u_ae", "t_qaly_d_comp", "t_qaly_d_int", "t_costs_d_comp", "t_costs_d_int"), df = df_pa_error) # ok!
+res_check_pos_error    <- check_positive(c("c_pfs", "c_pd", "u_pfs", "u_pd", "c_ae", "u_ae", "t_qaly_d_comp", "t_qaly_d_int", "t_costs_d_comp", "t_costs_d_int"), df = df_pa_error) # ok!
+
+# Check range
+res_check_range_binary_no_error <- check_range(df = df_pa,
+                                               outcome = "u_pfs",
+                                               min_val = 0,
+                                               max_val = 1) # ok!
+res_check_range_below_no_error <- check_range(df = df_pa,
+                                               outcome = "u_pfs",
+                                               #min_val = 0,
+                                               max_val = 1) # ok!
+res_check_range_above_no_error <- check_range(df = df_pa,
+                                              outcome = "u_pfs",
+                                              min_val = 0) # ok!
+
+res_check_range_binary_error <- check_range(df = df_pa_error,
+                                               outcome = "u_pfs",
+                                               min_val = 0,
+                                               max_val = 1) # ok!
+res_check_range_below_error <- check_range(df = df_pa_error,
+                                              outcome = "u_pfs",
+                                              #min_val = 0,
+                                              max_val = 1) # ok!
+res_check_range_above_error <- check_range(df = df_pa_error,
+                                              outcome = "u_pfs",
+                                              min_val = 0) # ok!
+
+# Check binary
+res_check_bin_no_error <- check_binary(c("u_pfs", "u_pd"), df = df_pa)
+res_check_bin_error <- check_binary(c("u_pfs", "u_pd"), df = df_pa_error)
+
 
 #---------------------------------------------------#
 #### Comparison metamodel vs original prediction ####
