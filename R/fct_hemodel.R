@@ -257,3 +257,83 @@ perform_simulation <- function(l_params,
   }
   )
 }
+
+# Perform deterministic one-way sensitivity analysis using probabilistic outcomes
+perform_dowsa <- function(df,
+                          vars,
+                          wtp = 120000) {
+  #df <- df_pa_orig
+  #vars <- c("rr", "c_pfs")
+  df_dsa <- data.frame(
+    rbind(apply(df[, vars], 2, mean),
+          apply(df[, vars], 2, function(x) quantile(x, 0.025)),
+          apply(df[, vars], 2, function(x) quantile(x, 0.975))
+    )
+  )
+
+  m_low <- matrix(NA,
+                  ncol = 2,
+                  nrow = ncol(df_dsa),
+                  dimnames = list(names(df_dsa),
+                                  c("Parameter", "Lower_Bound")))
+  m_upp <- matrix(NA,
+                  ncol = 2,
+                  nrow = ncol(df_dsa),
+                  dimnames = list(names(df_dsa),
+                                  c("Parameter", "Upper_Bound")))
+
+  for (j in vars){
+    #j <- "rr"
+    df_temp_dsa <- df
+    df_temp_dsa[, j] <- df_dsa[2, which(names(df_dsa) == j)]
+    m_res_pa <- matrix(NA_real_,
+                       nrow = nrow(df),
+                       ncol = length(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
+                                                        verbose = FALSE))
+                       )
+
+  for (i in 1:nrow(df)) {
+
+    l_params_temp <- as.list(df_temp_dsa[i, ])
+    m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp,
+                                        verbose = FALSE)
+    }
+    colnames(m_res_pa) <- names(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
+                                                   verbose = FALSE))
+    v_iNMB <- (m_res_pa[, "t_qaly_d_int"] - m_res_pa[, "t_qaly_d_comp"]) * wtp - (m_res_pa[, "t_costs_d_int"] - m_res_pa[, "t_costs_d_comp"])
+    m_low[j, ] <- c(names(df)[which(names(df) == j)], mean(v_iNMB))
+  }
+
+  m_res_pa <- matrix()
+
+  for (j in vars){
+    df_temp_dsa <- df
+    df_temp_dsa[, j] <- df_dsa[3, which(names(df_dsa) == j)]
+    m_res_pa <- matrix(NA_real_,
+                       nrow = nrow(df),
+                       ncol = length(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
+                                                        verbose = FALSE)))
+
+    for (i in 1:nrow(df)) {
+
+      l_params_temp <- as.list(df_temp_dsa[i, ])
+
+      m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp,
+                                          verbose = FALSE)
+      }
+    colnames(m_res_pa) <- names(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
+                                                   verbose = FALSE))
+    v_iNMB <- (m_res_pa[, "t_qaly_d_int"] - m_res_pa[, "t_qaly_d_comp"]) * wtp - (m_res_pa[, "t_costs_d_int"] - m_res_pa[, "t_costs_d_comp"])
+    m_upp[j, ] <- c(names(df)[which(names(df) == j)], mean(v_iNMB))
+  }
+
+  rownames(m_low) <- rownames(m_upp) <- NULL
+  df_low <- as.data.frame(m_low)
+  df_upp <- as.data.frame(m_upp)
+
+  df_out <- merge(df_low, df_upp)
+  df_out[, 2:ncol(df_out)] <- apply(df_out[, 2:ncol(df_out)], 2, function(x) as.numeric(as.character(x)))
+
+  return(df_out)
+
+}
