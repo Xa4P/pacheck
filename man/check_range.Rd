@@ -4,12 +4,12 @@
 \alias{check_range}
 \title{Check range}
 \usage{
-check_range(df, outcome, min_val, max_val)
+check_range(df, outcome, min_val = NULL, max_val = NULL)
 }
 \arguments{
 \item{df}{a dataframe.}
 
-\item{outcome}{character string. Name of variable of the dataframe for which to plot the moving average.}
+\item{outcome}{character string. Name of variable of the dataframe for which to check the range.}
 
 \item{min_val}{numeric. Define the minimum value of the range.}
 
@@ -20,6 +20,10 @@ A numeric.
 }
 \description{
 This function checks the probability that an input or output falls within a user-defined range.
+}
+\details{
+If only `min_val` is specified, the proportion of iteration above this value will be computed.
+If only `max_val` is specified, the proportion of iteration below this value will be computed.
 }
 \examples{
 # Checking how often the "u_pfs" values falls within 0.55 and 0.72.
