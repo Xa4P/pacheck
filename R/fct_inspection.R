@@ -250,7 +250,6 @@ vis_1_param <- function(df,
 #'                  ))
 #'
 #' @export
-#'
 check_range <- function(df,
                         outcome,
                         min_val = NULL,
@@ -258,19 +257,19 @@ check_range <- function(df,
 
   if(is.null(min_val) & !is.null(max_val)) {
 
-    n_out <- round(length(which(df[, outcome] <= max_val)) / nrow(df) * 100, 0)
+    n_out <- round(length(which(df[, outcome] <= max_val)) / nrow(df) * 100, 4)
     n_out <- paste("The proportion of iterations below ", max_val, " is ", n_out, "%", sep = "")
 
     }  else if(!is.null(min_val) & is.null(max_val)) {
 
-    n_out <- round(length(which(df[, outcome] >= min_val)) / nrow(df) * 100, 0)
+    n_out <- round(length(which(df[, outcome] >= min_val)) / nrow(df) * 100, 4)
     n_out <- paste("The proportion of iterations above ", min_val, " is ", n_out, "%", sep = "")
 
 
   } else if(!is.null(min_val) & !is.null(max_val)) {
 
   n_out <- round(length(which(df[, outcome] >= min_val &
-                                df[, outcome] <= max_val)) / nrow(df) * 100, 0)
+                                df[, outcome] <= max_val)) / nrow(df) * 100, 4)
   n_out <- paste("The proportion of iterations between ", min_val, " and ", max_val, " is ", n_out, "%", sep = "")
   }
 
