@@ -88,6 +88,25 @@ res_check_range_above_error <- check_range(df = df_pa_error,
 res_check_bin_no_error <- check_binary(c("u_pfs", "u_pd"), df = df_pa)
 res_check_bin_error <- check_binary(c("u_pfs", "u_pd"), df = df_pa_error)
 
+# Check mean QALY
+df_pa$t_qaly_int_check <- df_pa$t_qaly_pfs_d_int + df_pa$t_qaly_pd_d_int # only consider QALYs won in health states fpr this check
+df_pa$t_qaly_int_check_error_below <- df_pa$t_qaly_int_check
+df_pa[c(3, 333, 3333), "t_qaly_int_check_error_below"] <-  df_pa[c(3, 333, 3333), "t_qaly_int_check_error_below"] - 3
+df_pa$t_qaly_int_check_error_above <- df_pa$t_qaly_int_check
+df_pa[c(3, 333, 3333), "t_qaly_int_check_error_above"] <-  df_pa[c(3, 333, 3333), "t_qaly_int_check_error_above"] + 3
+
+res_check_mean_qol_no_error <- check_mean_qol(df = df_pa,
+                                              t_qaly = "t_qaly_int_check",
+                                              t_ly = "t_ly_d_int",
+                                              u_values = c("u_pfs", "u_pd")) #
+res_check_mean_qol_below_error <- check_mean_qol(df = df_pa,
+                                                 t_qaly = "t_qaly_int_check_error_below",
+                                                 t_ly = "t_ly_d_int",
+                                                 u_values = c("u_pfs", "u_pd")) #
+res_check_mean_qol_above_error <- check_mean_qol(df = df_pa,
+                                                 t_qaly = "t_qaly_int_check_error_above",
+                                                 t_ly = "t_ly_d_int",
+                                                 u_values = c("u_pfs", "u_pd")) #
 
 #---------------------------------------------------#
 #### Comparison metamodel vs original prediction ####
