@@ -208,8 +208,9 @@ dsa_lm_metamodel <- function(df,
 #'              df_basecase = df_pa,
 #'              outcome = "Inc_QALY")
 #'
-#'
-#' @export
+#' @import ggplot2
+#' @import scales
+#' @exportt tidyverse
 #'
 plot_tornado <- function(df,
                          df_basecase,
@@ -218,9 +219,9 @@ plot_tornado <- function(df,
   # Draw tornado diagram
   ##SOURCE tornado diagram: https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given
 
-  require(ggplot2)
-  require(scales)
-  require(tidyverse) # is this twice the same with "ggplot2"?
+  #require(ggplot2)
+  #require(scales)
+  #require(tidyverse) # is this twice the same with "ggplot2"?
 
   df$UL_Difference <- df$Upper_Bound - df$Lower_Bound
 
