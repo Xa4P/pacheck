@@ -850,6 +850,7 @@ check_mean_qol <- function(df,
 #'                v_costs = c("c_pfs", "c_pd", "c_thx")
 #'                )
 #'
+#' @import testthat
 #' @export
 #'
 do_quick_check <- function(df,
@@ -862,19 +863,11 @@ do_quick_check <- function(df,
                            v_outcomes = NULL
 ) {
 
-  if (!requireNamespace("testthat", quietly = TRUE)) {
-    stop(
-      "Package \"testthat\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
-
-
   if(!is.null(v_probs)) {
 
     res_probs_1 <- testthat::test_that("All probabilities are positive", {
       for (i in v_probs) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_gte(df[j, i], 0)
         }
       }
@@ -888,7 +881,7 @@ do_quick_check <- function(df,
 
     res_probs_2 <- testthat::test_that("All probabilities are lower or equal to 1", {
       for (i in v_probs) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_lte(df[j, i], 1)
         }
       }
@@ -902,7 +895,7 @@ do_quick_check <- function(df,
 
     res_utilities_1 <- testthat::test_that("All utility values are positive", {
       for (i in v_utilities) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_gte(df[j, i], 0)
         }
       }
@@ -916,7 +909,7 @@ do_quick_check <- function(df,
 
     res_utilities_2 <- testthat::test_that("All utility values are lower or equal to 1", {
       for (i in v_utilities) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_lte(df[j, i], 1)
         }
       }
@@ -930,7 +923,7 @@ do_quick_check <- function(df,
 
     res_costs <- testthat::test_that("All costs parameters are positive", {
       for (i in v_costs) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_gte(df[j, i], 0)
         }
       }
@@ -944,7 +937,7 @@ do_quick_check <- function(df,
 
     res_hr <- testthat::test_that("All hazard ratios are positive", {
       for (i in v_hr) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_gte(df[j, i], 0)
         }
       }
@@ -958,7 +951,7 @@ do_quick_check <- function(df,
 
     res_rr <- testthat::test_that("All relative risks are positive", {
       for (i in v_rr) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_gte(df[j, i], 0)
         }
       }
@@ -972,7 +965,7 @@ do_quick_check <- function(df,
 
     res_r <- testthat::test_that("All rates are positive", {
       for (i in v_r) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_gte(df[j, i], 0)
         }
       }
@@ -986,7 +979,7 @@ do_quick_check <- function(df,
 
     res_outcomes <- testthat::test_that("All outcomes are positive", {
       for (i in v_outcomes) {
-        for (j in 1:length(df)) {
+        for (j in 1:nrow(df)) {
           testthat::expect_gte(df[j, i], 0)
         }
       }
