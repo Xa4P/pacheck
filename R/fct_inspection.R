@@ -683,17 +683,10 @@ do_check <- function(df, vars, check, label_check, template_ok = "all variables 
 #' # Checking whether two variables are strictly positive
 #' # Descreasing the number of iterations to display to 20.
 #' check_binary("u_pfs", "p_pfspd", df = df_pa)
-#'
+#' @import stringi
 #' @export
 #'
 check_binary <- function(..., df, max_view = 50) {
-
-  if (!requireNamespace("stringi", quietly = TRUE)) {
-    stop(
-      "Package \"stringi\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
 
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
