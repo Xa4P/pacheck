@@ -40,5 +40,4 @@ plot_tornado(df = df_res_dsa,
              df_basecase = df_pa,
              outcome = "Inc_QALY")
 
-
 }
