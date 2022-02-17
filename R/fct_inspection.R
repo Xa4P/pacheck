@@ -529,7 +529,6 @@ plot_convergence <- function(df,
 #'
 #' @export
 #'
-
 check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 100){
 
   l_vars <- list(...)
@@ -544,6 +543,7 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 
     v_id_higher <- which(v_calc > 1)
     if(length(v_id_higher) > 0) {
+      max_view <- ifelse(max_view > length(v_id_higher), length(v_id_higher), max_view)
       return(paste("The sum of probabilities is higher than 1 in the following iterations:", paste(v_id_higher[1:max_view], collapse = ", ")))
     } else {
       return("The sum of probabilities in all iterations is lower or equal to 1")
@@ -553,6 +553,7 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 
     v_id_diff <- which(v_calc != 1)
     if(length(v_id_diff) > 0) {
+      max_view <- ifelse(max_view > length(v_id_diff), length(v_id_diff), max_view)
       return(paste("The sum of probabilities is different than 1 in the following iterations:", paste(v_id_diff[1:max_view], collapse = ", ")))
     } else {
       return("The sum of probabilities in all iterations is equal to 1")
