@@ -216,7 +216,7 @@ perform_simulation <- function(l_params,
     t_c_ae_int <- n_ind * p_ae * c_ae # total costs adverse events
 
     n_t_c_comp_d <- t(v_t_c_comp) %*% v_dw_c
-    n_t_c_int_d  <- t(v_t_c_int) %*% v_dw_c + t_c_ae_int
+    n_t_c_int_d  <- (t(v_t_c_int) %*% v_dw_c) + t_c_ae_int
 
     t_c_pfs_comp <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 1] * c_pfs) %*% v_dw_c)
     t_c_pd_comp  <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 2] * c_pd) %*% v_dw_c)
