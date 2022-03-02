@@ -1068,20 +1068,12 @@ do_quick_check <- function(df,
 #'                   v_outcomes = c("t_qaly_comp", "t_qaly_int"),
 #'                   v_outcomes_d = c("t_qaly_d_comp", "t_qaly_d_int")
 #'                   )
-#'
+#' @import testthat
 #' @export
-#'
 do_discount_check <- function(df,
                               v_outcomes = NULL,
                               v_outcomes_d = NULL
 ) {
-
-  if (!requireNamespace("testthat", quietly = TRUE)) {
-    stop(
-      "Package \"testthat\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
 
   if(length(v_outcomes) != length(v_outcomes_d)){
     stop("Number of variables with discounted and undiscounted outcomes is different.")
