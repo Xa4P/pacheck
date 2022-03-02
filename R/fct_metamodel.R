@@ -68,18 +68,10 @@ fit_lm_metamodel <- function(df,
 #' predict_lm_metamodel(lm_metamodel = lm_res,
 #'                      inputs = c(0.75, 0.2)
 #'                      )
-#'
+#' @import stats
 #' @export
-#'
 predict_lm_metamodel <- function(lm_metamodel,
                                  inputs){
-
-  if (!requireNamespace("stats", quietly = TRUE)) {
-    stop(
-      "Package \"stats\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
 
   v_names <- names(lm_metamodel$coefficients[c(2:length(lm_metamodel$coefficients))])
 
