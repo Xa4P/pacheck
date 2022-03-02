@@ -4,6 +4,12 @@
 #'
 #' @param df a dataframe.
 #' @param v_params character or vector of character. Vector of names of the variables of `df` for which to return summary statistics. Default is NULL which returns summary values for all inputs and outputs in the dataframe.
+#' @param x character string. Name of the first variable used to select a range of outcomes.
+#' @param y character string. Name of the second variable used to select a range of outcomes.
+#' @param xmin numeric. Minimum value the `x` variable can have (inclusive).
+#' @param xmax numeric. Maximum value the `x` variable can have (inclusive).
+#' @param ymin numeric. Minimum value the `y` variable can have (inclusive).
+#' @param ymax numeric. Maximum value the `y` variable can have (inclusive).
 #'
 #' @return A dataframe with summary data for the selected variables.
 #'
@@ -13,32 +19,52 @@
 #' df_summary <- generate_sum_stats(df_pa)
 #'
 #' @export
-#'
 generate_sum_stats <- function(df,
-                               v_params = NULL){
+                               v_params = NULL,
+                               x = NULL,
+                               y = NULL,
+                               xmax = max(df[, x]),
+                               xmin = min(df[, x]),
+                               ymax = max(df[, y]),
+                               ymin = min(df[, y])){
 
-  df <- if(is.null(v_params)) {
-    df
-  } else {
-    data.frame(df[, v_params])
+  df_out <- df_select <- data.frame()
+
+  if(!is.null(x)){
+    if(xmax < xmin){
+      stop("xmax lower than xmin")
+    }
+    df <- df[which(df[, x] <= xmax &
+                     df[, x] >= xmin), ]
+  }
+  if(!is.null(y)){
+    if(ymax < ymin){
+      stop("ymax lower than ymin")
+    }
+    df <- df[which(df[, y] <= ymax &
+                     df[, y] >= ymin), ]
   }
 
-  df_out <- data.frame(Parameter = if(length(v_params) == 1) { v_params } else{ names(df) },
-                       Mean = apply(df, 2, mean),
-                       SD = apply(df, 2, sd),
-                       Percentile_2.5th = apply(df, 2, function(x) quantile(x, 0.025)),
-                       Percentile_97.5th = apply(df, 2, function(x) quantile(x, 0.975)),
-                       Minimum = apply(df, 2, min),
-                       Maximum = apply(df, 2, max)
+  if(!is.null(v_params)){
+    df_select <- data.frame(df[, v_params])
+  } else {
+    df_select <- data.frame(df)
+  }
+
+  df_out <- data.frame(Parameter = if(length(v_params) == 1) { v_params } else{ names(df_select) },
+                       Mean = apply(df_select, 2, mean),
+                       SD = apply(df_select, 2, sd),
+                       Percentile_2.5th = apply(df_select, 2, function(x) quantile(x, 0.025)),
+                       Percentile_97.5th = apply(df_select, 2, function(x) quantile(x, 0.975)),
+                       Minimum = apply(df_select, 2, min),
+                       Maximum = apply(df_select, 2, max)
                        )
 
   df_out[, 2:ncol(df_out)] <- apply(df_out[, 2:ncol(df_out)], 2, function(x) round(x, 3))
   rownames(df_out) <- NULL
 
   return(df_out)
-
 }
-
 
 #' Generate correlation matrix
 #'
@@ -276,6 +302,7 @@ check_range <- function(df,
 
   return(n_out)
 }
+
 
 #' Visualise the distribution of two parameters
 #'
