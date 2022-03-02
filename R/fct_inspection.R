@@ -389,17 +389,17 @@ fit_dist <- function(df,
                      param,
                      dist = c("norm", "beta", "gamma", "lnorm")) {
 
-  l_dist <- vector(mode = "list", length = length(dist))
-  names(l_dist) <- dist
+  l_dist <- l_gof <- vector(mode = "list", length = length(dist))
+  names(l_dist) <- names(l_gof) <- dist
 
   l_out <- vector(mode = "list", length = 2)
-  names(l_out) <- c("AIC", "Dist_parameters")
+  names(l_out) <- c("Statistical_fit", "Dist_parameters")
 
   m_stats <- matrix(NA,
-                    ncol = 2,
+                    ncol = 4,
                     nrow = length(dist),
                     dimnames = list(NULL,
-                                    c("Distribution", "AIC")))
+                                    c("Distribution", "AIC", "BIC", "Kolmorogov-Smirnov")))
   m_stats[, "Distribution"] <- dist
 
   m_params <- matrix(NA,
@@ -415,7 +415,13 @@ fit_dist <- function(df,
   }
 
   for (i in 1:length(dist)){
+    l_gof[[i]] <- fitdistrplus::gofstat(l_dist[[i]])
+  }
+
+  for (i in 1:length(dist)){
     m_stats[i, "AIC"] <- round(l_dist[[i]]$aic)
+    m_stats[i, "BIC"] <- round(l_dist[[i]]$bic)
+    m_stats[i, "Kolmorogov-Smirnov"] <- round(l_gof[[i]]$ks, 3)
   }
 
   for (i in 1:length(dist)){
