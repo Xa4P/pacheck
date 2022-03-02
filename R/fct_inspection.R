@@ -101,7 +101,7 @@ generate_cor <- function(df,
 #'
 #' @export
 vis_1_param <- function(df,
-                        param = "u_pfs",
+                        param = NULL,
                         binwidth = NULL,
                         type = "histogram",
                         dist = c("lnorm", "norm", "beta"),
