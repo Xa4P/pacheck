@@ -3,7 +3,7 @@
 #' @description This function generates summary statistics of input and output values of a probabilistic analysis.
 #'
 #' @param df a dataframe.
-#' @param v_params character or vector of character. Vector of names of the variables of `df` for which to return summary statistics. Default is "ALL" which returns summary values for all inputs and outputs in the dataframe.
+#' @param v_params character or vector of character. Vector of names of the variables of `df` for which to return summary statistics. Default is NULL which returns summary values for all inputs and outputs in the dataframe.
 #'
 #' @return A dataframe with summary data for the selected variables.
 #'
@@ -15,22 +15,22 @@
 #' @export
 #'
 generate_sum_stats <- function(df,
-                               v_params = "ALL"){
+                               v_params = NULL){
 
-  df <- if(v_params == "ALL") {
+  df <- if(is.null(v_params)) {
     df
   } else {
     data.frame(df[, v_params])
   }
 
-  df_out <- data.frame(Parameter = if(length(v_params) == 1 & v_params!= "ALL") { v_params } else{ names(df) },
-                           Mean = apply(df, 2, mean),
-                           SD = apply(df, 2, sd),
-                           Percentile_2.5th = apply(df, 2, function(x) quantile(x, 0.025)),
-                           Percentile_97.5th = apply(df, 2, function(x) quantile(x, 0.975)),
-                           Minimum = apply(df, 2, min),
-                           Maximum = apply(df, 2, max)
-  )
+  df_out <- data.frame(Parameter = if(length(v_params) == 1) { v_params } else{ names(df) },
+                       Mean = apply(df, 2, mean),
+                       SD = apply(df, 2, sd),
+                       Percentile_2.5th = apply(df, 2, function(x) quantile(x, 0.025)),
+                       Percentile_97.5th = apply(df, 2, function(x) quantile(x, 0.975)),
+                       Minimum = apply(df, 2, min),
+                       Maximum = apply(df, 2, max)
+                       )
 
   df_out[, 2:ncol(df_out)] <- apply(df_out[, 2:ncol(df_out)], 2, function(x) round(x, 3))
   rownames(df_out) <- NULL
