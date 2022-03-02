@@ -626,6 +626,51 @@ check_positive <- function(..., df, max_view = 50){
   return(df_res)
 }
 
+#' Check sum variables
+#'
+#' @description This function checks whether the sum of selected variables are equal to another.
+#'
+#' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
+#' @param df a dataframe.
+#' @param outcome character string. Name of variable of the dataframe which should equal the sum of variables mentioned in `...`.
+#' @param digits Define the number of digits at which the sum and the `outcome` variables are rounded.
+#'
+#' @return A string.
+#'
+#' @examples
+#' # Checking whether health state and adverse event costs of the intervention equal the total discounted costs
+#' check_sum_vars("t_costs_pfs_d_int", "t_costs_pd_d_int", "t_costs_ae_int",
+#'                df = head(df_pa),
+#'                outcome = "t_costs_d_int",
+#'                digits = 0)
+#'
+#' @export
+#'
+check_sum_vars <- function(...,
+                           df,
+                           outcome,
+                           digits = 3) {
+  l_vars <- list(...)
+  v_vars <- unlist(l_vars, use.names = FALSE)
+  v_calc <- as.numeric(as.character(rowSums(df[, as.character(v_vars)])))
+  v_outcome <- as.numeric(as.character(df[, outcome]))
+
+  if (!is.null(digits)) {
+    v_calc <- round(v_calc, digits)
+    v_outcome <- round(v_outcome, digits)
+  }
+
+  v_diff <- which(v_calc != v_outcome)
+
+  if(length(v_diff) == 0) {
+    res <- paste("Sums of", paste(v_vars, collapse = ", ") ,"variables equal", outcome, "variabe")
+  } else {
+    res <- paste("Sums of", paste(v_vars, collapse = ", "), "variables does not equal", outcome, "variabe in the following iterations:", paste(v_diff, collapse = ", "))
+  }
+  return(res)
+}
+
+
 #' Check range
 #'
 #' @description Checks whether variables always fall within a given range.
