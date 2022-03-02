@@ -96,8 +96,10 @@ generate_cor <- function(df,
 #' data(df_pa)
 #' vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
 #'
-#' @export
+#' @import fitdistrplus
+#' @import ggplot2
 #'
+#' @export
 vis_1_param <- function(df,
                         param = "u_pfs",
                         binwidth = NULL,
@@ -107,13 +109,12 @@ vis_1_param <- function(df,
                         user_param_1 = NULL,
                         user_param_2 = NULL,
                         user_mean = NULL) {
-  require(ggplot2, quietly = TRUE)
-  require(fitdistrplus, quietly = TRUE)
+  # THIS FUNCTION COULD ALSO USE THE `denscomp` fct of fitdistrplus...
 
-  if("beta" %in% dist) {beta_dist <- fitdist(df[, param], distr = "beta")}
-  if("gamma" %in% dist) {gamma_dist <- fitdist(df[, param], distr = "gamma")}
-  if("norm" %in% dist) {norm_dist <- fitdist(df[, param], distr = "norm")}
-  if("lnorm" %in% dist) {lnorm_dist <- fitdist(df[, param], distr = "lnorm")}
+  if("beta" %in% dist) {beta_dist <- fitdistrplus::fitdist(df[, param], distr = "beta")}
+  if("gamma" %in% dist) {gamma_dist <- fitdistrplus::fitdist(df[, param], distr = "gamma")}
+  if("norm" %in% dist) {norm_dist <- fitdistrplus::fitdist(df[, param], distr = "norm")}
+  if("lnorm" %in% dist) {lnorm_dist <- fitdistrplus::fitdist(df[, param], distr = "lnorm")}
 
   df_legend <- data.frame(
     dist_call = c("user", "norm", "beta", "gamma", "lnorm"),
@@ -128,27 +129,27 @@ vis_1_param <- function(df,
   df_legend <- df_legend[which(df_legend$dist_call %in% dist),]
   df_legend <- df_legend[order(df_legend$dist_call),]
 
-  p <- ggplot(data = df, aes_string(x = param)) +
-    theme_bw()
+  p <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param)) +
+    ggplot2::theme_bw()
 
   if(type == "histogram") {
-    p_out <- p + geom_histogram(binwidth = binwidth)
+    p_out <- p + ggplot2::geom_histogram(binwidth = binwidth)
 
   } else if(type == "density") {
     p_out <- p +
-      geom_histogram(aes(y = ..density..),
-                     colour = "grey",
-                     fill = "lightgrey")
+      ggplot2::geom_histogram(ggplot2::aes(y = ..density..),
+                              colour = "grey",
+                              fill = "lightgrey")
 
     if("beta" %in% dist) {
       df_beta <- data.frame(
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
         y = dbeta(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), beta_dist$estimate[[1]], beta_dist$estimate[[2]]))
 
-      p_out <- p_out + geom_line(data = df_beta,
-                                 aes(x = x,
-                                     y = y,
-                                     colour = "Beta")
+      p_out <- p_out + ggplot2::geom_line(data = df_beta,
+                                          ggplot2::aes(x = x,
+                                                       y = y,
+                                                       colour = "Beta")
       )
     }
 
@@ -157,10 +158,10 @@ vis_1_param <- function(df,
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
         y = dgamma(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), gamma_dist$estimate[[1]], gamma_dist$estimate[[2]]))
 
-      p_out <- p_out + geom_line(data = df_gamma,
-                                 aes(x = x,
-                                     y = y,
-                                     colour = "Gamma")
+      p_out <- p_out + ggplot2::geom_line(data = df_gamma,
+                                          ggplot2::aes(x = x,
+                                                       y = y,
+                                                       colour = "Gamma")
       )
     }
 
@@ -169,11 +170,11 @@ vis_1_param <- function(df,
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
         y = dnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), norm_dist$estimate[[1]], norm_dist$estimate[[2]]))
 
-      p_out <- p_out + geom_line(data = df_norm,
-                                 aes(x = x,
-                                     y = y,
-                                     colour = "Normal")
-                                 )
+      p_out <- p_out + ggplot2::geom_line(data = df_norm,
+                                          ggplot2::aes(x = x,
+                                          y = y,
+                                          colour = "Normal")
+                                          )
     }
 
     if("lnorm" %in% dist) {
@@ -181,11 +182,11 @@ vis_1_param <- function(df,
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
         y = dlnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), lnorm_dist$estimate[[1]], lnorm_dist$estimate[[2]]))
 
-      p_out <- p_out + geom_line(data = df_lnorm,
-                                 aes(x = x,
-                                     y = y,
-                                     colour = "Lognormal")
-                                 )
+      p_out <- p_out + ggplot2::geom_line(data = df_lnorm,
+                                          ggplot2::aes(x = x,
+                                                       y = y,
+                                                       colour = "Lognormal")
+                                          )
     }
 
     if("user" %in% dist) {
@@ -204,22 +205,22 @@ vis_1_param <- function(df,
         }
       )
 
-      p_out <- p_out + geom_line(data = df_user,
-                                 aes(x = x,
-                                     y = y,
-                                     colour = "User")
-                                 )
+      p_out <- p_out + ggplot2::geom_line(data = df_user,
+                                          ggplot2::aes(x = x,
+                                          y = y,
+                                          colour = "User")
+                                          )
     }
 
   }
 
   p_out <- p_out +
-    scale_colour_manual(name = "Distributions",
-                        values = df_legend$col) +
-    theme(legend.key = element_rect(fill = "lightgrey"))
+    ggplot2::scale_colour_manual(name = "Distributions",
+                                 values = df_legend$col) +
+    ggplot2::theme(legend.key = element_rect(fill = "lightgrey"))
 
   if(!is.null(user_mean)) {
-    p_out <- p_out + geom_vline(xintercept = user_mean, lty = 3)
+    p_out <- p_out + ggplot2::geom_vline(xintercept = user_mean, lty = 3)
   }
 
   p_out
@@ -384,7 +385,6 @@ vis_2_params <- function(df,
 #'          dist = c("norm", "beta"))
 #'
 #' @export
-#'
 fit_dist <- function(df,
                      param,
                      dist = c("norm", "beta", "gamma", "lnorm")) {
