@@ -383,13 +383,11 @@ vis_2_params <- function(df,
 #' fit_dist(df = df_pa,
 #'          param = "u_pfs",
 #'          dist = c("norm", "beta"))
-#'
+#' @import fitdistrplus
 #' @export
 fit_dist <- function(df,
                      param,
                      dist = c("norm", "beta", "gamma", "lnorm")) {
-
-  require(fitdistrplus)
 
   l_dist <- vector(mode = "list", length = length(dist))
   names(l_dist) <- dist
@@ -413,7 +411,7 @@ fit_dist <- function(df,
 
 
   for (i in 1:length(dist)){
-    l_dist[[i]] <- fitdist(df[, param], distr = dist[i])
+    l_dist[[i]] <- fitdistrplus::fitdist(df[, param], distr = dist[i])
   }
 
   for (i in 1:length(dist)){
