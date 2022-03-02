@@ -68,4 +68,4 @@ df_pa$inc_ly <- df_pa$t_ly_d_int - df_pa$t_ly_d_comp
 df_pa$inc_qaly <- df_pa$t_qaly_d_int - df_pa$t_qaly_d_comp
 df_pa$inc_costs <- df_pa$t_costs_d_int - df_pa$t_costs_d_comp
 
-save(df_pa, file = paste(getwd(),"/output/df_pa.rda", sep = ""))
+save(df_pa, file = paste(getwd(),"/data/df_pa.rda", sep = ""))
