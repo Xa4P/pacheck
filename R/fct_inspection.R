@@ -296,8 +296,8 @@ check_range <- function(df,
 #' data(df_pa)
 #' vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
 #'
+#' @import ggplot2
 #' @export
-#'
 vis_2_params <- function(df,
                          param_1,
                          param_2,
@@ -305,13 +305,6 @@ vis_2_params <- function(df,
                          intercept = 0,
                          check = NULL,
                          fit = NULL) {
-
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop(
-      "Package \"ggplot2\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
 
   p <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
     ggplot2::theme_bw()
