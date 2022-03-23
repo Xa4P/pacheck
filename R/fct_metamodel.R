@@ -269,3 +269,84 @@ plot_tornado <- function(df,
   p_out
 
 }
+
+#' Estimate decision sensitivy DSA using linear metamodel
+#'
+#' @description This function performs a logistic regression analysis and determines the decision sensitivity to parameter value using the logistic regression.
+#'
+#' @param df a dataframe. This dataframe should contain both dependent and independent variables.
+#' @param y character. Name of the output variable in the dataframe. This will be the dependent variable of the logistic regression model.
+#' @param x character or a vector for characters. Name of the input variable in the dataframe. This(these) will be the independent variable(s) of the logistic regression model.
+#' @param y_binomial logical. Is `y` already a binomial outcome? Default is `FALSE.` If `TRUE`, the `y` variable will be used as such, otherwise, the `y` variable will be converted to a binomial variable using the `limit` argument.
+#' @param limit numeric. Determines the limit when outcomes from `y` are categorised as 'success' (1) or not (0).
+#'
+#' @details The method for these analyses is described in [Merz et al. 1992](https://doi.org/10.1177%2F0272989X9201200304).
+#'
+#' @return A dataframe with the parameter values of the fitted logistic regression and the decision sensitivity associated with each parameter included in the logistic regression model.
+#'
+#' @examples
+#' # Determining decision sensitivity using a non-binomial outcome
+#' data(df_pa)
+#' df_pa$inmb <- df_pa$inc_qaly * 100000 - df_pa$inc_costs
+#' estimate_decision_sensitivity(df = df_pa,
+#'                               y = "inmb",
+#'                               x = c("p_pfsd", "p_pdd"),
+#'                               y_binomial = FALSE
+#'                               )
+#'
+#' @export
+#'
+estimate_decision_sensitivity <- function(df,
+                                          y,
+                                          x,
+                                          y_binomial = FALSE,
+                                          limit = 0
+){
+
+  outcome_var <- if(y_binomial == TRUE) {
+    df[, y]
+  } else {
+    ifelse(df[, y] > 0, 1, 0)
+  }
+
+  df <- data.frame(cbind(
+    df,
+    outcome_var
+  ))
+
+  names(df)[ncol(df)] <- "indep_var"
+
+  if(length(x) > 1) {
+
+    v_x <- paste(x, collapse = " + ")
+    form <- as.formula(paste("indep_var", "~", v_x))
+    glm_out <- glm(form, data = df, family = "binomial")
+
+  } else {
+
+    form <- as.formula(paste("indep_var", "~", x))
+    glm_out <- glm(form, data = df, family = "binomial")
+
+  }
+
+  v_95CI <- summary(glm_out)$coefficients[, 2] * 1.96
+  v_mean <- coefficients(glm_out)
+
+  v_95CI <- v_95CI[-1] # remove intercept
+  v_mean <- v_mean[-1] # remove intercept
+
+
+  Low_CI <- round(v_mean - v_95CI, 3)
+  High_CI <- round(v_mean + v_95CI, 3)
+  v_diff <- High_CI - Low_CI
+
+  Importance <-  paste(round((v_diff / sum(abs(v_diff))) * 100, 1), "%")
+
+  df_out <- cbind(round(summary(glm_out)$coefficients[-1, ], 3),
+                  Low_CI,
+                  High_CI,
+                  Importance)
+
+  return(df_out)
+
+}
