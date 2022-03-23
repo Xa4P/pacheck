@@ -202,7 +202,9 @@ dsa_lm_metamodel <- function(df,
 #'
 #' @import ggplot2
 #' @import scales
-#' @import tidyverse
+#' @import magrittr
+#' @import dplyr
+#' @import tidyr
 #' @export
 plot_tornado <- function(df,
                          df_basecase,
