@@ -174,7 +174,7 @@ dsa_lm_metamodel <- function(df,
 #'
 #' @description This function plots the results of the deterministic sensitivity analyses (DSA) in a Tornado diagram.
 #'
-#' @param df a dataframe. This dataframe should contain the results of the function \code{\link{fit_lm_metamodel}}.
+#' @param df a dataframe. This dataframe should contain the results of the function \code{\link{dsa_lm_metamodel}}.
 #' @param df_basecase a dataframe. This object should contain the original probabilistic analysis inputs and outputs, and the variable defined in `outcome`.
 #' @param outcome character. Name of the output variable of the DSA.
 #'
@@ -202,8 +202,8 @@ dsa_lm_metamodel <- function(df,
 #'
 #' @import ggplot2
 #' @import scales
-#' @exportt tidyverse
-#'
+#' @import tidyverse
+#' @export
 plot_tornado <- function(df,
                          df_basecase,
                          outcome) {
