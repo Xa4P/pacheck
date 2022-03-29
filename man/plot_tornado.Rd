@@ -7,7 +7,7 @@
 plot_tornado(df, df_basecase, outcome)
 }
 \arguments{
-\item{df}{a dataframe. This dataframe should contain the results of the function \code{\link{fit_lm_metamodel}}.}
+\item{df}{a dataframe. This dataframe should contain the results of the function \code{\link{dsa_lm_metamodel}}.}
 
 \item{df_basecase}{a dataframe. This object should contain the original probabilistic analysis inputs and outputs, and the variable defined in `outcome`.}
 

@@ -28,5 +28,4 @@ data(df_pa)
 fit_dist(df = df_pa,
          param = "u_pfs",
          dist = c("norm", "beta"))
-
 }

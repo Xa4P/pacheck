@@ -4,12 +4,33 @@
 \alias{generate_sum_stats}
 \title{Generate summary statistics}
 \usage{
-generate_sum_stats(df, v_params = "ALL")
+generate_sum_stats(
+  df,
+  v_params = NULL,
+  x = NULL,
+  y = NULL,
+  xmax = max(df[, x]),
+  xmin = min(df[, x]),
+  ymax = max(df[, y]),
+  ymin = min(df[, y])
+)
 }
 \arguments{
 \item{df}{a dataframe.}
 
-\item{v_params}{character or vector of character. Vector of names of the variables of `df` for which to return summary statistics. Default is "ALL" which returns summary values for all inputs and outputs in the dataframe.}
+\item{v_params}{character or vector of character. Vector of names of the variables of `df` for which to return summary statistics. Default is NULL which returns summary values for all inputs and outputs in the dataframe.}
+
+\item{x}{character string. Name of the first variable used to select a range of outcomes.}
+
+\item{y}{character string. Name of the second variable used to select a range of outcomes.}
+
+\item{xmax}{numeric. Maximum value the `x` variable can have (inclusive).}
+
+\item{xmin}{numeric. Minimum value the `x` variable can have (inclusive).}
+
+\item{ymax}{numeric. Maximum value the `y` variable can have (inclusive).}
+
+\item{ymin}{numeric. Minimum value the `y` variable can have (inclusive).}
 }
 \value{
 A dataframe with summary data for the selected variables.

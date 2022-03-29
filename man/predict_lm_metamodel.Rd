@@ -32,5 +32,4 @@ lm_res <- fit_lm_metamodel(df = df_pa,
 predict_lm_metamodel(lm_metamodel = lm_res,
                      inputs = c(0.75, 0.2)
                      )
-
 }

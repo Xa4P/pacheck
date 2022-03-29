@@ -4,7 +4,7 @@
 \alias{fit_lm_metamodel}
 \title{Fit linear metamodel}
 \usage{
-fit_lm_metamodel(df, y, x)
+fit_lm_metamodel(df, y, x, standardise = FALSE, partition = 1, seed_num = 1)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -12,12 +12,23 @@ fit_lm_metamodel(df, y, x)
 \item{y}{character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.}
 
 \item{x}{character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.}
+
+\item{standardise}{logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.}
+
+\item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
+
+\item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.}
 }
 \value{
 A dataframe with summary data for selected inputs and outputs.
 }
 \description{
 This function fits and provides summary statistics of a linear regression model fitted on the input and output values of a probabilistic analysis.
+}
+\details{
+Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
+where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
+For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 }
 \examples{
 #' # Fitting meta model with a single variable using the summary data

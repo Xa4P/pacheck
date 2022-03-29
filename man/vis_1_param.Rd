@@ -6,7 +6,7 @@
 \usage{
 vis_1_param(
   df,
-  param = "u_pfs",
+  param = NULL,
   binwidth = NULL,
   type = "histogram",
   dist = c("lnorm", "norm", "beta"),

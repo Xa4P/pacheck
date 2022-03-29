@@ -28,5 +28,4 @@ do_discount_check(df = df_pa,
                   v_outcomes = c("t_qaly_comp", "t_qaly_int"),
                   v_outcomes_d = c("t_qaly_d_comp", "t_qaly_d_int")
                   )
-
 }
