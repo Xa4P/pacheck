@@ -5,8 +5,13 @@
 #' @param df a dataframe.
 #' @param y character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
 #' @param x character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
+#' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #'
 #' @return A dataframe with summary data for selected inputs and outputs.
+#'
+#' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
+#' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
+#' For more detail, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 #'
 #' @examples
 #' #' # Fitting meta model with a single variable using the summary data
@@ -27,7 +32,16 @@
 #'
 fit_lm_metamodel <- function(df,
                              y,
-                             x) {
+                             x,
+                             standardise = FALSE) {
+
+  if(standardise == TRUE) {
+    if(length(x) > 1){
+      df[, x] <- lapply(df[, x], function(i) (i - mean(i)) / sd(i))
+    } else {
+      df[, x] <- (df[, x] - mean(df[, x])) / sd(df[, x])
+    }
+  }
 
   if(length(x) > 1) {
 
