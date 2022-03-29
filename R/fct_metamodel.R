@@ -6,12 +6,14 @@
 #' @param y character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
 #' @param x character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
 #' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
+#' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
+#' @param seed_num numeric. Determine which seed number to use to partitioned the dataframe in fitting an validation sets.
 #'
 #' @return A dataframe with summary data for selected inputs and outputs.
 #'
 #' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
 #' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
-#' For more detail, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
+#' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 #'
 #' @examples
 #' #' # Fitting meta model with a single variable using the summary data
@@ -33,7 +35,15 @@
 fit_lm_metamodel <- function(df,
                              y,
                              x,
-                             standardise = FALSE) {
+                             standardise = FALSE,
+                             partition = 1,
+                             seed_num = 1) {
+
+  if(partition < 0 | partition > 1) {
+    stop("Proportion selected for fitting the metamodel should be between 0 (excluded) and 1 (included)")
+  }
+
+  set.seed(seed_num)
 
   if(standardise == TRUE) {
     if(length(x) > 1){
@@ -43,17 +53,33 @@ fit_lm_metamodel <- function(df,
     }
   }
 
+  if(partition < 1) {
+    selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
+    df_fit <- df[selection, ]
+    validation <- TRUE
+  } else {
+    df_fit <- df
+  }
+
   if(length(x) > 1) {
 
     v_x <- paste(x, collapse = " + ")
     form <- as.formula(paste(y, "~", v_x))
-    lm_out <- lm(form, data = df)
+    lm_out <- lm(form, data = df_fit)
 
   } else {
 
     form <- as.formula(paste(y, "~", x))
-    lm_out <- lm(form, data = df)
+    lm_out <- lm(form, data = df_fit)
 
+  }
+
+  if(validation == TRUE) {
+    df_valid  <- df[-selection, ]
+    v_y_valid <- predict.lm(lm_out, newdata = df_valid)
+    r_squared_valid <- cor(v_y_valid, df_valid[, y]) ^ 2
+    lm_out <- list(lm_out,
+                   "R^2" = r_squared_valid)
   }
 
   return(lm_out)
