@@ -1,0 +1,49 @@
+---
+title: "Appendix_A-HE_model_description"
+author: "X. Pouwels, Karel Kroeze, Naomi van der Linden, Michelle M.A. Kip, Hendrik Koffijberg"
+date: "`r paste(Sys.Date())`"
+output: pdf_document
+---
+
+```{r setup, include = FALSE}
+require(DiagrammeR)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Description
+This Appendix describes the probabilistic model inputs and outputs of the mock health economic model developed to tests the functionalities of the Probabilistic Analysis Check dashBOARD (PACBOARD). The HE model and functions are available at https://github.com/Xa4P/pacheck.  
+
+# Model structure
+A cohort-based Health State Transition Model model with three health states was developed. The health states were: "Progression-free" (PF), "Progressed disease" (PD), and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
+
+```{r mod_structure, include = FALSE}
+diagram <- "
+digraph {
+
+  # graph attributes
+  graph [overlap = true]
+  
+  # nodes attributes
+  node [fontname = Helvetica,
+  color = gray]
+  A[label = 'Progression-free']
+  B[label = 'Progressed disease']
+  C[label = Dead]
+  
+  # edge attributes
+  edge [color = gray]
+  
+  A -> A
+  A -> B
+  A -> C
+  
+  B -> B
+  B -> C
+  
+  C -> C
+}
+"
+grViz(diagram)
+```
+
+# Model inputs
