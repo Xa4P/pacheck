@@ -148,7 +148,7 @@ calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from =
 #' @description This function calculates the probabilities that each strategy is the most cost effective.
 #'
 #' @param df a dataframe.
-#' @param wtp string. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.
+#' @param wtp character Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.
 #'
 #' @return A ggplot graph.
 #'
