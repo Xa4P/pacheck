@@ -23,7 +23,7 @@ This function computes the probability that the probabilistic outcome is in each
 # Generating statistics of the incremental cost-effectiveness plane using the example data.
 data(df_pa)
 plot_ice(df = df_pa,
-         inc_e = "Inc_QALY",
-         inc_c = "Inc_Costs")
+         inc_e = "inc_qaly",
+         inc_c = "inc_costs")
 
 }

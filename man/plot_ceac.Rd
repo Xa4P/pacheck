@@ -9,7 +9,7 @@ plot_ceac(df, wtp)
 \arguments{
 \item{df}{a dataframe.}
 
-\item{wtp}{vector of numerical values. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.}
+\item{wtp}{character Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.}
 }
 \value{
 A ggplot graph.
@@ -21,10 +21,10 @@ This function calculates the probabilities that each strategy is the most cost e
 # Plot CEAC based on results from calculate_ceac()
 data("df_pa")
 m_res_ceac <- calculate_ceac(df_pa,
-              e_int = "QALY_int",
-              e_comp = "QALY_comp",
-              c_int = "Costs_int",
-              c_comp = "Costs_comp")
+                             e_int = "t_qaly_d_int",
+                             e_comp = "t_qaly_d_comp",
+                             c_int = "t_costs_d_int",
+                             c_comp = "t_costs_d_comp")
 df_ceac_p <- as.data.frame(m_res_ceac)
 
 plot_ceac(df = df_ceac_p,

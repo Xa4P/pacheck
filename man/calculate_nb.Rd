@@ -29,10 +29,10 @@ This function calculates the Net Monetary Benefits (NMB) and Net Health Benefits
 # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
 data("df_pa")
 calculate_nb(df_pa,
-             e_int = "QALY_int",
-             e_comp = "QALY_comp",
-             c_int = "Costs_int",
-             c_comp = "Costs_comp",
+             e_int = "t_qaly_d_int",
+             e_comp = "t_qaly_d_comp",
+             c_int = "t_costs_d_int",
+             c_comp = "t_costs_d_comp",
              wtp = 80000)
 
 }
