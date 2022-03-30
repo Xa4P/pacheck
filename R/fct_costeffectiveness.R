@@ -26,18 +26,8 @@ plot_ice <- function(df,
                      n_it = NULL,
                      wtp = NULL) {
 
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
-    stop(
-      "Package \"ggplot2\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
-  if (!requireNamespace("scales", quietly = TRUE)) {
-    stop(
-      "Package \"scales\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
+  require(ggplot2, quietly = TRUE)
+  require(scales, quietly = TRUE)
 
   p_out <- if(is.null(col)){
     ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
@@ -80,8 +70,8 @@ plot_ice <- function(df,
 #' # Generating statistics of the incremental cost-effectiveness plane using the example data.
 #' data(df_pa)
 #' plot_ice(df = df_pa,
-#'          inc_e = "Inc_QALY",
-#'          inc_c = "Inc_Costs")
+#'          inc_e = "inc_qaly",
+#'          inc_c = "inc_costs")
 #'
 #' @export
 #'
@@ -113,16 +103,19 @@ summary_ice <- function(df,
 #' @param c_comp character. Name of variable of the dataframe containing total costs of the comparator strategy.
 #' @param v_wtp vector of numerical values. Vectors of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.
 #'
-#' @return A dataframe.
+#' @return A dataframe with three columns: "WTP_threshold", "Prob_int", "Prob_comp".
+#' "WTP_threshold" contains the willingness-to-pay thresholds at which the probability of cost effectiveness has been calculated for both strategies.
+#' "Prob_int" contains the probability that the intervention strategy is cost effective at a given willingness-to-pay threshold.
+#' "Prob_comp" contains the probability that the comparator strategy is cost effective at a given willingness-to-pay threshold.
 #'
 #' @examples
 #' # Calculate probabilities of cost effectiveness using the example dataframe, for willlingness-to-pay thresholds of 0 to 50,0000 euros.
 #' data("df_pa")
 #'calculate_ceac(df_pa,
-#'               e_int = "QALY_int",
-#'               e_comp = "QALY_comp",
-#'               c_int = "Costs_int",
-#'               c_comp = "Costs_comp",
+#'               e_int = "t_qaly_d_int",
+#'               e_comp = "t_qaly_d_comp",
+#'               c_int = "t_costs_d_int",
+#'               c_comp = "t_costs_d_comp",
 #'               v_wtp = seq(from = 0, to = 50000, by = 1000))
 #'
 #' @export
@@ -155,7 +148,7 @@ calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from =
 #' @description This function calculates the probabilities that each strategy is the most cost effective.
 #'
 #' @param df a dataframe.
-#' @param wtp vector of numerical values. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.
+#' @param wtp string. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.
 #'
 #' @return A ggplot graph.
 #'
@@ -163,10 +156,10 @@ calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from =
 #' # Plot CEAC based on results from calculate_ceac()
 #' data("df_pa")
 #' m_res_ceac <- calculate_ceac(df_pa,
-#'               e_int = "QALY_int",
-#'               e_comp = "QALY_comp",
-#'               c_int = "Costs_int",
-#'               c_comp = "Costs_comp")
+#'                              e_int = "t_qaly_d_int",
+#'                              e_comp = "t_qaly_d_comp",
+#'                              c_int = "t_costs_d_int",
+#'                              c_comp = "t_costs_d_comp")
 #' df_ceac_p <- as.data.frame(m_res_ceac)
 #'
 #' plot_ceac(df = df_ceac_p,
@@ -176,20 +169,20 @@ calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from =
 #'
 plot_ceac <- function(df,
                       wtp) {
-  require(ggplot2)
-  require(reshape2)
-  require(scales)
+  require(ggplot2, quietly = TRUE)
+  require(reshape2, quietly = TRUE)
+  require(scales, quietly = TRUE)
 
-  df_graph <- melt(data = df, id.vars = wtp)
+  df_graph <- reshape2::melt(data = df, id.vars = wtp)
 
-  p_out <- ggplot(data = df_graph, aes_string(x = wtp, y = "value", colour = "variable")) +
-    geom_line() +
-    xlab ("Willingness-to-pay threshold") +
-    ylab("Probability of cost effectiveness") +
-    scale_x_continuous(labels = dollar_format(prefix = "\u20ac ", suffix = "")) +
-    scale_colour_manual(name = "Strategy",
+  p_out <- ggplot2::ggplot(data = df_graph, ggplot2::aes_string(x = wtp, y = "value", colour = "variable")) +
+    ggplot2::geom_line() +
+    ggplot2::xlab ("Willingness-to-pay threshold") +
+    ggplot2::ylab("Probability of cost effectiveness") +
+    ggplot2::scale_x_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
+    ggplot2::scale_colour_manual(name = "Strategy",
                         values = c(Prob_int = "grey", Prob_comp = "orange")) +
-    theme_bw()
+    ggplot2::theme_bw()
 
   p_out
 }
@@ -211,10 +204,10 @@ plot_ceac <- function(df,
 #' # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
 #' data("df_pa")
 #' calculate_nb(df_pa,
-#'              e_int = "QALY_int",
-#'              e_comp = "QALY_comp",
-#'              c_int = "Costs_int",
-#'              c_comp = "Costs_comp",
+#'              e_int = "t_qaly_d_int",
+#'              e_comp = "t_qaly_d_comp",
+#'              c_int = "t_costs_d_int",
+#'              c_comp = "t_costs_d_comp",
 #'              wtp = 80000)
 #'
 #' @export
