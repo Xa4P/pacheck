@@ -1,5 +1,5 @@
 ---
-title: "Appendix A PACBOARD: Health Economic Model Description"
+title: "Appendix A - PACBOARD: Health Economic Model Description"
 author: "X. Pouwels, Karel Kroeze, Naomi van der Linden, Michelle M.A. Kip, Hendrik Koffijberg"
 date: "`r paste(Sys.Date())`"
 output: 
@@ -11,9 +11,10 @@ output:
 # library(DiagrammeRsvg)
 # library(rsvg)
 require(pacheck, quietly = TRUE)
+require(ggplot2, quietly = TRUE)
 data("df_pa")
 
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 # Description
@@ -24,6 +25,7 @@ The HE model compares two strategies, called "intervention" and "comparator" for
 
 ## Model structure & assumptions
 A cohort-based Health State Transition Model model with three health states was developed. The health states were: "Progression-free" (PF), "Progressed disease" (PD), and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
+The "intervention strategy" only reduces the transition probability from PFS to PD compared to the "comparator" strategy.  
 The "comparator" strategy does not incur any treatment or adverse event-related health losses and costs. Adverse events are assumed to occur once at the start of the health economic model.    
 
 ```{r mod_structure, include = FALSE}
@@ -65,10 +67,10 @@ The probabilistic model inputs were estimated based on the below-described distr
 
 | Parameter name | Description | Mean value | Standard Error (or 95%CI) | Distribution |
 |:---------------|:------------|:-----------|:--------------------------|:-------------|
-| `p_pfspd` | Probability of transiting from PF to PD | 0.15 | | Dirichlet |
-| `p_pfsd` | Probability of transiting from PF to D | 0.1 | | Dirichlet |
-| `p_pdd` | Probability of transiting from PD to D | 0.2 | | Beta |
-| `p_ae` | Probability of experiencing an adverse event (intervention only) | 0.05 | | Beta |
+| `p_pfspd` | Probability of transiting from PF to PD | 0.15 |`r round(sd(df_pa$p_pfspd), 2)`*| Dirichlet |
+| `p_pfsd` | Probability of transiting from PF to D | 0.1 |`r round(sd(df_pa$p_pfsd), 2)`*| Dirichlet |
+| `p_pdd` | Probability of transiting from PD to D | 0.2 | 0.04 | Beta |
+| `p_ae` | Probability of experiencing an adverse event (intervention only) | 0.05 | 0.02 | Beta |
 | `rr` | Relative risk of progression (PF to PD) of the intervention versus the comparator| 0.75 | 0.62-0.88 | Lognormal |
 | `u_pfs` | Utility value of health state PF | 0.75 | 0.07 | Beta |
 | `u_pd` | Utility value of health state PD | 0.55 | 0.1 | Beta |
@@ -77,8 +79,11 @@ The probabilistic model inputs were estimated based on the below-described distr
 | `c_pd` | Annual costs of health state PD | 2000 | 400 | Normal |
 | `c_thx`| Annual costs treatment (intervention) | 10000 | 100 | Normal | 
 | `c_ae` | Costs of treating an adverse event | 500 | 100 | Gamma |
-| `r_d_effects` | Annual discount rate effects | 0.015 | - | FIXED |
-| `r_d_costs` | Annual discount rate costs | 0.04 | - | FIXED |
+| `r_d_effects` | Annual discount rate effects | 0.015 | - | Fixed |
+| `r_d_costs` | Annual discount rate costs | 0.04 | - | Fixed |
+  : Overview of the HE model input values  
+
+*Calculated based on the output of the Dirichlet distribution  
 
 # Analysis
 A probabilistic analysis of 10,000 iterations was performed through Monte Carlo analysis. Input and intermediate and final output values for each iteration were recorded. The recorded outputs were:  
@@ -99,19 +104,24 @@ A probabilistic analysis of 10,000 iterations was performed through Monte Carlo 
 The probabilistic analysis is performed using a for loop and the function `perform_simulation()`.  
 
 # Results
-The intervention results in `r round(mean(df_pa$inc_ly), 2)` incremental life years, `r round(mean(df_pa$inc_qaly), 2)` incremental quality-adjusted life years, and `r paste("\u20ac", round(mean(df_pa$inc_costs), 0))` incremental costs versus the comparator. The incremental cost effectiveness ratio of the intervention versus the comparator is `r paste("\u20ac", round(mean(df_pa$inc_costs) / mean(df_pa$inc_qaly), 0))` per QALY.  
-The probabilistic results of this HE model are provided in the table below and are plotted in an incremental cost-effectiveness plane and a cost-effectiveness acceptability curve.  
+The intervention results in `r round(mean(df_pa$inc_ly), 2)` incremental life years, `r round(mean(df_pa$inc_qaly), 2)` incremental quality-adjusted life years, and `r paste("\u20ac", format(round(mean(df_pa$inc_costs), 0), scientific = FALSE, big.mark = ","))` incremental costs versus the comparator. The incremental cost effectiveness ratio of the intervention versus the comparator is `r paste("\u20ac", format(round(mean(df_pa$inc_costs) / mean(df_pa$inc_qaly), 0), scientific = FALSE, big.mark = ","))` per QALY.  
+The probabilistic results of this HE model are provided in the table below and are plotted in an incremental cost-effectiveness plane (displaying a willingness to pay threshold line of `r paste("\u20ac", 80,000)` per QALY) and a cost-effectiveness acceptability curve.  
 
 | Strategy     | Total LY | Total QALY | Total costs | Inc. QALY | Inc. costs | ICER per QALY |
 |:-------------|:---------|:-----------|:------------|:----------|:-----------|:--------------|
-| Comparator   |`r round(mean(df_pa$t_ly_d_comp), 2)`|`r round(mean(df_pa$t_qaly_d_comp), 2)`|`r paste("\u20ac", round(mean(df_pa$t_costs_d_comp), 0))`| - | - | - |
-| Intervention |`r round(mean(df_pa$t_ly_d_int), 2)`|`r round(mean(df_pa$t_qaly_d_int), 2)`|`r paste("\u20ac", round(mean(df_pa$t_costs_d_int), 0))`|`r round(mean(df_pa$inc_qaly), 2)`|`r paste("\u20ac", round(mean(df_pa$inc_costs), 0))`|`r paste("\u20ac", round(mean(df_pa$inc_costs) / mean(df_pa$inc_qaly), 0))`|
+| Comparator   |`r round(mean(df_pa$t_ly_d_comp), 2)`|`r round(mean(df_pa$t_qaly_d_comp), 2)`|`r paste("\u20ac", format(round(mean(df_pa$t_costs_d_comp), 0), scientific = FALSE, big.mark = ","))`| - | - | - |
+| Intervention |`r round(mean(df_pa$t_ly_d_int), 2)`|`r round(mean(df_pa$t_qaly_d_int), 2)`|`r paste("\u20ac", format(round(mean(df_pa$t_costs_d_int), 0), scientific = FALSE, big.mark = ","))`|`r round(mean(df_pa$inc_qaly), 2)`|`r paste("\u20ac", format(round(mean(df_pa$inc_costs), 0), scientific = FALSE, big.mark = ","))`|`r paste("\u20ac", format(round(mean(df_pa$inc_costs) / mean(df_pa$inc_qaly), 0), scientific = FALSE, big.mark = ","))`|
+  : Overview of the results of the HE model  
 
+Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. = incremental; LY = life years; QALY = quality-adjusted life years  
+
+\newpage
 ```{r ice_plot}
 plot_ice(df = df_pa,
          param_1 = "inc_qaly",
          param_2 = "inc_costs",
-         wtp = 80000)
+         wtp = 80000) +
+  ggtitle("Incremental cost-effectiveness plane")
 ```
 
 ```{r ceac, message = FALSE}
@@ -125,5 +135,6 @@ m_res_ceac <- calculate_ceac(df_pa,
 df_ceac_p <- as.data.frame(m_res_ceac)
 
 plot_ceac(df = df_ceac_p,
-          wtp = "WTP_threshold")
+          wtp = "WTP_threshold") +
+  ggtitle("Cost-effectiveness acceptability curves")
 ```
