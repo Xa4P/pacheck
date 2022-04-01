@@ -725,7 +725,7 @@ check_sum_vars <- function(...,
 # } #@KAREL: DIT ZORGT VOOR CONFLICTEN MET `check_range()` HIERBOVEN
 
 do_check <- function(df, vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
-  pass <- dplyr::summarise(df, dplyr::across(!!vars, check))
+  pass <- summarise(df, across(!!vars, check)) %>% summarise(across(everything(), all))
 
   if (all(pass)){
     messages <- tibble::tibble(ok = TRUE, message = glue::glue(template_ok))
