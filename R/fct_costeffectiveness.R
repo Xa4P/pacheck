@@ -280,3 +280,70 @@ calculate_nb <- function(df,
 
   return(df_out)
 }
+
+#' Plot (i)NMB and (i)NHB.
+#'
+#' @description This function plots the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
+#'
+#' @param df a dataframe. Output of `calculate_nb()`
+#' @param NMB logical. Should the (i)NMBs be plotted? Default is TRUE, if FALSE, (i)NHBs are plotted.
+#' @param comparators logical. Should the NMB/NHB for each comparator be plotted? Default is TRUE.
+#' @param incremental logical. Should the incremental NMB/NHB be plotted? Default is FALSE
+#'
+#' @return A ggplot graph.
+#'
+#' @examples
+#' # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
+#' data("df_pa")
+#' df_nmb <- calculate_nb(df_pa,
+#'              e_int = "t_qaly_d_int",
+#'              e_comp = "t_qaly_d_comp",
+#'              c_int = "t_costs_d_int",
+#'              c_comp = "t_costs_d_comp",
+#'              wtp = 80000)
+#'
+#' # Plot NMB's for each comparator
+#' plot_nmb(df = df_nmb,
+#'          NMB = TRUE,
+#'          comparators = TRUE)
+#'
+#' @export
+#'
+plot_nmb <- function(df,
+                     NMB = TRUE,
+                     comparators = TRUE,
+                     incremental = FALSE) {
+  p <- ggplot2::ggplot() +
+    ggplot2::theme_bw()
+
+  if(NMB == TRUE){
+    if(comparators == TRUE){
+      p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NMB_int", colour = factor("Intervention"))) +
+        ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NMB_comp", colour = factor("Comparator")))
+    }
+    if(incremental == TRUE) {
+      p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "iNMB", colour = factor("Incremental")))
+    }
+    p <- p + ggplot2::scale_colour_manual("Strategy",
+                                          values = c(Intervention = "grey",
+                                                     Comparator = "orange",
+                                                     Incremental = "black"
+                                          )
+    )
+  } else {
+    if(comparators == TRUE){
+    p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NHB_int", colour = factor("Intervention"))) +
+      ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NHB_comp", colour = factor("Comparator")))
+    }
+    if(incremental == TRUE) {
+      p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "iNHB", colour = factor("Incremental")))
+    }
+    p <- p + ggplot2::scale_colour_manual("Strategy",
+                                          values = c(Intervention = "grey",
+                                                     Comparator = "orange",
+                                                     Incremental = "black"
+                                          )
+    )
+  }
+  p
+}
