@@ -66,7 +66,7 @@ plot_ice <- function(df,
 #' @param c_int character. Name of variable of the dataframe containing total costs of the intervention strategy.
 #' @param c_comp character. Name of variable of the dataframe containing total costs of the comparator strategy.
 #'
-#' @return A ggplot
+#' @return A ggplot graph.
 #'
 #' @examples
 #' # Plot cost effectiveness plane
