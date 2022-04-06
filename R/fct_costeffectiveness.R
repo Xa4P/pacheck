@@ -1,6 +1,6 @@
 #' Plotting the incremental cost-effectiveness plane.
 #'
-#' @description This function plots the incremental cost-effectiveness plot.
+#' @description This function plots the incremental cost-effectiveness plane.
 #'
 #' @param df a dataframe.
 #' @param param_1 character. Name of variable of the dataframe to be plotted on the x-axis.
@@ -54,6 +54,49 @@ plot_ice <- function(df,
   if(!is.null(wtp)) {p_out <- p_out + ggplot2::geom_abline(intercept = 0, slope = wtp, lty = 2, colour = "orange")}
 
   p_out
+}
+
+#' Plot cost-effectiveness plane.
+#'
+#' @description This function plots the cost-effectiveness plane.
+#'
+#' @param df a dataframe.
+#' @param e_int character. Name of variable of the dataframe containing total effects of the intervention strategy.
+#' @param e_comp character. Name of variable of the dataframe containing total effects of the comparator strategy.
+#' @param c_int character. Name of variable of the dataframe containing total costs of the intervention strategy.
+#' @param c_comp character. Name of variable of the dataframe containing total costs of the comparator strategy.
+#'
+#' @return A ggplot
+#'
+#' @examples
+#' # Plot cost effectiveness plane
+#' data("df_pa")
+#' plot_ce(df_pa,
+#'         e_int = "t_qaly_d_int",
+#'         e_comp = "t_qaly_d_comp",
+#'         c_int = "t_costs_d_int",
+#'         c_comp = "t_costs_d_comp"
+#'         )
+#'
+#' @import ggplot2
+#' @import scales
+#' @export
+#'
+plot_ce <- function (df, e_int, e_comp, c_int, c_comp){
+  ggplot2::ggplot(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor(1))) +
+    ggplot2::geom_point(shape = 1) +
+    ggplot2::geom_point(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor(2)), shape = 1) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::xlab ("Total effects") +
+    ggplot2::ylab("Total costs") +
+    ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
+    ggplot2::scale_colour_manual(name = "Strategy",
+                                 labels = c("Intervention", "Comparator"),
+                                 breaks = c(1, 2),
+                                 values = c("grey","orange")
+    ) +
+    ggplot2::theme_bw()
 }
 
 #' Summary statistics of the incremental cost-effectiveness plane.
