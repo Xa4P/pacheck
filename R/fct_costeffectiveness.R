@@ -83,18 +83,25 @@ plot_ice <- function(df,
 #' @export
 #'
 plot_ce <- function (df, e_int, e_comp, c_int, c_comp){
-  ggplot2::ggplot(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor(1))) +
+  ggplot2::ggplot(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Intervention"))) +
     ggplot2::geom_point(shape = 1) +
-    ggplot2::geom_point(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor(2)), shape = 1) +
+    ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Mean intervention"))) +
+    ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_int]), y = mean(df[, c_int]), colour = factor("Mean intervention")), shape = 2) +
+    ggplot2::geom_point(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Comparator")), shape = 1) +
+    ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Mean comparator"))) +
+    ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_comp]), y = mean(df[, c_comp]), colour = factor("Mean comparator")), shape = 2) +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::geom_vline(xintercept = 0) +
     ggplot2::xlab ("Total effects") +
     ggplot2::ylab("Total costs") +
     ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
     ggplot2::scale_colour_manual(name = "Strategy",
-                                 labels = c("Intervention", "Comparator"),
-                                 breaks = c(1, 2),
-                                 values = c("grey","orange")
+                                 # labels = c("Intervention", "Comparator", "Mean intervention", "Mean comparator"),
+                                 # breaks = c(1, 2, 3, 4),
+                                 values = c(Intervention = "grey",
+                                            Comparator = "orange",
+                                            `Mean intervention` = "black",
+                                            `Mean comparator` = "blue")
     ) +
     ggplot2::theme_bw()
 }
