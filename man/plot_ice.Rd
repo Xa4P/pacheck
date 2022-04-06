@@ -23,7 +23,7 @@ plot_ice(df, param_1, param_2, col = NULL, n_it = NULL, wtp = NULL)
 A ggplot graph.
 }
 \description{
-This function plots the incremental cost-effectiveness plot.
+This function plots the incremental cost-effectiveness plane.
 }
 \examples{
 # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
