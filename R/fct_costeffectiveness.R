@@ -281,7 +281,7 @@ calculate_nb <- function(df,
   return(df_out)
 }
 
-#' Plot (i)NMB and (i)NHB.
+#' Plot (i)NMB or (i)NHB.
 #'
 #' @description This function plots the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
 #'
@@ -307,12 +307,13 @@ calculate_nb <- function(df,
 #'          NMB = TRUE,
 #'          comparators = TRUE)
 #'
+#' @import ggplot2
 #' @export
 #'
-plot_nmb <- function(df,
-                     NMB = TRUE,
-                     comparators = TRUE,
-                     incremental = FALSE) {
+plot_nb <- function(df,
+                    NMB = TRUE,
+                    comparators = TRUE,
+                    incremental = FALSE) {
   p <- ggplot2::ggplot() +
     ggplot2::theme_bw()
 
