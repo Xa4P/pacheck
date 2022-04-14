@@ -37,7 +37,8 @@ fit_lm_metamodel <- function(df,
                              x,
                              standardise = FALSE,
                              partition = 1,
-                             seed_num = 1) {
+                             seed_num = 1,
+                             validation = FALSE) {
 
   if(partition < 0 | partition > 1) {
     stop("Proportion selected for fitting the metamodel should be between 0 (excluded) and 1 (included)")
