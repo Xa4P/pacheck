@@ -13,14 +13,27 @@ data(df_pa)
 n_sim <- nrow(df_pa)
 df_pa_orig <- df_pa
 wtp <- 120000
-#(mean(df_pa$t_costs_d_int) - mean(df_pa$t_costs_d_comp)) / (mean(df_pa$t_qaly_d_int) - mean(df_pa$t_qaly_d_comp))
-df_pa$iNMB <- (df_pa$t_qaly_d_int - df_pa$t_qaly_d_comp) * wtp - (df_pa$t_costs_d_int - df_pa$t_costs_d_comp)
-#mean(df_pa$iNMB)
 
+# calculate (i)NMBs and i(NHB)s
+df_pa_complete <- calculate_nb(df_pa_orig,
+                               e_int = "t_qaly_d_int",
+                               c_int = "t_costs_d_int",
+                               e_comp = "t_qaly_d_comp",
+                               c_comp = "t_costs_d_comp",
+                               wtp = wtp)
+# rescale inputs
+df_pa_complete_rescaled <- df_pa_complete
+v_names_inputs <- names(df_pa_complete)[-grep("t_", names(df_pa_complete))]
+v_names_inputs <- v_names_inputs[-grep("inc_", v_names_inputs)]
+v_names_inputs <- v_names_inputs[-grep("NMB", v_names_inputs)]
+v_names_inputs <- v_names_inputs[-grep("NHB", v_names_inputs)]
+
+
+df_pa_complete_rescaled[, v_names_inputs] <- apply(df_pa_complete_rescaled[, v_names_inputs], 2, function(x) {(x - mean(x)) / sd(x)})
 #-------------------------#
 ##### INTRODUCE ERRORS ####
 #-------------------------#
-df_pa_error <- df_pa
+df_pa_error <- df_pa_complete
 
 df_pa_error[c(1, 10, 600, 503, 8888), "u_pfs"]   <- -1  # negative utility values
 df_pa_error[c(2, 20, 1200, 1006, 4444), "u_pd"]  <- 2   # utility values above 1
@@ -39,7 +52,7 @@ df_pa_error[c(6200, 545, 3688, 1236, 9991), "t_qaly_d_comp"] <- -10 # negative t
 #------------------------------#
 ##### CHECK FUNCTIONALITIES ####
 #------------------------------#
-#### Quick check function ----
+# Quick check function ----
 res_quick_check <- do_quick_check(df_pa_error,
                                    v_probs = c("p_pfspd", "p_pfsd", "p_pdd"),
                                    v_utilities = c("u_pfs", "u_pd", "u_ae"),
@@ -56,18 +69,18 @@ check_all_false <- testthat::test_that("Results are as expected",
                                          }
                                          }) # correct, all issues identified!
 
-#### Check sum probabilities ----
+# Check sum probabilities ----
 df_pa_high_p <- df_pa
 df_pa_high_p[c(1, 100, 1000, 10000), "p_pfspd"] <- 1
 res_sum_probs_no_error_sum <- check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = NULL, check = "lower", max_view = 100) # ok!
 res_sum_probs_error_equal <- check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 3, check = "equal", max_view = 100) # ok because pfspfs not taken into account!
 res_sum_probs_error_sum <- check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa_high_p, digits = NULL, check = "lower", max_view = 100) # ok!
 
-#### Check positive values ----
+# Check positive values ----
 res_check_pos_no_error <- check_positive(c("c_pfs", "c_pd", "u_pfs", "u_pd", "c_ae", "u_ae", "t_qaly_d_comp", "t_qaly_d_int", "t_costs_d_comp", "t_costs_d_int"), df = df_pa) # ok!
 res_check_pos_error    <- check_positive(c("c_pfs", "c_pd", "u_pfs", "u_pd", "c_ae", "u_ae", "t_qaly_d_comp", "t_qaly_d_int", "t_costs_d_comp", "t_costs_d_int"), df = df_pa_error) # ok!
 
-#### Check range ----
+# Check range ----
 res_check_range_binary_no_error <- check_range(df = df_pa,
                                                outcome = "u_pfs",
                                                min_val = 0,
@@ -92,11 +105,11 @@ res_check_range_above_error <- check_range(df = df_pa_error,
                                               outcome = "u_pfs",
                                               min_val = 0) # ok!
 
-#### Check binary ----
+# Check binary ----
 res_check_bin_no_error <- check_binary(c("u_pfs", "u_pd"), df = df_pa)
 res_check_bin_error <- check_binary(c("u_pfs", "u_pd"), df = df_pa_error)
 
-#### Check mean QALY ----
+# Check mean QALY ----
 df_pa$t_qaly_int_check <- df_pa$t_qaly_pfs_d_int + df_pa$t_qaly_pd_d_int # only consider QALYs won in health states fpr this check
 df_pa$t_qaly_int_check_error_below <- df_pa$t_qaly_int_check
 df_pa[c(3, 333, 3333), "t_qaly_int_check_error_below"] <-  df_pa[c(3, 333, 3333), "t_qaly_int_check_error_below"] - 3
@@ -122,23 +135,7 @@ res_check_mean_qol_above_error <- check_mean_qol(df = df_pa,
 #----------------------------------------#
 #### COMPARISON METAMODEL VS ORIGINAL ####
 #----------------------------------------#
-#### Fit metamodel ----
-v_inputs_all <- c("p_pfspd",
-                  "p_pfsd",
-                  "p_pdd",
-                  #"p_dd",
-                  "p_ae",
-                  "rr",
-                  "u_pfs",
-                  "u_pd",
-                  #"u_d",
-                  "u_ae",
-                  "c_pfs",
-                  "c_pd",
-                  #"c_d",
-                  "c_thx",
-                  "c_ae"
-                  )
+# Fit metamodel ----
 v_inputs_short <- c("p_pfspd",
                     "p_pfsd",
                     "p_pdd",
@@ -155,10 +152,14 @@ v_inputs_short <- c("p_pfspd",
                     "c_thx"#,
                     #"c_ae"
 )
-lm_valid <- fit_lm_metamodel(df = df_pa,
+
+# Full factorial
+lm_valid <- fit_lm_metamodel(df = df_pa_complete,
                              y = "iNMB",
-                             x = v_inputs_all
+                             x = v_names_inputs,
+                             partition = 0.75
                              )
+summary(lm_valid)
 lm_valid_2 <- fit_lm_metamodel(df = df_pa,
                              y = "iNMB",
                              x = c("p_pfspd",
@@ -181,8 +182,8 @@ lm_valid_2 <- fit_lm_metamodel(df = df_pa,
 #summary(lm_valid_2)$adj.r.squared
 ## does not really matter!
 
-#### One-way deterministic analyses ----
-# Original model
+# One-way deterministic analyses ----
+## Original model
 df_res_dowsa <- perform_dowsa(df = df_pa_orig,
                                vars = v_inputs_all
                               )
@@ -190,21 +191,24 @@ tornado_dowsa <- plot_tornado(df = df_res_dowsa,
                                    df_basecase = df_pa,
                                    outcome = "iNMB")
 
-# Metamodel
+## Metamodel - full factorial
 df_res_dowsa_meta <- dsa_lm_metamodel(df = df_pa,
                                       lm_metamodel = lm_valid)
 tornado_dowsa_meta <- plot_tornado(df = df_res_dowsa_meta,
                                    df_basecase = df_pa,
                                    outcome = "iNMB")
 
-#### Other predictions ----
-# Original model
-## No difference in effectiveness (rr = 1)
+## Metamodel - parsimonious
+
+
+# Other predictions ----
+## Original model
+### No difference in effectiveness (rr = 1)
 df_pred_no_diff_e <- df_pa_orig
 df_pred_no_diff_e$rr <- 1
 
-# Perform PA
-## Initialise matrix outcomes
+## Perform PA
+### Initialise matrix outcomes
 m_res_pa <- matrix(0,
                    ncol = 26,
                    nrow = n_sim,
@@ -250,12 +254,12 @@ df_pa_no_eff_diff$inc_qaly <- df_pa_no_eff_diff$t_qaly_d_int - df_pa_no_eff_diff
 df_pa_no_eff_diff$inc_costs <- df_pa_no_eff_diff$t_costs_d_int - df_pa_no_eff_diff$t_costs_d_comp
 df_pa_no_eff_diff$iNMB <- df_pa_no_eff_diff$inc_qaly * wtp - df_pa_no_eff_diff$inc_costs
 
-## Costs treatment is 0 (c_thx = 0)
+### Costs treatment is 0 (c_thx = 0)
 df_pred_no_c_thx <- df_pa_orig
 df_pred_no_c_thx$c_thx <- rep(0, nrow(df_pred_no_c_thx))
 
-# Perform PA
-## Initialise matrix outcomes
+## Perform PA
+### Initialise matrix outcomes
 m_res_pa <- matrix(0,
                    ncol = 26,
                    nrow = n_sim,
@@ -301,17 +305,17 @@ df_pa_no_c_thx$inc_qaly <- df_pa_no_c_thx$t_qaly_d_int - df_pa_no_c_thx$t_qaly_d
 df_pa_no_c_thx$inc_costs <- df_pa_no_c_thx$t_costs_d_int - df_pa_no_c_thx$t_costs_d_comp
 df_pa_no_c_thx$iNMB <- df_pa_no_c_thx$inc_qaly * wtp - df_pa_no_c_thx$inc_costs
 
-# Metamodel
-## No difference in effectiveness (rr = 1)
+## Metamodel
+### No difference in effectiveness (rr = 1)
 res_meta_no_eff_diff <- predict.lm(lm_valid, newdata = df_pred_no_diff_e[, v_inputs_all])
 res_meta_no_eff_diff_2 <- predict.lm(lm_valid_2, newdata = df_pred_no_diff_e[, v_inputs_short])
 
-## Costs treatment is 0 (c_thx = 0)
+### Costs treatment is 0 (c_thx = 0)
 res_meta_no_c_thx <- predict.lm(lm_valid, newdata = df_pred_no_c_thx[, v_inputs_all])
 res_meta_no_c_thx_2 <- predict.lm(lm_valid_2, newdata = df_pred_no_c_thx[, v_inputs_short])
 
-# Comparison of results
-## No difference in effectiveness
+## Comparison of results
+### No difference in effectiveness
 summary(df_pa_no_eff_diff$iNMB)
 summary(res_meta_no_eff_diff)
 summary(res_meta_no_eff_diff_2)
@@ -372,6 +376,12 @@ lines(density(df_2$iNMB), col = "red")
 #--------------#
 #### EXPORT ####
 #--------------#
+# Data sets for PACBOARD ----
+write.csv(df_pa_complete, file = paste(getwd(), "/data/data_with_nb.csv", sep = ""))
+write.csv(df_pa_complete_rescaled, file = paste(getwd(), "/data/data_with_nb_rescaled.csv", sep = ""))
+write.csv(df_pa_error, file = paste(getwd(), "/data/data_with_nb_error.csv", sep = ""))
+
+# Tornado's ----
 png(paste(getwd(), "/figs/tornado_original.png", sep = ""))
 print(tornado_dowsa)
 dev.off()
