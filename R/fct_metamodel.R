@@ -8,6 +8,7 @@
 #' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
+#' @param validation logical. Determine whether R2 should be calculated on the validation set.
 #'
 #' @return A dataframe with summary data for selected inputs and outputs.
 #'
