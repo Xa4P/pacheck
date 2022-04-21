@@ -4,7 +4,15 @@
 \alias{fit_lm_metamodel}
 \title{Fit linear metamodel}
 \usage{
-fit_lm_metamodel(df, y, x, standardise = FALSE, partition = 1, seed_num = 1)
+fit_lm_metamodel(
+  df,
+  y,
+  x,
+  standardise = FALSE,
+  partition = 1,
+  seed_num = 1,
+  validation = FALSE
+)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -18,6 +26,8 @@ fit_lm_metamodel(df, y, x, standardise = FALSE, partition = 1, seed_num = 1)
 \item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
 
 \item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.}
+
+\item{validation}{logical. Determine whether R2 should be calculated on the validation set.}
 }
 \value{
 A dataframe with summary data for selected inputs and outputs.
