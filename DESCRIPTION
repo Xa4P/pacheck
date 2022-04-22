@@ -13,6 +13,7 @@ Imports:
     dplyr,
     fitdistrplus,
     ggplot2,
+    gtools,
     magrittr,
     reshape2,
     scales,
