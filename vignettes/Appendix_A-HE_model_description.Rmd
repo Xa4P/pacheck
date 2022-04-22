@@ -1,6 +1,7 @@
 ---
-title: "Appendix A - PACBOARD: Health Economic Model Description"
-author: "X. Pouwels, Karel Kroeze, Naomi van der Linden, Michelle M.A. Kip, Hendrik Koffijberg"
+title: "PACBOARD: Probabilistic Analysis dashBOARD" 
+subtitle: "Appendix A: Health Economic Model Description"
+author: "Xavier G.L.V. Pouwels, Karel Kroeze, Naomi van der Linden, Michelle M.A. Kip, Hendrik Koffijberg"
 date: "`r paste(Sys.Date())`"
 output: 
   pdf_document: default
@@ -21,7 +22,7 @@ knitr::opts_chunk$set(echo = FALSE)
 This Appendix describes the probabilistic model inputs and outputs of the mock health economic model developed to tests the functionalities of the Probabilistic Analysis Check dashBOARD (PACBOARD). The HE model and functions are available at https://github.com/Xa4P/pacheck. The inputs and outputs value are stored within the `df_pa` object of the `pacheck` package. The `df_pa` object is obtained by running the `01-data_preparation.R` R script.  
 
 # Model description  
-The HE model compares two strategies, called "intervention" and "comparator" for the treatment of mestatatic breast cancer. We used a yearly cycle and a time horizon of 30 years. We did not apply half cycle correction.  
+The health economic (HE) model compares two strategies, called "intervention" and "comparator" for the treatment of mestatatic breast cancer. We used a yearly cycle and a time horizon of 30 years. We did not apply half cycle correction.  
 
 ## Model structure & assumptions
 A cohort-based Health State Transition Model model with three health states was developed. The health states were: "Progression-free" (PF), "Progressed disease" (PD), and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
@@ -105,7 +106,7 @@ The probabilistic analysis is performed using a for loop and the function `perfo
 
 # Results
 The intervention results in `r round(mean(df_pa$inc_ly), 2)` incremental life years, `r round(mean(df_pa$inc_qaly), 2)` incremental quality-adjusted life years, and `r paste("\u20ac", format(round(mean(df_pa$inc_costs), 0), scientific = FALSE, big.mark = ","))` incremental costs versus the comparator. The incremental cost effectiveness ratio of the intervention versus the comparator is `r paste("\u20ac", format(round(mean(df_pa$inc_costs) / mean(df_pa$inc_qaly), 0), scientific = FALSE, big.mark = ","))` per QALY.  
-The probabilistic results of this HE model are provided in the table below and are plotted in an incremental cost-effectiveness plane (displaying a willingness to pay threshold line of `r paste("\u20ac", 80,000)` per QALY) and a cost-effectiveness acceptability curve.  
+The probabilistic results of this HE model are provided in the table below and are plotted in an incremental cost-effectiveness plane (displaying a willingness to pay threshold line of `r paste("\u20ac")`80,000 per QALY) and a cost-effectiveness acceptability curve.  
 
 | Strategy     | Total LY | Total QALY | Total costs | Inc. QALY | Inc. costs | ICER per QALY |
 |:-------------|:---------|:-----------|:------------|:----------|:-----------|:--------------|
