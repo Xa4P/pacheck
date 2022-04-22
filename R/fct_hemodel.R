@@ -1,30 +1,36 @@
-#################################
-#### FUNCTIONS FOR HE MODELS ####
-#################################
-
-
-# Function to determine deterministic inputs
+#' Generate deterministic model inputs.
+#'
+#' @description This function generates the deterministic model inputs for the example health economic model developed to test the functionalities of the package.
+#'
+#' @return A list.
+#'
+#' @examples
+#' # Generating deterministic model inputs and storing them in an object.
+#' l_inputs_det <- generate_det_inputs()
+#'
+#' @export
+#'
 generate_det_inputs <- function() {
 
    l_output = list(
 
-    ## Rates & probabilities
+     # Rates & probabilities
      p_pfspd = 0.15,
      p_pfsd = 0.1,
      p_pdd = 0.2,
      p_dd = 1,
      p_ae = 0.05,
 
-     ## Treatment effectiveness
+     # Treatment effectiveness
      rr = 0.75,
 
-     ## Utility values
+     # Utility values
      u_pfs = 0.8,
      u_pd = 0.6,
      u_d = 0,
      u_ae = 0.15,
 
-     ## Costs
+     # Costs
      c_pfs = 1000,
      c_pd = 2000,
      c_d = 0,
@@ -35,31 +41,50 @@ generate_det_inputs <- function() {
   return(l_output)
 }
 
-# Function to determine probabilistic inputs
+#' Generate probabilistic model inputs.
+#'
+#' @description This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
+#'
+#' @param n_sim integer. Number of probabilistic value to draw for each model input. Default is 10,000.
+#' @param sd_var numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20%).
+#' @param seed_num integer. The seed number to use when drawing the probabilistic values. Default is 452.
+#'
+#' @return A list.
+#'
+#' @examples
+#' # Generating deterministic model inputs and storing them in an object.
+#' df_inputs_prob <- generate_pa_inputs()
+#'
+#' @import gtools
+#' @export
+#'
 generate_pa_inputs <- function(n_sim = 10000,
                                sd_var = 0.2,
                                seed_num = 452) {
 
-  require(gtools)
+  # Set seed
   set.seed(seed_num)
 
   # Function to calculate the parameters of beta distributions.
   estimate_params_beta <- function(mu, sd){
-    alpha <- (((mu * (1-mu))/sd^2)-1)*mu
-    beta  <- (((mu * (1-mu))/sd^2)-1)*(1-mu)
-    return(params = list(alpha = alpha, beta = beta))
-  }
+    alpha <- (((mu * (1 - mu)) / sd ^ 2) - 1) * mu
+    beta  <- (((mu * (1 - mu)) / sd ^ 2) - 1) * (1 - mu)
+    return(params = list(alpha = alpha,
+                         beta = beta)
+    )
+    }
 
   # Function to estimate parameters of a GAMMA distribution based on mean and sd, using the methods of moments
-  estimate_params_gamma <- function(mu, sd)
-  {
-    shape <- mu^2/sd^2
-    rate <- mu/sd^2
+  estimate_params_gamma <- function(mu, sd)  {
+    shape <- mu ^ 2 / sd ^ 2
+    rate  <- mu / sd ^ 2
+    return(params = list(shape = shape,
+                         rate = rate)
+    )
+    }
 
-    return(params = list(shape = shape, rate = rate))
-  }
-
-  df_tp_pfs <- rdirichlet(n_sim, c(75, 15, 10))
+  # Determine probabilistic model input values
+  df_tp_pfs <- gtools::rdirichlet(n_sim, c(75, 15, 10))
   names(df_tp_pfs) <- c("p_pfspfs", "p_pfspd",  "p_pfsd")
 
   df_output = data.frame(
@@ -72,7 +97,7 @@ generate_pa_inputs <- function(n_sim = 10000,
     p_ae = rbeta(n_sim, 5, 95),
 
     ## Treatment effectiveness
-    rr = exp(rnorm(n_sim, log(0.75), (log(0.88) - log(0.62))/ (2*1.96))),
+    rr = exp(rnorm(n_sim, log(0.75), (log(0.88) - log(0.62))/ (2 * 1.96))),
 
     ## Utility values
     u_pfs = rbeta(n_sim, estimate_params_beta(0.75, 0.07)[[1]], estimate_params_beta(0.75, 0.07)[[2]]),
@@ -90,9 +115,21 @@ generate_pa_inputs <- function(n_sim = 10000,
   return(df_output)
 }
 
-# Function to perform the simulation
-perform_simulation <- function(l_params,
-                               verbose = FALSE) {
+#' Perform the health economic simulation.
+#'
+#' @description This function performs the simulation of the health economic model developed to test the functionalities of the package.
+#'
+#' @param l_params list. List of inputs of the health economic model
+#'
+#' @return A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
+#'
+#' @examples
+#' # Perform the simulation using the deterministic model inputs
+#' l_inputs_det <- generate_det_inputs()
+#' v_results_det <- perform_simulation(l_inputs_det)
+#'
+#' @export
+perform_simulation <- function(l_params) {
 
   with(as.list(l_params), {
 
@@ -131,50 +168,33 @@ perform_simulation <- function(l_params,
                                     nrow = n_cycles + 1,
                                     ncol = length(v_names_hs),
                                     dimnames = list(c(0:n_cycles),
-                                                    v_names_hs)) # a cohort state matrix, containing [n_cycles + 1] rows (because the first row is the start position), and as much column as the number of health states.
-    ## fill this matrix with 0's for now
+                                                    v_names_hs))
 
-    ## We then need to define the starting positions of the cohort
-    ## Assign all individuals to the "Healthy" health state in the first row of the `m_hs` matrix
+    ## Define the starting positions of the cohort
     m_hs_comp[1, ] <- m_hs_int[1, ] <- v_start_hs
 
-    ## Perform the matrix multiplication to determine the state membership over the cycles.
-    ## To determine the number of individuals in each health state during each cycle, one need to multiply the vector of state membership in the previous cycle by the transition matrix
-    ## Example: to calculate the number of individuals in each state in cycle 1, multiply the state membership in cycle 0 by the transition matrix
-    ## HINT: to do so, use a a for loop over rows 2 to 41 of the `m_hs` matrix
-
+    # Perform the matrix multiplication to determine the state membership over the cycles
     for(cycle in 1:n_cycles){
-
-      # For your matrix of health state
-      m_hs_comp[cycle + 1, ] <- m_hs_comp[cycle, ] %*% m_tp_comp # matrix multiplication
-      m_hs_int[cycle + 1, ]  <- m_hs_int[cycle, ] %*% m_tp_int # matrix multiplication
-
+      m_hs_comp[cycle + 1, ] <- m_hs_comp[cycle, ] %*% m_tp_comp
+      m_hs_int[cycle + 1, ]  <- m_hs_int[cycle, ] %*% m_tp_int
     }
 
-
-    # Calculate outcomes
-
-    # Life years
+    # Calculate undiscounted output
+    ## Life years
     v_ly_comp <-  v_ly_int <- c("PFS" = 1,
                                 "PD" = 1,
-                                "D" = 0)
-
-    ## Determine the number of life year gained over the cycles (reward at the end of the cycle!)
+                                "D" = 0) # vector of rewards
     v_t_ly_comp <- m_hs_comp[2:nrow(m_hs_comp),] %*% v_ly_comp
     v_t_ly_int  <- m_hs_int[2:nrow(m_hs_int),] %*% v_ly_int
 
-    # QALY's
-    ## Determine the number of QALYs won by 1 individual during 1 cycle
+    ## QALY's
     v_qaly_comp <- v_qaly_int <- c("PFS" = u_pfs,
                                    "PD" = u_pd,
                                    "D" = u_d)
-
-    ## Determine the number of QALYs gained over the cycles (reward at the end of the cycle!)
     v_t_qaly_comp <- m_hs_comp[2:nrow(m_hs_comp),] %*% v_qaly_comp
     v_t_qaly_int  <- m_hs_int[2:nrow(m_hs_int),] %*% v_qaly_int
 
-    # Costs
-    ## Determine the costs accrued by 1 individual during 1 cycle
+    ## Costs
     v_c_comp <- c("PFS" = c_pfs,
                   "PD" = c_pd,
                   "D" = c_d)
@@ -183,47 +203,40 @@ perform_simulation <- function(l_params,
                  "PD" = c_pd,
                  "D" = c_d)
 
-    ## Determine the costs accrued over the cycles (reward at the end of the cycle!)
     v_t_c_comp <- m_hs_comp[2:nrow(m_hs_comp),] %*% v_c_comp
     v_t_c_int  <- m_hs_int[2:nrow(m_hs_int),] %*% v_c_int
 
-    # Calculate discounted results
+    # Calculate discounted output
 
-    # Life years
-    ## Total discounted life years, using matrix multiplication
+    ## Life years
     n_t_ly_comp_d <- t(v_t_ly_comp) %*% v_dw_e
     n_t_ly_int_d  <- t(v_t_ly_int) %*% v_dw_e
-
     t_ly_pfs_comp <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 1]) %*% v_dw_e)
     t_ly_pd_comp  <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 2]) %*% v_dw_e)
     t_ly_pfs_int  <- sum(t(m_hs_int[2:nrow(m_hs_int), 1]) %*% v_dw_e)
     t_ly_pd_int   <- sum(t(m_hs_int[2:nrow(m_hs_int), 2]) %*% v_dw_e)
 
-    # QALYs
-    ## Total discounted qalys, using matrix multiplication
+    ## QALYs
     t_qaly_ae_int <- n_ind * p_ae * u_ae # total qaly loss adverse events
 
     n_t_qaly_comp_d <- t(v_t_qaly_comp) %*% v_dw_e
     n_t_qaly_int_d  <- t(v_t_qaly_int) %*% v_dw_e - t_qaly_ae_int
-
     t_qaly_pfs_comp <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 1] * u_pfs) %*% v_dw_e)
     t_qaly_pd_comp  <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 2] * u_pd) %*% v_dw_e)
     t_qaly_pfs_int  <- sum(t(m_hs_int[2:nrow(m_hs_int), 1] * u_pfs) %*% v_dw_e)
     t_qaly_pd_int   <- sum(t(m_hs_int[2:nrow(m_hs_int), 2] * u_pd) %*% v_dw_e)
 
-    # Costs
-    ## Total discounted costs, using matrix multiplication
+    ## Costs
     t_c_ae_int <- n_ind * p_ae * c_ae # total costs adverse events
 
     n_t_c_comp_d <- t(v_t_c_comp) %*% v_dw_c
     n_t_c_int_d  <- (t(v_t_c_int) %*% v_dw_c) + t_c_ae_int
-
     t_c_pfs_comp <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 1] * c_pfs) %*% v_dw_c)
     t_c_pd_comp  <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 2] * c_pd) %*% v_dw_c)
     t_c_pfs_int  <- sum(t(m_hs_int[2:nrow(m_hs_int), 1] * (c_pfs + c_thx)) %*% v_dw_c)
     t_c_pd_int   <- sum(t(m_hs_int[2:nrow(m_hs_int), 2] * c_pd) %*% v_dw_c)
 
-    # Mean discounted outcomes per individual
+    # Mean total and intermediate (un)discounted outputs
     v_res <- c(t_qaly_comp = sum(v_t_qaly_comp) / n_ind,
                t_qaly_int = (sum(v_t_qaly_int) - t_qaly_ae_int)  / n_ind,
                t_qaly_d_comp = n_t_qaly_comp_d / n_ind,
@@ -258,12 +271,28 @@ perform_simulation <- function(l_params,
   )
 }
 
-# Perform deterministic one-way sensitivity analysis using probabilistic outcomes
+#' Perform deterministic one-way sensitivity analyses using probabilistic inputs and outputs.
+#'
+#' @description This function performs the deterministic one-way sensitivity analyses (DOWSA) using probabilistic inputs and outputs for the health economic model developed to test the package. The outcome of the DOWSA is the incremental net monetary benefit.
+#'
+#' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
+#' @param vars a vector of strings. Contains the name of the variables for which to perform thedeterministic one-way sensitivity analysis.
+#' @param wtp. numeric. The willingness to pay per QALY in euros. Default is `r paste("\u20ac")`120,000 per QALY.
+#'
+#' @return A dataframe. The ouctome of the deterministic one-way sensitivity analyses is the iNMB by default.
+#'
+#' @examples
+#' # Perform the deterministic one-way sensitivity analyses for a selection of parameters
+#' data(df_pa)
+#' df_res_dowsa <- perform_dowsa(df = df_pa,
+#'                               vars = c("rr", "c_pfs", "p_pd", "u_pfs", "u_pd"))
+#'
+#' @export
 perform_dowsa <- function(df,
                           vars,
                           wtp = 120000) {
-  #df <- df_pa_orig
-  #vars <- c("rr", "c_pfs")
+
+  # Determine lower and upper bound using the probabilistic outcomes
   df_dsa <- data.frame(
     rbind(apply(df[, vars], 2, mean),
           apply(df[, vars], 2, function(x) quantile(x, 0.025)),
@@ -271,6 +300,7 @@ perform_dowsa <- function(df,
     )
   )
 
+  # Initiate matrices to store results
   m_low <- matrix(NA,
                   ncol = 2,
                   nrow = ncol(df_dsa),
@@ -282,51 +312,43 @@ perform_dowsa <- function(df,
                   dimnames = list(names(df_dsa),
                                   c("Parameter", "Upper_Bound")))
 
+  # Perform DOWSA and fill matrices
+  ## Lower bound of parameters
   for (j in vars){
-    #j <- "rr"
     df_temp_dsa <- df
     df_temp_dsa[, j] <- df_dsa[2, which(names(df_dsa) == j)]
     m_res_pa <- matrix(NA_real_,
                        nrow = nrow(df),
-                       ncol = length(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
-                                                        verbose = FALSE))
+                       ncol = length(perform_simulation(l_params = as.list(df_temp_dsa[1, ])))
                        )
 
   for (i in 1:nrow(df)) {
-
     l_params_temp <- as.list(df_temp_dsa[i, ])
-    m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp,
-                                        verbose = FALSE)
+    m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp)
     }
-    colnames(m_res_pa) <- names(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
-                                                   verbose = FALSE))
+    colnames(m_res_pa) <- names(perform_simulation(l_params = as.list(df_temp_dsa[1, ])))
     v_iNMB <- (m_res_pa[, "t_qaly_d_int"] - m_res_pa[, "t_qaly_d_comp"]) * wtp - (m_res_pa[, "t_costs_d_int"] - m_res_pa[, "t_costs_d_comp"])
     m_low[j, ] <- c(names(df)[which(names(df) == j)], mean(v_iNMB))
   }
 
-  m_res_pa <- matrix()
-
+  ## Upper bound of parameters
   for (j in vars){
     df_temp_dsa <- df
     df_temp_dsa[, j] <- df_dsa[3, which(names(df_dsa) == j)]
     m_res_pa <- matrix(NA_real_,
                        nrow = nrow(df),
-                       ncol = length(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
-                                                        verbose = FALSE)))
+                       ncol = length(perform_simulation(l_params = as.list(df_temp_dsa[1, ]))))
 
     for (i in 1:nrow(df)) {
-
       l_params_temp <- as.list(df_temp_dsa[i, ])
-
-      m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp,
-                                          verbose = FALSE)
+      m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp)
       }
-    colnames(m_res_pa) <- names(perform_simulation(l_params = as.list(df_temp_dsa[1, ]),
-                                                   verbose = FALSE))
+    colnames(m_res_pa) <- names(perform_simulation(l_params = as.list(df_temp_dsa[1, ])))
     v_iNMB <- (m_res_pa[, "t_qaly_d_int"] - m_res_pa[, "t_qaly_d_comp"]) * wtp - (m_res_pa[, "t_costs_d_int"] - m_res_pa[, "t_costs_d_comp"])
     m_upp[j, ] <- c(names(df)[which(names(df) == j)], mean(v_iNMB))
   }
 
+  # Combine matrices and export
   rownames(m_low) <- rownames(m_upp) <- NULL
   df_low <- as.data.frame(m_low)
   df_upp <- as.data.frame(m_upp)
