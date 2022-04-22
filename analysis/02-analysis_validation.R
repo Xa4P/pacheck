@@ -8,8 +8,10 @@
 rm(list = ls())
 options(scipen = 999)
 library(pacheck)
-source(paste(getwd(), "/R/fct_hemodel.R", sep = ""))
+library(patchwork)
+source(paste(getwd(), "/R/fct_hemodel.R", sep = "")) # because functions contained in this script are not automatically exported when installing `pacheck`
 data(df_pa)
+data(df_pa_validation)
 n_sim <- nrow(df_pa)
 df_pa_orig <- df_pa
 wtp <- 120000
@@ -21,15 +23,23 @@ df_pa_complete <- calculate_nb(df_pa_orig,
                                e_comp = "t_qaly_d_comp",
                                c_comp = "t_costs_d_comp",
                                wtp = wtp)
+
+
+df_pa_validation_complete <- calculate_nb(df_pa_validation,
+                                          e_int = "t_qaly_d_int",
+                                          c_int = "t_costs_d_int",
+                                          e_comp = "t_qaly_d_comp",
+                                          c_comp = "t_costs_d_comp",
+                                          wtp = wtp)
+
+
 # rescale inputs
-df_pa_complete_rescaled <- df_pa_complete
+# df_pa_complete_rescaled <- df_pa_complete
 v_names_inputs <- names(df_pa_complete)[-grep("t_", names(df_pa_complete))]
 v_names_inputs <- v_names_inputs[-grep("inc_", v_names_inputs)]
 v_names_inputs <- v_names_inputs[-grep("NMB", v_names_inputs)]
 v_names_inputs <- v_names_inputs[-grep("NHB", v_names_inputs)]
 
-
-df_pa_complete_rescaled[, v_names_inputs] <- apply(df_pa_complete_rescaled[, v_names_inputs], 2, function(x) {(x - mean(x)) / sd(x)})
 #-------------------------#
 ##### INTRODUCE ERRORS ####
 #-------------------------#
@@ -156,222 +166,78 @@ v_inputs_short <- c("p_pfspd",
 # Full factorial
 lm_valid <- fit_lm_metamodel(df = df_pa_complete,
                              y = "iNMB",
-                             x = v_names_inputs,
-                             partition = 0.75
+                             x = v_inputs_short
                              )
-summary(lm_valid)
-lm_valid_2 <- fit_lm_metamodel(df = df_pa,
-                             y = "iNMB",
-                             x = c("p_pfspd",
-                                   "p_pfsd",
-                                   "p_pdd",
-                                   #"p_dd",
-                                   "p_ae",
-                                   "rr",
-                                   "u_pfs",
-                                   "u_pd",
-                                   #"u_d",
-                                   "u_ae",
-                                   "c_pfs",
-                                   #"c_pd",
-                                   #"c_d",
-                                   "c_thx"#,
-                                   #"c_ae"
-                             ))
+
+#summary(lm_valid) # all predictors are statistically significant at 0.05, except c_pd and c_ae
 #summary(lm_valid)$adj.r.squared
 #summary(lm_valid_2)$adj.r.squared
 ## does not really matter!
 
+# Predict on validation set
+v_predictions_validation <- predict.lm(lm_valid,
+                                       newdata = df_pa_validation)
+
+# Calculate mean iNMBs
+mean_inmb_validation_set <- mean(df_pa_validation_complete[, "iNMB"])
+mean_inmb_prediction <- mean(v_predictions_validation)
+sd_inmb_validation_set <- sd(df_pa_validation_complete[, "iNMB"])
+sd_inmb_prediction <- sd(v_predictions_validation)
+
+m_res_validation <- matrix(round(c(mean_inmb_validation_set,
+                                   mean_inmb_prediction,
+                                   sd_inmb_validation_set,
+                                   sd_inmb_prediction)
+                                 ),
+                           byrow = FALSE,
+                           nrow = 2,
+                           ncol = 2,
+                           dimnames = list(
+                             c("Validation set", "Metamodel predictions"),
+                             c("Mean iNMB", "SD iNMB")
+                             )
+                           )
+
+# Calculate mean absolute error
+mae_validation <- mean(abs(v_predictions_validation - df_pa_validation_complete[, "iNMB"]))
+mre_validation <- mean(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / df_pa_validation_complete[, "iNMB"]))
+r_squared_validation <-  cor(v_predictions_validation, df_pa_validation_complete[, "iNMB"]) ^ 2
+
+## matrix to export
+outcomes_fit <- c("MAE", "MRE", "Rsquared")
+outcomes_fit_stat <- c("min", "Q1", "median", "mean", "Q3", "max")
+
+m_fit <- matrix(NA,
+                nrow = length(outcomes_fit),
+                ncol = length(outcomes_fit_stat),
+                dimnames = list(
+                  outcomes_fit,
+                  outcomes_fit_stat
+                )
+                )
+
+m_fit["MAE", ] <- unlist(summary(abs(v_predictions_validation - df_pa_validation_complete[, "iNMB"])))
+m_fit["Rsquared", "mean"] <- r_squared_validation
+m_fit <- round(m_fit, 3)
+m_fit["MRE", ] <- paste(round(unlist(summary(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / df_pa_validation_complete[, "iNMB"]))) * 100), "%")
+
+p_mre_above_1 <- length(which(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / df_pa_validation_complete[, "iNMB"]) > 1)) / nrow(df_pa_validation_complete)
+
 # One-way deterministic analyses ----
 ## Original model
-df_res_dowsa <- perform_dowsa(df = df_pa_orig,
-                               vars = v_inputs_all
+df_res_dowsa <- perform_dowsa(df = df_pa_complete,
+                              vars = v_names_inputs
                               )
 tornado_dowsa <- plot_tornado(df = df_res_dowsa,
-                                   df_basecase = df_pa,
-                                   outcome = "iNMB")
+                              df_basecase = df_pa_complete,
+                              outcome = "iNMB")
 
 ## Metamodel - full factorial
-df_res_dowsa_meta <- dsa_lm_metamodel(df = df_pa,
+df_res_dowsa_meta <- dsa_lm_metamodel(df = df_pa_complete,
                                       lm_metamodel = lm_valid)
 tornado_dowsa_meta <- plot_tornado(df = df_res_dowsa_meta,
-                                   df_basecase = df_pa,
+                                   df_basecase = df_pa_complete,
                                    outcome = "iNMB")
-
-## Metamodel - parsimonious
-
-
-# Other predictions ----
-## Original model
-### No difference in effectiveness (rr = 1)
-df_pred_no_diff_e <- df_pa_orig
-df_pred_no_diff_e$rr <- 1
-
-## Perform PA
-### Initialise matrix outcomes
-m_res_pa <- matrix(0,
-                   ncol = 26,
-                   nrow = n_sim,
-                   dimnames = list(c(1:n_sim),
-                                   c("t_qaly_comp",
-                                     "t_qaly_int",
-                                     "t_qaly_d_comp",
-                                     "t_qaly_d_int",
-                                     "t_costs_comp",
-                                     "t_costs_int",
-                                     "t_costs_d_comp",
-                                     "t_costs_d_int",
-                                     "t_ly_comp",
-                                     "t_ly_int",
-                                     "t_ly_d_comp",
-                                     "t_ly_d_int",
-                                     "t_ly_pfs_d_comp",
-                                     "t_ly_pfs_d_int",
-                                     "t_ly_pd_d_comp",
-                                     "t_ly_pd_d_int",
-                                     "t_qaly_pfs_d_comp",
-                                     "t_qaly_pfs_d_int",
-                                     "t_qaly_pd_d_comp",
-                                     "t_qaly_pd_d_int",
-                                     "t_costs_pfs_d_comp",
-                                     "t_costs_pfs_d_int",
-                                     "t_costs_pd_d_comp",
-                                     "t_costs_pd_d_int",
-                                     "t_qaly_ae_int",
-                                     "t_costs_ae_int")))
-for(i in 1:n_sim) {
-
-  l_params_temp <- as.list(df_pred_no_diff_e[i, ])
-
-  m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp,
-                                      verbose = FALSE)
-}
-
-df_pa_no_eff_diff <- as.data.frame(m_res_pa)
-#df_pa_no_eff_diff <- cbind(df_pred_no_diff_e, df_pa_no_eff_diff)
-df_pa_no_eff_diff$inc_ly <- df_pa_no_eff_diff$t_ly_d_int - df_pa_no_eff_diff$t_ly_d_comp
-df_pa_no_eff_diff$inc_qaly <- df_pa_no_eff_diff$t_qaly_d_int - df_pa_no_eff_diff$t_qaly_d_comp
-df_pa_no_eff_diff$inc_costs <- df_pa_no_eff_diff$t_costs_d_int - df_pa_no_eff_diff$t_costs_d_comp
-df_pa_no_eff_diff$iNMB <- df_pa_no_eff_diff$inc_qaly * wtp - df_pa_no_eff_diff$inc_costs
-
-### Costs treatment is 0 (c_thx = 0)
-df_pred_no_c_thx <- df_pa_orig
-df_pred_no_c_thx$c_thx <- rep(0, nrow(df_pred_no_c_thx))
-
-## Perform PA
-### Initialise matrix outcomes
-m_res_pa <- matrix(0,
-                   ncol = 26,
-                   nrow = n_sim,
-                   dimnames = list(c(1:n_sim),
-                                   c("t_qaly_comp",
-                                     "t_qaly_int",
-                                     "t_qaly_d_comp",
-                                     "t_qaly_d_int",
-                                     "t_costs_comp",
-                                     "t_costs_int",
-                                     "t_costs_d_comp",
-                                     "t_costs_d_int",
-                                     "t_ly_comp",
-                                     "t_ly_int",
-                                     "t_ly_d_comp",
-                                     "t_ly_d_int",
-                                     "t_ly_pfs_d_comp",
-                                     "t_ly_pfs_d_int",
-                                     "t_ly_pd_d_comp",
-                                     "t_ly_pd_d_int",
-                                     "t_qaly_pfs_d_comp",
-                                     "t_qaly_pfs_d_int",
-                                     "t_qaly_pd_d_comp",
-                                     "t_qaly_pd_d_int",
-                                     "t_costs_pfs_d_comp",
-                                     "t_costs_pfs_d_int",
-                                     "t_costs_pd_d_comp",
-                                     "t_costs_pd_d_int",
-                                     "t_qaly_ae_int",
-                                     "t_costs_ae_int")))
-for(i in 1:n_sim) {
-
-  l_params_temp <- as.list(df_pred_no_c_thx[i, ])
-
-  m_res_pa[i, ] <- perform_simulation(l_params = l_params_temp,
-                                      verbose = FALSE)
-}
-
-df_pa_no_c_thx <- as.data.frame(m_res_pa)
-#df_pred_no_c_thx <- cbind(df_pred_no_diff_e, df_pred_no_c_thx)
-df_pa_no_c_thx$inc_ly <- df_pa_no_c_thx$t_ly_d_int - df_pa_no_c_thx$t_ly_d_comp
-df_pa_no_c_thx$inc_qaly <- df_pa_no_c_thx$t_qaly_d_int - df_pa_no_c_thx$t_qaly_d_comp
-df_pa_no_c_thx$inc_costs <- df_pa_no_c_thx$t_costs_d_int - df_pa_no_c_thx$t_costs_d_comp
-df_pa_no_c_thx$iNMB <- df_pa_no_c_thx$inc_qaly * wtp - df_pa_no_c_thx$inc_costs
-
-## Metamodel
-### No difference in effectiveness (rr = 1)
-res_meta_no_eff_diff <- predict.lm(lm_valid, newdata = df_pred_no_diff_e[, v_inputs_all])
-res_meta_no_eff_diff_2 <- predict.lm(lm_valid_2, newdata = df_pred_no_diff_e[, v_inputs_short])
-
-### Costs treatment is 0 (c_thx = 0)
-res_meta_no_c_thx <- predict.lm(lm_valid, newdata = df_pred_no_c_thx[, v_inputs_all])
-res_meta_no_c_thx_2 <- predict.lm(lm_valid_2, newdata = df_pred_no_c_thx[, v_inputs_short])
-
-## Comparison of results
-### No difference in effectiveness
-summary(df_pa_no_eff_diff$iNMB)
-summary(res_meta_no_eff_diff)
-summary(res_meta_no_eff_diff_2)
-
-df_1 <- data.frame(res_meta_no_eff_diff)
-names(df_1) <- "iNMB"
-
-check_range(df = df_1,
-            outcome = "iNMB",
-            min_val = unname(round(quantile(df_pa_no_eff_diff$iNMB, c(0.025)))),
-            max_val = unname(round(quantile(df_pa_no_eff_diff$iNMB, c(0.975))))
-            )
-
-sqrt(mean((df_pa_no_eff_diff$iNMB - df_1$iNMB) ^ 2)) #RMSE
-mean(abs(df_pa_no_eff_diff$iNMB - df_1$iNMB)) #mean absolute error
-mean(abs(df_pa_no_eff_diff$iNMB - df_1$iNMB) / abs(df_pa_no_eff_diff$iNMB)) # mean relative diff
-qqplot(x = df_pa_no_eff_diff$iNMB,
-       y = df_1$iNMB)
-
-summary(abs(df_pa_no_eff_diff$iNMB - df_1$iNMB) / abs(df_pa_no_eff_diff$iNMB))
-
-hist(df_pa_no_eff_diff$iNMB)
-hist(res_meta_no_eff_diff)
-hist(res_meta_no_eff_diff_2)y
-plot(density(df_pa_no_eff_diff$iNMB),
-     ylim = c(0, 0.0001)
-)
-lines(density(df_1$iNMB), col = "red")
-
-## No treatment costs
-summary(df_pa_no_c_thx$iNMB)
-summary(res_meta_no_c_thx)
-summary(res_meta_no_c_thx_2)
-
-df_2 <- data.frame(res_meta_no_c_thx)
-names(df_2) <- "iNMB"
-
-check_range(df = df_2,
-            outcome = "iNMB",
-            min_val = unname(round(quantile(df_pa_no_c_thx$iNMB, c(0.025)))),
-            max_val = unname(round(quantile(df_pa_no_c_thx$iNMB, c(0.975))))
-)
-
-sqrt(mean((df_pa_no_c_thx$iNMB - df_2$iNMB) ^ 2)) # RMSE
-mean(abs(df_pa_no_c_thx$iNMB - df_2$iNMB)) # mean absolute error
-mean(abs(df_pa_no_c_thx$iNMB - df_2$iNMB) / abs(df_pa_no_c_thx$iNMB)) #relative error
-qqplot(x = df_pa_no_c_thx$iNMB,
-       y = df_2$iNMB)
-
-hist(df_pa_no_c_thx$iNMB)
-hist(df_2$iNMB)
-hist(res_meta_no_c_thx_2)
-plot(density(df_pa_no_c_thx$iNMB),
-     ylim = c(0, 0.00003)
-     )
-lines(density(df_2$iNMB), col = "red")
 
 #--------------#
 #### EXPORT ####
@@ -381,11 +247,64 @@ write.csv(df_pa_complete, file = paste(getwd(), "/data/data_with_nb.csv", sep = 
 write.csv(df_pa_complete_rescaled, file = paste(getwd(), "/data/data_with_nb_rescaled.csv", sep = ""))
 write.csv(df_pa_error, file = paste(getwd(), "/data/data_with_nb_error.csv", sep = ""))
 
+# Tables ----
+## Mean outcomes validation set and metamodel
+readr::write_excel_csv2(data.frame(cbind(
+  Stat = rownames(m_res_validation),
+  m_res_validation)
+), file = paste(getwd(), "/output/iNMB_metamodel_validation_set.csv", sep = ""))
+
+## Fit statistics validation set
+readr::write_excel_csv2(data.frame(cbind(
+  Stat = rownames(m_fit),
+  m_fit)
+  ), file = paste(getwd(), "/output/fit_metamodel_validation_set.csv", sep = ""))
+
+# Predicted versus observed & QQ-plot ----
+png(paste(getwd(), "/figs/Prediction_versus_observation.png", sep = ""),
+    units = "cm",
+    width = 21,
+    height = 21 / 16 * 9,
+    res = 300)
+par(mfrow = c(1, 2))
+plot(x = df_pa_validation_complete[, "iNMB"],
+     y = v_predictions_validation,
+     xlab = "Observed",
+     ylab = "Predicted",
+     main = "A")
+abline(coef = c(0,1),
+       col = "red")
+
+# QQplot
+qqplot(x = df_pa_validation_complete[, "iNMB"],
+       y = v_predictions_validation,
+       xlab = "Observed",
+       ylab = "Predicted",
+       main = "B")
+abline(coef = c(0,1),
+       col = "red")
+dev.off()
+
 # Tornado's ----
 png(paste(getwd(), "/figs/tornado_original.png", sep = ""))
 print(tornado_dowsa)
 dev.off()
 
-png(paste(getwd(), "/figs/tornado_original_meta.png", sep = ""))
+png(paste(getwd(), "/figs/tornado_meta.png", sep = ""))
 print(tornado_dowsa_meta)
+dev.off()
+
+# Add A & B
+tornado_dowsa <- tornado_dowsa +
+  ggplot2::ggtitle("A")
+
+tornado_dowsa_meta <- tornado_dowsa_meta +
+  ggplot2::ggtitle("B")
+
+png(paste(getwd(), "/figs/tornados_together.png", sep = ""),
+    units = "cm",
+    width = 21,
+    height = 21 / 16 * 9,
+    res = 300)
+tornado_dowsa + tornado_dowsa_meta
 dev.off()
