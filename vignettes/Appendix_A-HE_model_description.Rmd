@@ -25,7 +25,7 @@ This Appendix describes the probabilistic model inputs and outputs of the mock h
 The health economic (HE) model compares two strategies, called "intervention" and "comparator" for the treatment of mestatatic breast cancer. We used a yearly cycle and a time horizon of 30 years. We did not apply half cycle correction.  
 
 ## Model structure & assumptions
-A cohort-based Health State Transition Model model with three health states was developed. The health states were: "Progression-free" (PF), "Progressed disease" (PD), and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
+A cohort-based health state transition model with three health states was developed. The health states were: "Progression-free" (PF), "Progressed disease" (PD), and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
 The "intervention strategy" only reduces the transition probability from PFS to PD compared to the "comparator" strategy.  
 The "comparator" strategy does not incur any treatment or adverse event-related health losses and costs. Adverse events are assumed to occur once at the start of the health economic model.    
 
