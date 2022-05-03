@@ -88,20 +88,20 @@ The probabilistic model inputs were estimated based on the below-described distr
 
 # Analysis
 A probabilistic analysis of 10,000 iterations was performed through Monte Carlo analysis. Input and intermediate and final output values for each iteration were recorded. The recorded outputs were:  
-- `t_ly_int` & `t_ly_comp`: total discounted life years for each strategy  
-- `t_ly_d_int` & `t_ly_d_comp`: total undiscounted life years for each strategy  
-- `t_qaly_int` & `t_qaly_comp`: total discounted quality-adjusted life years for each strategy  
-- `t_qaly_d_int` & `t_qaly_d_comp`: total undiscounted quality-adjusted life years for each strategy  
-- `t_costs_int` & `t_costs_comp`: total discounted costs for each strategy  
-- `t_costs_d_int` & `t_costs_d_comp`: total undiscounted costs for each strategy  
+- `t_ly_int` & `t_ly_comp`: total undiscounted life years for each strategy  
+- `t_ly_d_int` & `t_ly_d_comp`: total discounted life years for each strategy  
+- `t_qaly_int` & `t_qaly_comp`: total undiscounted quality-adjusted life years for each strategy  
+- `t_qaly_d_int` & `t_qaly_d_comp`: total discounted quality-adjusted life years for each strategy  
+- `t_costs_int` & `t_costs_comp`: total undiscounted costs for each strategy  
+- `t_costs_d_int` & `t_costs_d_comp`: total discounted costs for each strategy  
 - `t_ly_pfs_d_int`, `t_ly_pd_d_int`, `t_ly_pfs_d_comp` & `t_ly_pd_d_comp`: discounted life years per health state for each strategy  
 - `t_qaly_pfs_d_int`, `t_qaly_pd_d_int`, `t_qaly_pfs_d_comp` & `t_qaly_pd_d_comp`: discounted quality-adjusted life years per health state for each strategy  
 - `t_costs_pfs_d_int`, `t_costs_pd_d_int`, `t_costs_pfs_d_comp` & `t_costs_pd_d_comp`: discounted costs per health state for each strategy  
 - `t_qaly_ae_int`: total QALY decrement associated with the occurrence of adverse events  
 - `t_costs_ae_int`: total costs associated with the occurrence of adverse events  
-- `inc_ly`: incremental (discounted) life years of the intervention versus the comparator   
-- `inc_qaly`: incremental (discounted) quality-adjusted life years of the intervention versus the comparator   
-- `inc_costs`: incremental (discounted) costs of the intervention versus the comparator   
+- `inc_ly`: incremental discounted life years of the intervention versus the comparator   
+- `inc_qaly`: incremental discounted quality-adjusted life years of the intervention versus the comparator   
+- `inc_costs`: incremental discounted costs of the intervention versus the comparator   
 The probabilistic analysis is performed using a for loop and the function `perform_simulation()`.  
 
 # Results
