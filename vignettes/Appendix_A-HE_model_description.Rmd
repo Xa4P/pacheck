@@ -22,12 +22,10 @@ knitr::opts_chunk$set(echo = FALSE)
 This Appendix describes the probabilistic model inputs and outputs of the mock health economic model developed to tests the functionalities of the Probabilistic Analysis Check dashBOARD (PACBOARD). The HE model and functions are available at https://github.com/Xa4P/pacheck. The inputs and outputs value are stored within the `df_pa` object of the `pacheck` package. The `df_pa` object is obtained by running the `01-data_preparation.R` R script.  
 
 # Model description  
-The health economic (HE) model compares two strategies, called "intervention" and "comparator" for the treatment of mestatatic breast cancer. We used a yearly cycle and a time horizon of 30 years. We did not apply half cycle correction.  
-
+The health economic (HE) model compares two strategies, called "intervention" and "comparator" for the treatment of mestatatic breast cancer. The We used a yearly cycle and a time horizon of 30 years. We did not apply half cycle correction.  
+The "intervention" strategy incurs treatment costs and reduces the transition probability from PFS to PD compared to the "comparator" strategy. In addition, there is a change of experiencing adverse events in the intervention strategy which incurs additional costs and utility decrement once at the beginning of the HE model. The "comparator" strategy entails "doing nothing" and does not incur any treatment costs and adverse event-related utility decrement and costs.  
 ## Model structure & assumptions
 A cohort-based health state transition model with three health states was developed. The health states were: "Progression-free" (PF), "Progressed disease" (PD), and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
-The "intervention strategy" only reduces the transition probability from PFS to PD compared to the "comparator" strategy.  
-The "comparator" strategy does not incur any treatment or adverse event-related health losses and costs. Adverse events are assumed to occur once at the start of the health economic model.    
 
 ```{r mod_structure, include = FALSE}
 # diagram <- "
