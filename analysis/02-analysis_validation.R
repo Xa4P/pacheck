@@ -14,7 +14,7 @@ data(df_pa)
 data(df_pa_validation)
 n_sim <- nrow(df_pa)
 df_pa_orig <- df_pa
-wtp <- 120000
+wtp <- 80000
 
 # calculate (i)NMBs and i(NHB)s
 df_pa_complete <- calculate_nb(df_pa_orig,
@@ -163,7 +163,7 @@ v_inputs_short <- c("p_pfspd",
                     #"c_ae"
 )
 
-# Full factorial
+# All parameters factorial
 lm_valid <- fit_lm_metamodel(df = df_pa_complete,
                              y = "iNMB",
                              x = v_inputs_short
@@ -174,15 +174,39 @@ lm_valid <- fit_lm_metamodel(df = df_pa_complete,
 #summary(lm_valid_2)$adj.r.squared
 ## does not really matter!
 
+# Predict on training set
+v_predictions_training <- predict.lm(lm_valid,
+                                     newdata = df_pa_complete)
+
 # Predict on validation set
 v_predictions_validation <- predict.lm(lm_valid,
                                        newdata = df_pa_validation)
 
-# Calculate mean iNMBs
+# Calculate mean iNMBs - training set
+mean_inmb_training_set <- mean(df_pa_complete[, "iNMB"])
+mean_inmb_prediction_training   <- mean(v_predictions_training)
+sd_inmb_training_set   <- sd(df_pa_complete[, "iNMB"])
+sd_inmb_prediction_training     <- sd(v_predictions_training)
+
+m_res_training <- matrix(round(c(mean_inmb_training_set,
+                                 mean_inmb_prediction_training,
+                                 sd_inmb_training_set,
+                                 sd_inmb_prediction_training)
+                               ),
+                         byrow = FALSE,
+                         nrow = 2,
+                         ncol = 2,
+                         dimnames = list(
+                           c("Training set", "Metamodel predictions"),
+                           c("Mean iNMB", "SD iNMB")
+                           )
+                         )
+
+# Calculate mean iNMBs - validation set
 mean_inmb_validation_set <- mean(df_pa_validation_complete[, "iNMB"])
-mean_inmb_prediction <- mean(v_predictions_validation)
-sd_inmb_validation_set <- sd(df_pa_validation_complete[, "iNMB"])
-sd_inmb_prediction <- sd(v_predictions_validation)
+mean_inmb_prediction     <- mean(v_predictions_validation)
+sd_inmb_validation_set   <- sd(df_pa_validation_complete[, "iNMB"])
+sd_inmb_prediction       <- sd(v_predictions_validation)
 
 m_res_validation <- matrix(round(c(mean_inmb_validation_set,
                                    mean_inmb_prediction,
@@ -226,11 +250,14 @@ p_mre_above_1 <- length(which(abs((v_predictions_validation - df_pa_validation_c
 # One-way deterministic analyses ----
 ## Original model
 df_res_dowsa <- perform_dowsa(df = df_pa_complete,
-                              vars = v_names_inputs
-                              )
+                              vars = v_names_inputs,
+                              wtp = 80000)
 tornado_dowsa <- plot_tornado(df = df_res_dowsa,
                               df_basecase = df_pa_complete,
                               outcome = "iNMB")
+
+df_res_dowsa$Lower_Bound_relative <- (df_res_dowsa$Lower_Bound - mean(df_pa_validation_complete[, "iNMB"])) / abs(mean(df_pa_validation_complete[, "iNMB"]))
+df_res_dowsa$Upper_Bound_relative <- (df_res_dowsa$Upper_Bound - mean(df_pa_validation_complete[, "iNMB"])) / abs(mean(df_pa_validation_complete[, "iNMB"]))
 
 ## Metamodel - full factorial
 df_res_dowsa_meta <- dsa_lm_metamodel(df = df_pa_complete,
@@ -238,6 +265,9 @@ df_res_dowsa_meta <- dsa_lm_metamodel(df = df_pa_complete,
 tornado_dowsa_meta <- plot_tornado(df = df_res_dowsa_meta,
                                    df_basecase = df_pa_complete,
                                    outcome = "iNMB")
+
+df_res_dowsa_meta$Lower_Bound_relative <- (df_res_dowsa_meta$Lower_Bound - mean(v_predictions_validation)) / abs(mean(v_predictions_validation))
+df_res_dowsa_meta$Upper_Bound_relative <- (df_res_dowsa_meta$Upper_Bound - mean(v_predictions_validation)) / abs(mean(v_predictions_validation))
 
 #--------------#
 #### EXPORT ####
@@ -248,6 +278,12 @@ write.csv(df_pa_complete_rescaled, file = paste(getwd(), "/data/data_with_nb_res
 write.csv(df_pa_error, file = paste(getwd(), "/data/data_with_nb_error.csv", sep = ""))
 
 # Tables ----
+## Mean outcomes training set and metamodel
+readr::write_excel_csv2(data.frame(cbind(
+  Stat = rownames(m_res_training),
+  m_res_training)
+), file = paste(getwd(), "/output/iNMB_metamodel_training_set.csv", sep = ""))
+
 ## Mean outcomes validation set and metamodel
 readr::write_excel_csv2(data.frame(cbind(
   Stat = rownames(m_res_validation),
@@ -259,6 +295,10 @@ readr::write_excel_csv2(data.frame(cbind(
   Stat = rownames(m_fit),
   m_fit)
   ), file = paste(getwd(), "/output/fit_metamodel_validation_set.csv", sep = ""))
+
+## Tornado diagram results
+readr::write_excel_csv(df_res_dowsa, file = paste(getwd(), "/output/tbl_tornado_validation_set.csv", sep = ""), delim = ";")
+readr::write_excel_csv(df_res_dowsa_meta, file = paste(getwd(), "/output/tbl_tornado_metamodel.csv", sep = ""), delim = ";")
 
 # Predicted versus observed & QQ-plot ----
 png(paste(getwd(), "/figs/Prediction_versus_observation.png", sep = ""),
