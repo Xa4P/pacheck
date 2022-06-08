@@ -122,8 +122,10 @@ plot_ce <- function (df, e_int, e_comp, c_int, c_comp){
 #' @description This function computes the probability that the probabilistic outcome is in each of the quadrant.
 #'
 #' @param df a dataframe.
-#' @param inc_e character string. Name of variable containing the incremental effects.
-#' @param inc_c character string. Name of variable containing the incremental costs
+#' @param e_int character. Name of variable of the dataframe containing total effects of the intervention strategy.
+#' @param e_comp character. Name of variable of the dataframe containing total effects of the comparator strategy.
+#' @param c_int character. Name of variable of the dataframe containing total costs of the intervention strategy.
+#' @param c_comp character. Name of variable of the dataframe containing total costs of the comparator strategy.
 #'
 #' @return A dataframe.
 #'
@@ -137,16 +139,21 @@ plot_ce <- function (df, e_int, e_comp, c_int, c_comp){
 #' @export
 #'
 summary_ice <- function(df,
-                        inc_e,
-                        inc_c) {
+                        e_int,
+                        e_comp,
+                        c_int,
+                        c_comp) {
+
+  df$inc_costs   <- df[, c_int] - df[, c_comp]
+  df$inc_effects <- df[, e_int] - df[, e_comp]
 
   df_out <- data.frame(
     Quadrant = c("NorthEast (more effective, more expensive)", "SouthEast (more effective, less expensive)",
                  "NorthWest (less effective, more expensive)", "SouthWest (less effective, less expensive)"),
-    Percentage = c(paste(round(length(which(df[, inc_e] > 0 & df[, inc_c] > 0)) / nrow(df) * 100, 0), "%", sep = ""),
-                   paste(round(length(which(df[, inc_e] > 0 & df[, inc_c] < 0)) / nrow(df) * 100, 0), "%", sep = ""),
-                   paste(round(length(which(df[, inc_e] < 0 & df[, inc_c] > 0)) / nrow(df) * 100, 0), "%", sep = ""),
-                   paste(round(length(which(df[, inc_e] < 0 & df[, inc_c] < 0)) / nrow(df) * 100, 0), "%", sep = "")
+    Percentage = c(paste(round(length(which(df[, "inc_effects"] > 0 & df[, "inc_costs"] > 0)) / nrow(df) * 100, 0), "%", sep = ""),
+                   paste(round(length(which(df[, "inc_effects"] > 0 & df[, "inc_costs"] < 0)) / nrow(df) * 100, 0), "%", sep = ""),
+                   paste(round(length(which(df[, "inc_effects"] < 0 & df[, "inc_costs"] > 0)) / nrow(df) * 100, 0), "%", sep = ""),
+                   paste(round(length(which(df[, "inc_effects"] < 0 & df[, "inc_costs"] < 0)) / nrow(df) * 100, 0), "%", sep = "")
     )
   )
     return(df_out)
@@ -225,7 +232,9 @@ calculate_ceac <- function (df, e_int, e_comp, c_int, c_comp, v_wtp = seq(from =
 #'
 #' plot_ceac(df = df_ceac_p,
 #'           v_wtp = "WTP_threshold")
-#'
+#' @import ggplot2
+#' @import reshape2
+#' @import scales
 #' @export
 #'
 plot_ceac <- function(df,
