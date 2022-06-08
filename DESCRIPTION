@@ -15,6 +15,7 @@ Imports:
     ggplot2,
     gtools,
     magrittr,
+    moments,
     reshape2,
     scales,
     stats,
