@@ -4,14 +4,18 @@
 \alias{plot_ice}
 \title{Plotting the incremental cost-effectiveness plane.}
 \usage{
-plot_ice(df, param_1, param_2, col = NULL, n_it = NULL, wtp = NULL)
+plot_ice(df, e_int, e_comp, c_int, c_comp, col = NULL, n_it = NULL, wtp = NULL)
 }
 \arguments{
 \item{df}{a dataframe.}
 
-\item{param_1}{character. Name of variable of the dataframe to be plotted on the x-axis.}
+\item{e_int}{character. Name of variable of the dataframe containing total effects of the intervention strategy.}
 
-\item{param_2}{character. Name of variable of the dataframe to be plotted on the y-axis.}
+\item{e_comp}{character. Name of variable of the dataframe containing total effects of the comparator strategy.}
+
+\item{c_int}{character. Name of variable of the dataframe containing total costs of the intervention strategy.}
+
+\item{c_comp}{character. Name of variable of the dataframe containing total costs of the comparator strategy.}
 
 \item{col}{character. Name of variable of the dataframe to use to colour (in blue) the plotted dots. Default is NULL which results in grey dots.}
 
@@ -29,6 +33,10 @@ This function plots the incremental cost-effectiveness plane.
 # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
 data(df_pa)
 plot_ice(df = df_pa,
-         param_1 = "inc_qaly",
-         param_2 = "inc_costs")
+         e_int = "t_qaly_d_int",
+         e_comp = "t_qaly_d_comp",
+         c_int = "t_costs_d_int",
+         c_comp = "t_costs_d_comp",
+         wtp = 8000)
+
 }
