@@ -18,6 +18,7 @@
 #' data(df_pa)
 #' df_summary <- generate_sum_stats(df_pa)
 #'
+#' @import moments
 #' @export
 generate_sum_stats <- function(df,
                                v_params = NULL,
@@ -57,7 +58,10 @@ generate_sum_stats <- function(df,
                        Percentile_2.5th = apply(df_select, 2, function(x) quantile(x, 0.025)),
                        Percentile_97.5th = apply(df_select, 2, function(x) quantile(x, 0.975)),
                        Minimum = apply(df_select, 2, min),
-                       Maximum = apply(df_select, 2, max)
+                       Maximum = apply(df_select, 2, max),
+                       Median  = apply(df_select, 2, median),
+                       Skewness = apply(df_select, 2, moments::skewness),
+                       Kurtosis = apply(df_select, 2, moments::kurtosis)
                        )
 
   df_out[, 2:ncol(df_out)] <- apply(df_out[, 2:ncol(df_out)], 2, function(x) round(x, 3))
