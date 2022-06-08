@@ -4,14 +4,18 @@
 \alias{summary_ice}
 \title{Summary statistics of the incremental cost-effectiveness plane.}
 \usage{
-summary_ice(df, inc_e, inc_c)
+summary_ice(df, e_int, e_comp, c_int, c_comp)
 }
 \arguments{
 \item{df}{a dataframe.}
 
-\item{inc_e}{character string. Name of variable containing the incremental effects.}
+\item{e_int}{character. Name of variable of the dataframe containing total effects of the intervention strategy.}
 
-\item{inc_c}{character string. Name of variable containing the incremental costs}
+\item{e_comp}{character. Name of variable of the dataframe containing total effects of the comparator strategy.}
+
+\item{c_int}{character. Name of variable of the dataframe containing total costs of the intervention strategy.}
+
+\item{c_comp}{character. Name of variable of the dataframe containing total costs of the comparator strategy.}
 }
 \value{
 A dataframe.

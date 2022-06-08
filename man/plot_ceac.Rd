@@ -29,5 +29,4 @@ df_ceac_p <- as.data.frame(m_res_ceac)
 
 plot_ceac(df = df_ceac_p,
           v_wtp = "WTP_threshold")
-
 }
