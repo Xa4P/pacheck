@@ -731,7 +731,7 @@ check_sum_vars <- function(...,
 do_check <- function(df, vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
   pass <- summarise(df, across(!!vars, check)) %>% summarise(across(everything(), all))
 
-  if (all(pass)){
+  if (all(pass == TRUE)){
     messages <- tibble::tibble(ok = TRUE, message = glue::glue(template_ok))
   } else {
     messages <- tibble::tibble(ok = FALSE, message = glue::glue(template_fail, var = vars[!pass]))
