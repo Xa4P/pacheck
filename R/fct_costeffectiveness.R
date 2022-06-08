@@ -320,7 +320,8 @@ plot_nb <- function(df,
   if(NMB == TRUE){
     if(comparators == TRUE){
       p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NMB_int", colour = factor("Intervention"))) +
-        ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NMB_comp", colour = factor("Comparator")))
+        ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NMB_comp", colour = factor("Comparator"))) +
+        ggplot2::xlab("Net monetary benefit")
     }
     if(incremental == TRUE) {
       p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "iNMB", colour = factor("Incremental")))
@@ -334,7 +335,8 @@ plot_nb <- function(df,
   } else {
     if(comparators == TRUE){
     p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NHB_int", colour = factor("Intervention"))) +
-      ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NHB_comp", colour = factor("Comparator")))
+      ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NHB_comp", colour = factor("Comparator"))) +
+      ggplot2::xlab("Net health benefit")
     }
     if(incremental == TRUE) {
       p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "iNHB", colour = factor("Incremental")))
