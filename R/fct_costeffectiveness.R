@@ -3,51 +3,62 @@
 #' @description This function plots the incremental cost-effectiveness plane.
 #'
 #' @param df a dataframe.
-#' @param param_1 character. Name of variable of the dataframe to be plotted on the x-axis.
-#' @param param_2 character. Name of variable of the dataframe to be plotted on the y-axis.
+#' @param e_int character. Name of variable of the dataframe containing total effects of the intervention strategy.
+#' @param e_comp character. Name of variable of the dataframe containing total effects of the comparator strategy.
+#' @param c_int character. Name of variable of the dataframe containing total costs of the intervention strategy.
+#' @param c_comp character. Name of variable of the dataframe containing total costs of the comparator strategy.
 #' @param col character. Name of variable of the dataframe to use to colour (in blue) the plotted dots. Default is NULL which results in grey dots.
 #' @param n_it (vector of) numeric value(s). Designate which iteration should be coloured in the colour red.
 #' @param wtp numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.
 #'
 #' @return A ggplot graph.
 #'
+#'
 #' @examples
 #' # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
 #' data(df_pa)
 #' plot_ice(df = df_pa,
-#'          param_1 = "inc_qaly",
-#'          param_2 = "inc_costs")
+#'          e_int = "t_qaly_d_int",
+#'          e_comp = "t_qaly_d_comp",
+#'          c_int = "t_costs_d_int",
+#'          c_comp = "t_costs_d_comp",
+#'          wtp = 8000)
+#'
+#' @import ggplot2
+#' @import scales
 #' @export
 #'
 plot_ice <- function(df,
-                     param_1,
-                     param_2,
+                     e_int,
+                     e_comp,
+                     c_int,
+                     c_comp,
                      col = NULL,
                      n_it = NULL,
                      wtp = NULL) {
 
-  require(ggplot2, quietly = TRUE)
-  require(scales, quietly = TRUE)
+  df$inc_costs   <- df[, c_int] - df[, c_comp]
+  df$inc_effects <- df[, e_int] - df[, e_comp]
 
   p_out <- if(is.null(col)){
-    ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
+    ggplot2::ggplot(data = df, ggplot2::aes_string(x = "inc_effects", y = "inc_costs")) +
       ggplot2::geom_point(shape = 1, colour = "grey") +
       ggplot2::geom_hline(yintercept = 0) +
       ggplot2::geom_vline(xintercept = 0) +
       ggplot2::xlab ("Incremental effects") +
       ggplot2::ylab("Incremental costs") +
       ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
-      ggplot2::geom_point(data = df[n_it, ], ggplot2::aes_string(x = param_1, y = param_2), colour = "red", shape = 1) +
+      ggplot2::geom_point(data = df[n_it, ], ggplot2::aes_string(x = "inc_effects", y = "inc_costs"), colour = "red", shape = 1) +
       ggplot2::theme_bw()
     } else {
-        ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2, colour = col)) +
+        ggplot2::ggplot(data = df, ggplot2::aes_string(x = "inc_effects", y = "inc_costs", colour = col)) +
           ggplot2::geom_point(shape = 1) +
           ggplot2::geom_hline(yintercept = 0) +
           ggplot2::geom_vline(xintercept = 0) +
           ggplot2::xlab ("Incremental effects") +
           ggplot2::ylab("Incremental costs") +
           ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
-          ggplot2::geom_point(data = df[n_it, ], ggplot2::aes_string(x = param_1, y = param_2), colour = "red", shape = 1) +
+          ggplot2::geom_point(data = df[n_it, ], ggplot2::aes_string(x = "inc_effects", y = "inc_costs"), colour = "red", shape = 1) +
           ggplot2::theme_bw()
       }
 
