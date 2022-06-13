@@ -1126,3 +1126,58 @@ do_discount_check <- function(df,
 
   return(df_res)
 }
+
+#### HIER!!!! --> ADD A DETAILS TRUE/FALSE OM OF ALLEEN ALGEMENE CHECK GEPRINT OF OOK DETAILS VAN WELKE ITERATION "NIET KLOPPEN"####
+#' Check whether two parametric survival models cross
+#'
+#' @description This function
+#'
+#' @param df a dataframe.
+#' @param surv_mod_1 character. Name of the parametric model to use for the first survival model.
+#' @param surv_mod_2 character. Name of the parametric model to use for the second survival model.
+#' @param v_names_param_mod_1 (vector of) character. Name of the columns containing the parameter values for the first survival model.
+#' @param v_names_param_mod_2 (vector of) character. Name of the columns containing the parameter values for the second survival model.
+#' @param time a numerical vector. Determine at which time points survival probabilities have to be estimated for both survival models. For each of these time points, it will be checked whether the first survival model results in higher survival probabilities than the second survival model.
+#' @param label_surv_1 character vector. The label to provide to the first survival curve (relevant for export).
+#' @param label_surv_2 character vector. The label to provide to the second survival curve (relevant for export).
+#'
+#' @details HIER SURV MODEL VORMEN BESCHRIJVEN!
+#'
+#' @return A list
+#'
+#' @examples
+#'
+#' @import glue
+#' @export
+surv_mod_check <- function(df,
+                           surv_mod_1,
+                           surv_mod_2,
+                           v_names_param_mod_1,
+                           v_names_param_mod_2,
+                           time = seq(0, 100, 1),
+                           label_surv_1 = "first survival",
+                           label_surv_2 = "second survival",
+) {
+
+  l_out <- list()
+  v_check_cross <- vapply(1:nrow(df), function (x) {
+    v_surv_1 <- 1 - do.call(paste0("p", surv_mod_1), c(list(time), as.list(df[x, v_names_param_mod_1])))
+    v_surv_2 <- 1 - do.call(paste0("p", surv_mod_2), c(list(time), as.list(df[x, v_names_param_mod_2])))
+    v_higher <- which(v_surv_1 > v_surv_2)
+    out <- length(v_higher) > 0
+    return(out)
+  },
+  logical(1)
+  )
+  v_n_cross <- which(v_check_cross == TRUE)
+  message_fail_template <- "Pay attention, the {label_surv_1} curve is higher than the {label_surv_1} curve in certain iterations"
+  message_ok <- "No survival curve cross"
+  message_fail <- glue::glue(message_fail_template)
+  message   <- ifelse(length(v_n_cross) > 0,
+                      paste(message_fail),
+                      paste(message_ok)
+  )
+  l_out <- list(message = message,
+                v_n_cross = v_n_cross)
+  return(l_out)
+}
