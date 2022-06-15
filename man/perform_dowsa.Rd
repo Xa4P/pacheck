@@ -11,7 +11,7 @@ perform_dowsa(df, vars, wtp = 120000)
 
 \item{vars}{a vector of strings. Contains the name of the variables for which to perform thedeterministic one-way sensitivity analysis.}
 
-\item{wtp.}{numeric. The willingness to pay per QALY in euros. Default is `r paste("\u20ac")`120,000 per QALY.}
+\item{wtp}{numeric. The willingness to pay per QALY in euros. Default is 120,000 euros per QALY.}
 }
 \value{
 A dataframe. The ouctome of the deterministic one-way sensitivity analyses is the iNMB by default.

@@ -277,7 +277,7 @@ perform_simulation <- function(l_params) {
 #'
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
 #' @param vars a vector of strings. Contains the name of the variables for which to perform thedeterministic one-way sensitivity analysis.
-#' @param wtp. numeric. The willingness to pay per QALY in euros. Default is `r paste("\u20ac")`120,000 per QALY.
+#' @param wtp numeric. The willingness to pay per QALY in euros. Default is 120,000 euros per QALY.
 #'
 #' @return A dataframe. The ouctome of the deterministic one-way sensitivity analyses is the iNMB by default.
 #'

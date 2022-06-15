@@ -22,6 +22,10 @@ do_check(
 
 \item{max}{Maximum allowed value (default: 1)}
 }
+\value{
+List containing the results of the check (checks), and a tibble
+of status and message for each test (messages).
+}
 \description{
 Checks whether variables always fall within a given range.
 }

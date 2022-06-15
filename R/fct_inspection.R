@@ -706,7 +706,7 @@ check_sum_vars <- function(...,
 #' @param vars Character vector of variables to check
 #' @param min Minimum allowed value (default: 0)
 #' @param max Maximum allowed value (default: 1)
-#' @value List containing the results of the check (checks), and a tibble
+#' @return List containing the results of the check (checks), and a tibble
 #' of status and message for each test (messages).
 #' @details Note that both the minimum and maximum are _inclusive_, that is,
 #' the range is given as [min, max]. For _exclusive_ checks, e.g. (0,1], or
