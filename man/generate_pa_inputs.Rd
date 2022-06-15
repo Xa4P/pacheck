@@ -9,7 +9,7 @@ generate_pa_inputs(n_sim = 10000, sd_var = 0.2, seed_num = 452)
 \arguments{
 \item{n_sim}{integer. Number of probabilistic value to draw for each model input. Default is 10,000.}
 
-\item{sd_var}{numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20%).}
+\item{sd_var}{numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20\%).}
 
 \item{seed_num}{integer. The seed number to use when drawing the probabilistic values. Default is 452.}
 }

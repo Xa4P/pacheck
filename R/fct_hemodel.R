@@ -46,7 +46,7 @@ generate_det_inputs <- function() {
 #' @description This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
 #'
 #' @param n_sim integer. Number of probabilistic value to draw for each model input. Default is 10,000.
-#' @param sd_var numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20%).
+#' @param sd_var numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20\%).
 #' @param seed_num integer. The seed number to use when drawing the probabilistic values. Default is 452.
 #'
 #' @return A list.
