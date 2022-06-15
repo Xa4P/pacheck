@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_inspection.R
 \name{do_quick_check}
 \alias{do_quick_check}
-\title{Perform a quick check of the inputs or results}
+\title{Perform quick checks of inputs and outputs}
 \usage{
 do_quick_check(
   df,

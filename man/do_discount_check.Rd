@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_inspection.R
 \name{do_discount_check}
 \alias{do_discount_check}
-\title{Perform a quick comparison of discounted and undiscounted results}
+\title{Perform discounted and undiscounted results check}
 \usage{
 do_discount_check(df, v_outcomes = NULL, v_outcomes_d = NULL)
 }
