@@ -896,7 +896,7 @@ check_mean_qol <- function(df,
   return(m_res_fct)
 }
 
-#' Perform a quick check of the inputs or results
+#' Perform quick checks of inputs and outputs
 #'
 #' @description This function performs multiple checks on user-defined columns.
 #'
@@ -1080,7 +1080,7 @@ do_quick_check <- function(df,
   return(df_res)
 }
 
-#' Perform a quick comparison of discounted and undiscounted results
+#' Perform discounted and undiscounted results check
 #'
 #' @description This function performs multiple checks on user-defined columns.
 #'
@@ -1127,7 +1127,7 @@ do_discount_check <- function(df,
   return(df_res)
 }
 
-#' Check whether two parametric survival models cross
+#' Check parametric survival models
 #'
 #' @description This function checks whether the first of two parametric survival model is lower than a second parametric survival model.
 #'
@@ -1141,7 +1141,7 @@ do_discount_check <- function(df,
 #' @param label_surv_2 character vector. The label to provide to the second survival curve (relevant for export).
 #' @param n_view integer. Number of iterations to mention in which the curves are crossing. Default is 10.
 #'
-#' @details HIER SURV MODEL VORMEN BESCHRIJVEN!
+#' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
 #'
 #' @return A list. The first element is a message, the second element contains the number of the iterations in which the the first curve is higher than the second curve.
 #'
@@ -1149,7 +1149,7 @@ do_discount_check <- function(df,
 #'
 #' @import glue
 #' @export
-surv_mod_check <- function(df,
+check_surv_mod <- function(df,
                            surv_mod_1,
                            surv_mod_2,
                            v_names_param_mod_1,
@@ -1184,7 +1184,7 @@ surv_mod_check <- function(df,
   return(l_out)
 }
 
-#' Plot two parametric survival models
+#' Plot parametric survival models
 #'
 #' @description This function plots two parametric survival models based on he functional form of the model and their parameters.
 #'
@@ -1198,7 +1198,7 @@ surv_mod_check <- function(df,
 #' @param iteration integer. The row number of the iterations for which the parametric survival models have to be plotted.
 #' @param time a numerical vector. Determine at which time points survival probabilities have to be estimated for both survival models. For each of these time points, it will be checked whether the first survival model results in higher survival probabilities than the second survival model.
 #'
-#' @details HIER SURV MODEL VORMEN BESCHRIJVEN!
+#' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
 #'
 #' @return A ggplot object.
 #'
