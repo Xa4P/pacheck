@@ -560,7 +560,7 @@ perform_simulation_psm <- function(l_params,
       m_hs_comp[, "PFS"] <- n_ind * (1 - pexp(v_time, rate = r_exp_pfs))
       }
 
-    m_hs_comp[, "PD"]  <- n_ind * (1 - m_hs_comp[, "D"] - m_hs_comp[, "PFS"])
+    m_hs_comp[, "PD"]  <- n_ind - m_hs_comp[, "D"] - m_hs_comp[, "PFS"]
 
     m_hs_int[, "D"]   <- n_ind * pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os * rr_thx_os)
     if(min_fct == TRUE) {
@@ -574,7 +574,7 @@ perform_simulation_psm <- function(l_params,
     } else {
       m_hs_comp[, "PFS"] <- n_ind * (1 - pexp(v_time, rate = r_exp_pfs))
     }
-    m_hs_int[, "PD"]  <- n_ind * (1 - m_hs_int[, "D"] - m_hs_int[, "PFS"])
+    m_hs_int[, "PD"]  <- n_ind - m_hs_int[, "D"] - m_hs_int[, "PFS"]
 
     # Calculate undiscounted output
     ## Life years
