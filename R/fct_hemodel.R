@@ -526,7 +526,7 @@ perform_simulation_psm <- function(l_params,
 
     # Setting parameters
     n_cycles <- 30 # number of cycles
-    n_years  <- 10 # number of years to simulate
+    n_years  <- 30 # number of years to simulate
     r_d_effects <- 0.015 # annual discount rate, health effects
     r_d_costs <- 0.04 # annual discount rate, costs
     v_names_hs <- c("PFS", "PD", "D") # vector of names of health states
