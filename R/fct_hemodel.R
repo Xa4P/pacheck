@@ -412,7 +412,7 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
                                                                   rep(1, 500)
                                                           )
                                            ),
-                                           lambdas = 0.7,
+                                           lambdas = 0.07,
                                            betas = c(trt = -0.5),
                                            maxt = 5
   )
@@ -422,7 +422,7 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
                                                                  rep(1, 500)
                                                          )
                                           ),
-                                          lambdas = 0.05,
+                                          lambdas = 0.005,
                                           gammas = 2.2,
                                           betas = c(trt = - 0.25),
                                           maxt = 5
@@ -518,7 +518,8 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
 #' v_results_det <- perform_simulation(l_inputs_det)
 #'
 #' @export
-perform_simulation_psm <- function(l_params) {
+perform_simulation_psm <- function(l_params,
+                                   min_fct = TRUE) {
 
   with(as.list(l_params), {
 
@@ -545,14 +546,34 @@ perform_simulation_psm <- function(l_params) {
                                                     v_names_hs))
 
     # Fill in matrix using survival models
-    m_hs_comp[, "D"]  <- 1 - pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os)
-    m_hs_comp[, "PF"] <- 1 - pexp(v_time, rate = r_exp_pfs)
-    m_hs_comp[, "PD"] <- 1 - m_hs_comp[, "D"] - m_hs_comp[, "PF"]
-    m_hs_int[, "D"]   <- 1 - pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os * rr_thx_os)
-    m_hs_int[, "PF"]  <- 1 - pexp(v_time, rate = r_exp_pfs * rr_thx_pfs)
-    m_hs_int[, "PD"]  <- 1 - m_hs_int[, "D"] - m_hs_int[, "PF"]
+    m_hs_comp[, "D"]   <- pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os)
+    if(min_fct == TRUE) {
+      m_hs_comp[, "PFS"] <- vapply(1:length(v_time), function(x){
+        min(1 - pexp(v_time[x], rate = r_exp_pfs),
+            1 - pweibull(v_time[x], shape = shape_weib_os, scale = scale_weib_os)
+            )
+      },
+      numeric(1)
+      )
+    } else {
+      m_hs_comp[, "PFS"] <- 1 - pexp(v_time, rate = r_exp_pfs)
+      }
 
+    m_hs_comp[, "PD"]  <- 1 - m_hs_comp[, "D"] - m_hs_comp[, "PFS"]
 
+    m_hs_int[, "D"]   <- pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os * rr_thx_os)
+    if(min_fct == TRUE) {
+      m_hs_int[, "PFS"] <- vapply(1:length(v_time), function(x){
+        min(1 - pexp(v_time[x], rate = r_exp_pfs * rr_thx_pfs),
+            1 - pweibull(v_time[x], shape = shape_weib_os, scale = scale_weib_os * rr_thx_os)
+            )
+      },
+      numeric(1)
+      )
+    } else {
+      m_hs_comp[, "PFS"] <- 1 - pexp(v_time, rate = r_exp_pfs)
+    }
+    m_hs_int[, "PD"]  <- 1 - m_hs_int[, "D"] - m_hs_int[, "PFS"]
 
     # Calculate undiscounted output
     ## Life years
