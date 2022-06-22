@@ -9,6 +9,7 @@
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
 #' @param validation logical. Determine whether R2 should be calculated on the validation set.
+#' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #'
 #' @return A dataframe with summary data for selected inputs and outputs.
 #'
@@ -31,6 +32,7 @@
 #'                  x = c("p_pfsd", "p_pdd")
 #'                  )
 #'
+#' @import ggplot2
 #' @export
 #'
 fit_lm_metamodel <- function(df,
@@ -39,7 +41,8 @@ fit_lm_metamodel <- function(df,
                              standardise = FALSE,
                              partition = 1,
                              seed_num = 1,
-                             validation = FALSE) {
+                             validation = FALSE,
+                             show_intercept = FALSE) {
 
   if(partition < 0 | partition > 1) {
     stop("Proportion selected for fitting the metamodel should be between 0 (excluded) and 1 (included)")
@@ -78,10 +81,29 @@ fit_lm_metamodel <- function(df,
 
   if(validation == TRUE) {
     df_valid  <- df[-selection, ]
+
+    # R^2 in validation set
     v_y_valid <- predict.lm(lm_out, newdata = df_valid)
     r_squared_valid <- cor(v_y_valid, df_valid[, y]) ^ 2
+
+    # Plot validation versus observed
+    df_valid$y_pred <- v_y_valid
+    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_abline(intercept = 0, slope = 1) +
+      ggplot2::xlab("Predicted values") +
+      ggplot2::ylab("Observed values") +
+      ggplot2::theme_bw()
+
+    if(show_intercept == TRUE) {
+      p <- p +
+        ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y)]))) +
+        ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y)])))
+    }
+
     lm_out <- list(lm_out,
-                   "R^2" = r_squared_valid)
+                   "R^2" = r_squared_valid,
+                   p = p)
   }
 
   return(lm_out)
