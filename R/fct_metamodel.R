@@ -84,7 +84,9 @@ fit_lm_metamodel <- function(df,
 
     # R^2 in validation set
     v_y_valid <- predict.lm(lm_out, newdata = df_valid)
-    r_squared_valid <- cor(v_y_valid, df_valid[, y]) ^ 2
+    r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
+    mae_validation       <- mean(abs(v_y_valid - df_valid[, y]))
+    mre_validation       <- mean(abs((v_y_valid - df_valid[, y]) / df_valid[, y]))
 
     # Plot validation versus observed
     df_valid$y_pred <- v_y_valid
@@ -102,8 +104,12 @@ fit_lm_metamodel <- function(df,
     }
 
     lm_out <- list(lm_out,
-                   "R^2" = r_squared_valid,
-                   p = p)
+                   stats_validation = data.frame(
+                     Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
+                     Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
+                     ),
+                   p = p
+                   )
   }
 
   return(lm_out)
