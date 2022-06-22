@@ -1154,13 +1154,14 @@ check_surv_mod <- function(df,
                            surv_mod_2,
                            v_names_param_mod_1,
                            v_names_param_mod_2,
-                           time = seq(0, 100, 1),
+                           time = seq(0, 5, 0.1),
                            label_surv_1 = "first survival",
                            label_surv_2 = "second survival",
                            n_view = 10
 ) {
 
   l_out <- list()
+
   v_check_cross <- vapply(1:nrow(df), function (x) {
     v_surv_1 <- 1 - do.call(paste0("p", surv_mod_1), c(list(time), as.list(df[x, v_names_param_mod_1])))
     v_surv_2 <- 1 - do.call(paste0("p", surv_mod_2), c(list(time), as.list(df[x, v_names_param_mod_2])))
