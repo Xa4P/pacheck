@@ -4,10 +4,12 @@
 \alias{perform_simulation_psm}
 \title{Perform the health economic simulation using partitioned survival model.}
 \usage{
-perform_simulation_psm(l_params)
+perform_simulation_psm(l_params, min_fct = TRUE)
 }
 \arguments{
 \item{l_params}{list. List of inputs of the health economic model}
+
+\item{min_fct}{logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE}
 }
 \value{
 A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
