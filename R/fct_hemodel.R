@@ -509,6 +509,7 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
 #' @description This function performs the simulation of the partitioned survival health economic model developed to test the functionalities of the package.
 #'
 #' @param l_params list. List of inputs of the health economic model
+#' @param min_fct logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE
 #'
 #' @return A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
 #'
