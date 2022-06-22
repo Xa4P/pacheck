@@ -136,3 +136,5 @@ df_pa_validation$inc_qaly <- df_pa_validation$t_qaly_d_int - df_pa_validation$t_
 df_pa_validation$inc_costs <- df_pa_validation$t_costs_d_int - df_pa_validation$t_costs_d_comp
 
 save(df_pa_validation, file = paste(getwd(),"/data/df_pa_validation.rda", sep = ""))
+# save(df_pa_psm, file = paste(getwd(),"/data/df_pa_psm.rda", sep = ""))
+# write.csv2(df_pa_psm, file = paste(getwd(),"/data/df_pa_psm.csv", sep = ""))
