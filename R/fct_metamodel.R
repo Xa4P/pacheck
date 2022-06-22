@@ -92,15 +92,27 @@ fit_lm_metamodel <- function(df,
     df_valid$y_pred <- v_y_valid
     p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
       ggplot2::geom_point(shape = 1) +
-      ggplot2::geom_abline(intercept = 0, slope = 1) +
+      ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
       ggplot2::xlab("Predicted values") +
       ggplot2::ylab("Observed values") +
       ggplot2::theme_bw()
+
+    # p_qq <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
+    #   stat_qq() +
+    #   ggplot2::geom_point(shape = 1) +
+    #   ggplot2::geom_abline(intercept = 0, slope = 1, color = "orange") +
+    #   ggplot2::xlab("Predicted values") +
+    #   ggplot2::ylab("Observed values") +
+    #   ggplot2::theme_bw() # DOES NOT WORK YET AS I WANT
+
 
     if(show_intercept == TRUE) {
       p <- p +
         ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y)]))) +
         ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y)])))
+      # p_qq <- p_qq +
+      #   ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y)]))) +
+      #   ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y)])))
     }
 
     lm_out <- list(lm_out,
@@ -108,7 +120,8 @@ fit_lm_metamodel <- function(df,
                      Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
                      Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
                      ),
-                   p = p
+                   p = p#,
+                   #p_qq = p_qq
                    )
   }
 
