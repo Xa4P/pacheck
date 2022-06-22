@@ -10,14 +10,17 @@ Description: This package contains a suite of functions to investigate
     health economic visualisation and metamodelling methods.
 License: MIT + file LICENSE
 Imports: 
+    boot,
     dplyr,
     fitdistrplus,
+    flexsurv,
     ggplot2,
     gtools,
     magrittr,
     moments,
     reshape2,
     scales,
+    simsurv,
     stats,
     stringi,
     testthat
