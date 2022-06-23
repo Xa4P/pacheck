@@ -44,10 +44,10 @@ fit_lm_metamodel <- function(df,
                              validation = FALSE,
                              show_intercept = FALSE) {
 
-  if(partition < 0 | partition > 1) {
+  if(partition < 0 || partition > 1) {
     stop("Proportion selected for fitting the metamodel should be between 0 (excluded) and 1 (included)")
   }
-  if(partition == 1 & validation == TRUE) {
+  if(partition == 1 && validation == TRUE) {
     stop("Cannot perform validation because all observations are inncluded in the training set. Lower `partition` below 1.")
   }
 
