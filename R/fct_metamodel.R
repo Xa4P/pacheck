@@ -70,16 +70,12 @@ fit_lm_metamodel <- function(df,
   }
 
   if(length(x) > 1) {
-
     v_x <- paste(x, collapse = " + ")
     form <- as.formula(paste(y, "~", v_x))
     lm_out <- lm(form, data = df_fit)
-
   } else {
-
     form <- as.formula(paste(y, "~", x))
     lm_out <- lm(form, data = df_fit)
-
   }
 
   if(validation == TRUE) {
@@ -111,11 +107,9 @@ fit_lm_metamodel <- function(df,
                      Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
                      Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
                      ),
-                   p = p,
-                   p_qq = p_qq
+                   p = p
                    )
   }
-
   return(lm_out)
 }
 
