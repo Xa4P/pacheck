@@ -11,14 +11,14 @@
 #' @param validation logical. Determine whether R2 should be calculated on the validation set.
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #'
-#' @return A dataframe with summary data for selected inputs and outputs.
+#' @return A list with containing the fit of the model and validation estimates and plots when selected.
 #'
 #' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
 #' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
 #' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 #'
 #' @examples
-#' #' # Fitting meta model with a single variable using the summary data
+#' # Fitting meta model with a single variable using the summary data
 #' data(df_pa)
 #' fit_lm_metamodel(df = df_pa,
 #'                  y = "Inc_QALY",
@@ -45,7 +45,7 @@ fit_lm_metamodel <- function(df,
                              show_intercept = FALSE) {
   # Flag errors
   if(partition < 0 || partition > 1) {
-    stop("Proportion selected for fitting the metamodel should be between 0 (excluded) and 1 (included)")
+    stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included)")
   }
   if(partition == 1 && validation == TRUE) {
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
@@ -79,7 +79,7 @@ fit_lm_metamodel <- function(df,
   lm_fit <- lm(form, data = df_fit)
 
   # Output: no validation
-  l_out <- list(lm_fit = lm_fit)
+  l_out <- list(fit = lm_fit)
 
   # Validation statistics and plots
   if(validation == TRUE) {
@@ -107,7 +107,7 @@ fit_lm_metamodel <- function(df,
       }
 
     ## Output: validation
-    l_out <- list(lm_fit = lm_fit,
+    l_out <- list(lm = lm_fit,
                   stats_validation = data.frame(
                     Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
                     Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
@@ -118,9 +118,250 @@ fit_lm_metamodel <- function(df,
   return(l_out)
 }
 
-#' Predict using linear metamodel
+#' Fit generalised additive metamodel
 #'
-#' @description This function computes a result using a pre-defined linear metamodel, and user-defined inputs to make the prediction.
+#' @description This function fits and provides summary statistics of a generalised additive model fitted on the input and output values of a probabilistic analysis.
+#'
+#' @param df a dataframe.
+#' @param y character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
+#' @param x character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
+#' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
+#' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
+#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
+#' @param validation logical. Determine whether R2 should be calculated on the validation set.
+#' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
+#'
+#' @return A list with containing the fit of the model and validation estimates and plots when selected.
+#'
+#' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
+#' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
+#' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
+#'
+#' @examples
+#' # Fitting meta model with a single variable using the summary data
+#' data(df_pa)
+#' fit_gam_metamodel(df = df_pa,
+#'                  y = "Inc_QALY",
+#'                  x = "p_pfsd")
+#'                  )
+#'
+#' # Fitting meta model with two variables using the summary data
+#' data(df_pa)
+#' fit_lm_metamodel(df = df_pa,
+#'                  y = "Inc_QALY",
+#'                  x = c("p_pfsd", "p_pdd")
+#'                  )
+#'
+#' @import ggplot2
+#' @import gam
+#' @export
+#'
+fit_gam_metamodel <- function(df,
+                             y,
+                             x,
+                             standardise = FALSE,
+                             partition = 1,
+                             seed_num = 1,
+                             validation = FALSE,
+                             show_intercept = FALSE) {
+  # Flag errors
+  if(partition < 0 || partition > 1) {
+    stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included)")
+  }
+  if(partition == 1 && validation == TRUE) {
+    stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
+  }
+
+  # Set up
+  l_out <- list()
+  set.seed(seed_num)
+
+  # Standardise inputs
+  if(standardise == TRUE) {
+    if(length(x) > 1){
+      df[, x] <- lapply(df[, x], function(i) (i - mean(i)) / sd(i))
+    } else {
+      df[, x] <- (df[, x] - mean(df[, x])) / sd(df[, x])
+    }
+  }
+
+  # Partition data for linear regression validation
+  if(partition < 1) {
+    selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
+    df_fit <- df[selection, ]
+    validation <- TRUE
+  } else {
+    df_fit <- df
+  }
+
+  # Fit linear regression
+  v_x <- paste(x, collapse = " + ")
+  form <- as.formula(paste(y, "~", v_x))
+  gam_fit <- gam::gam(form, data = df_fit)
+
+  # Output: no validation
+  l_out <- list(fit = gam_fit)
+
+  # Validation statistics and plots
+  if(validation == TRUE) {
+    df_valid  <- df[-selection, ]
+
+    ## Fit in validation set
+    v_y_valid            <- predict(gam_fit, newdata = df_valid)
+    r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
+    mae_validation       <- mean(abs(v_y_valid - df_valid[, y]))
+    mre_validation       <- mean(abs((v_y_valid - df_valid[, y]) / df_valid[, y]))
+
+    ## Calibration plot: predicted versus observed
+    df_valid$y_pred <- v_y_valid
+    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
+      ggplot2::xlab("Predicted values") +
+      ggplot2::ylab("Observed values") +
+      ggplot2::theme_bw()
+
+    if(show_intercept == TRUE) {
+      p <- p +
+        ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y)]))) +
+        ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y)])))
+    }
+
+    ## Output: validation
+    l_out <- list(fit = gam_fit,
+                  stats_validation = data.frame(
+                    Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
+                    Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
+                  ),
+                  calibration_plot = p
+    )
+  }
+  return(l_out)
+}
+
+#' Fit random forest metamodel
+#'
+#' @description This function fits and provides summary statistics of a random forest model fitted on the input and output values of a probabilistic analysis.
+#'
+#' @param df a dataframe.
+#' @param y character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
+#' @param x character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
+#' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
+#' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
+#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
+#' @param validation logical. Determine whether R2 should be calculated on the validation set.
+#' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
+#'
+#' @return A list with containing the fit of the model and validation estimates and plots when selected.
+#'
+#' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
+#' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
+#' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
+#'
+#' @examples
+#' # Fitting meta model with a single variable using the summary data
+#' data(df_pa)
+#' fit_rf_metamodel(df = df_pa,
+#'                  y = "Inc_QALY",
+#'                  x = "p_pfsd")
+#'                  )
+#'
+#' # Fitting meta model with two variables using the summary data
+#' data(df_pa)
+#' fit_rf_metamodel(df = df_pa,
+#'                  y = "Inc_QALY",
+#'                  x = c("p_pfsd", "p_pdd")
+#'                  )
+#'
+#' @import ggplot2
+#' @import randomForest
+#' @export
+#'
+fit_rf_metamodel <- function(df,
+                             y,
+                             x,
+                             standardise = FALSE,
+                             partition = 1,
+                             seed_num = 1,
+                             validation = FALSE,
+                             show_intercept = FALSE) {
+  # Flag errors
+  if(partition < 0 || partition > 1) {
+    stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included)")
+  }
+  if(partition == 1 && validation == TRUE) {
+    stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
+  }
+
+  # Set up
+  l_out <- list()
+  set.seed(seed_num)
+
+  # Standardise inputs
+  if(standardise == TRUE) {
+    if(length(x) > 1){
+      df[, x] <- lapply(df[, x], function(i) (i - mean(i)) / sd(i))
+    } else {
+      df[, x] <- (df[, x] - mean(df[, x])) / sd(df[, x])
+    }
+  }
+
+  # Partition data for linear regression validation
+  if(partition < 1) {
+    selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
+    df_fit <- df[selection, ]
+    validation <- TRUE
+  } else {
+    df_fit <- df
+  }
+
+  # Fit linear regression
+  v_x <- paste(x, collapse = " + ")
+  form <- as.formula(paste(y, "~", v_x))
+  rf_fit <- randomForest::randomForest(form, data = df_fit)
+
+  # Output: no validation
+  l_out <- list(fit = rf_fit)
+
+  # Validation statistics and plots
+  if(validation == TRUE) {
+    df_valid  <- df[-selection, ]
+
+    ## Fit in validation set
+    v_y_valid            <- predict(rf_fit, newdata = df_valid)
+    r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
+    mae_validation       <- mean(abs(v_y_valid - df_valid[, y]))
+    mre_validation       <- mean(abs((v_y_valid - df_valid[, y]) / df_valid[, y]))
+
+    ## Calibration plot: predicted versus observed
+    df_valid$y_pred <- v_y_valid
+    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
+      ggplot2::xlab("Predicted values") +
+      ggplot2::ylab("Observed values") +
+      ggplot2::theme_bw()
+
+    if(show_intercept == TRUE) {
+      p <- p +
+        ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y)]))) +
+        ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y)])))
+    }
+
+    ## Output: validation
+    l_out <- list(fit = rf_fit,
+                  stats_validation = data.frame(
+                    Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
+                    Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
+                  ),
+                  calibration_plot = p
+    )
+  }
+  return(l_out)
+}
+#' Predict using a fitted metamodel
+#'
+#' @description This function computes a result using a pre-defined metamodel, and user-defined inputs to make the prediction.
 #'
 #' @param lm_metamodel a lm object. This object should use variables defined in `df`.
 #' @param inputs a numeric value or vector of numeric values. These inputs value will be used for the prediction using the metamodel.
@@ -138,13 +379,16 @@ fit_lm_metamodel <- function(df,
 #'                  )
 #'
 #' # Predicting using this metamodel
-#' predict_lm_metamodel(lm_metamodel = lm_res,
+#' predict_metamodel(lm_metamodel = lm_res,
 #'                      inputs = c(0.75, 0.2)
 #'                      )
 #' @import stats
 #' @export
-predict_lm_metamodel <- function(lm_metamodel,
-                                 inputs){
+predict_metamodel <- function(metamodel,
+                              inputs){
+  # Identify coefficient metamodel
+  v_names <- names(metamodel$coefficients[c(2:length(metamodel$coefficients))])
+
   # Flag errors
   if(length(inputs) < length(v_names)) {
     stop("Number of inputs is lower than number of coefficients of the metamodel.")
@@ -154,12 +398,10 @@ predict_lm_metamodel <- function(lm_metamodel,
     stop("Number of inputs is higher than number of coefficients of the metamodel.")
   }
 
-  v_names <- names(lm_metamodel$coefficients[c(2:length(lm_metamodel$coefficients))])
-
   newdata <- data.frame(t(inputs))
   names(newdata) <- v_names
 
-  pred <- stats::predict.lm(lm_metamodel, newdata = newdata)
+  pred <- stats::predict(metamodel, newdata = newdata)
   names(pred) <- "prediction"
 
   df_out <- cbind(newdata, t(pred))
@@ -282,13 +524,7 @@ dsa_lm_metamodel <- function(df,
 plot_tornado <- function(df,
                          df_basecase,
                          outcome) {
-
-  # Draw tornado diagram
   ##SOURCE tornado diagram: https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given
-
-  #require(ggplot2)
-  #require(scales)
-  #require(tidyverse) # is this twice the same with "ggplot2"?
 
   df$UL_Difference <- df$Upper_Bound - df$Lower_Bound
 
@@ -329,8 +565,8 @@ plot_tornado <- function(df,
     geom_rect(data = df.2,
               aes(ymax=ymax, ymin=ymin, xmax=xmax, xmin=xmin, fill=type)) +
     theme_bw() +
-    labs(y = "Incremental Net Monetary Benefit") +
-    scale_y_continuous(labels = dollar_format(prefix = "\u20ac ", suffix = "")) +
+    labs(y = outcome) +
+    #scale_y_continuous(labels = dollar_format(prefix = "\u20ac ", suffix = "")) +
     theme(axis.title.y=element_text(colour = "black"), legend.position = 'bottom',
           legend.title = element_blank(),
           axis.title.x = element_text(size=8)) +
