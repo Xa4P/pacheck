@@ -10,6 +10,11 @@
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
 #' @param validation logical. Determine whether R2 should be calculated on the validation set.
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
+#' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
+#' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
+#' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
+#' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
+#' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
 #'
 #' @return A list with containing the fit of the model and validation estimates and plots when selected.
 #'
@@ -36,19 +41,33 @@
 #' @export
 #'
 fit_lm_metamodel <- function(df,
-                             y,
-                             x,
+                             y = NULL,
+                             x = NULL,
                              standardise = FALSE,
                              partition = 1,
                              seed_num = 1,
                              validation = FALSE,
-                             show_intercept = FALSE) {
+                             show_intercept = FALSE,
+                             x_poly_2 = NULL,
+                             x_poly_3 = NULL,
+                             x_exp = NULL,
+                             x_log = NULL,
+                             x_inter = NULL) {
   # Flag errors
   if(partition < 0 || partition > 1) {
-    stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included)")
+    stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
   }
   if(partition == 1 && validation == TRUE) {
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
+  }
+  if(is.null(y)) {
+    stop("Cannot perform linear regression because there is no value provided for 'y'.")
+  }
+  if(!is.null(x_inter) && length(x_inter) != 2 * round(length(x_inter) / 2)) {
+    stop("The number of interaction terms is oneven.")
+  }
+  if(is.null(x) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
+    stop("Cannot perform linear regression because there is no value provided for the predictors.")
   }
 
   # Set up
@@ -74,7 +93,45 @@ fit_lm_metamodel <- function(df,
   }
 
   # Fit linear regression
-  v_x <- paste(x, collapse = " + ")
+  if(!is.null(x_poly_2)) {
+    v_poly_2 <- paste("poly(", x_poly_2, ", 2)", collapse = " + ")
+    #x <- x[-which(x %in% v_poly_2)]
+  } else {
+    v_poly_2 <- NULL
+    }
+  if(!is.null(x_poly_3)) {
+    v_poly_3 <- paste("poly(", x_poly_3, ", 3)", collapse = " + ")
+    #x <- x[-which(x %in% v_poly_3)]
+  } else {
+    v_poly_3 <- NULL
+  }
+  if(!is.null(x_exp)) {
+    v_exp <- paste("exp(", x_exp, ")", collapse = " + ")
+    #x <- x[-which(x %in% v_exp)]
+  } else {
+    v_exp <- NULL
+  }
+  if(!is.null(x_log)) {
+    v_log <- paste("log(", x_log, ")", collapse = " + ")
+    #x <- x[-which(x %in% v_log)]
+  } else {
+    v_log <- NULL
+  }
+  if(!is.null(x_inter)) {
+    pairs <- length(x_inter)/2
+    pair_seq <- seq(1, pairs, 1)
+    pair_seq <- pair_seq - 1
+    v_inter <- vapply(pair_seq, function(x) {
+      paste0(x_inter[2 * x + 1], ":", x_inter[2 * x + 2])
+    }, character(1))
+
+    v_inter <- c(v_inter, unique(x_inter))
+    #x <- x[-which(x %in% v_inter)]
+  } else {
+    v_inter <- NULL
+  }
+
+  v_x <- paste(unique(c(x, v_poly_2, v_poly_3, v_exp, v_log, v_inter)), collapse = " + ")
   form <- as.formula(paste(y, "~", v_x))
   lm_fit <- lm(form, data = df_fit)
 
@@ -86,7 +143,7 @@ fit_lm_metamodel <- function(df,
     df_valid  <- df[-selection, ]
 
     ## Fit in validation set
-    v_y_valid            <- predict.lm(lm_fit, newdata = df_valid)
+    v_y_valid            <- predict(lm_fit, newdata = df_valid)
     r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
     mae_validation       <- mean(abs(v_y_valid - df_valid[, y]))
     mre_validation       <- mean(abs((v_y_valid - df_valid[, y]) / df_valid[, y]))
