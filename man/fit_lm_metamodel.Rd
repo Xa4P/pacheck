@@ -6,13 +6,18 @@
 \usage{
 fit_lm_metamodel(
   df,
-  y,
-  x,
+  y = NULL,
+  x = NULL,
   standardise = FALSE,
   partition = 1,
   seed_num = 1,
   validation = FALSE,
-  show_intercept = FALSE
+  show_intercept = FALSE,
+  x_poly_2 = NULL,
+  x_poly_3 = NULL,
+  x_exp = NULL,
+  x_log = NULL,
+  x_inter = NULL
 )
 }
 \arguments{
@@ -31,6 +36,16 @@ fit_lm_metamodel(
 \item{validation}{logical. Determine whether R2 should be calculated on the validation set.}
 
 \item{show_intercept}{logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.}
+
+\item{x_poly_2}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.}
+
+\item{x_poly_3}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.}
+
+\item{x_exp}{character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.}
+
+\item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
+
+\item{x_inter}{character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.}
 }
 \value{
 A list with containing the fit of the model and validation estimates and plots when selected.
