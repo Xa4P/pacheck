@@ -48,10 +48,11 @@ fit_lm_metamodel <- function(df,
     stop("Proportion selected for fitting the metamodel should be between 0 (excluded) and 1 (included)")
   }
   if(partition == 1 && validation == TRUE) {
-    stop("Cannot perform validation because all observations are inncluded in the training set. Lower `partition` below 1.")
+    stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
 
-  # Set seed
+  # Set up
+  l_out <- list()
   set.seed(seed_num)
 
   # Standardise inputs
@@ -75,16 +76,17 @@ fit_lm_metamodel <- function(df,
   # Fit linear regression
   v_x <- paste(x, collapse = " + ")
   form <- as.formula(paste(y, "~", v_x))
+  lm_fit <- lm(form, data = df_fit)
 
   # Output: no validation
-  lm_out <- lm(form, data = df_fit)
+  l_out <- list(lm_fit = lm_fit)
 
   # Validation statistics and plots
   if(validation == TRUE) {
     df_valid  <- df[-selection, ]
 
     ## Fit in validation set
-    v_y_valid            <- predict.lm(lm_out, newdata = df_valid)
+    v_y_valid            <- predict.lm(lm_fit, newdata = df_valid)
     r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
     mae_validation       <- mean(abs(v_y_valid - df_valid[, y]))
     mre_validation       <- mean(abs((v_y_valid - df_valid[, y]) / df_valid[, y]))
@@ -105,15 +107,15 @@ fit_lm_metamodel <- function(df,
       }
 
     ## Output: validation
-    lm_out <- list(lm_out,
-                   stats_validation = data.frame(
-                   Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
-                   Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
-                   ),
-                   p = p
-                   )
+    l_out <- list(lm_fit = lm_fit,
+                  stats_validation = data.frame(
+                    Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
+                    Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
+                    ),
+                  calibration_plot = p
+                  )
   }
-  return(lm_out)
+  return(l_out)
 }
 
 #' Predict using linear metamodel
