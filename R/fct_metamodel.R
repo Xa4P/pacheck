@@ -107,7 +107,7 @@ fit_lm_metamodel <- function(df,
       }
 
     ## Output: validation
-    l_out <- list(lm = lm_fit,
+    l_out <- list(fit = lm_fit,
                   stats_validation = data.frame(
                     Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
                     Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
@@ -658,4 +658,97 @@ estimate_decision_sensitivity <- function(df,
 
   return(df_out)
 
+}
+
+#' Fit multiple metamodel
+#'
+#' @description This function fits and provides summary statistics of a the metamodel included in the package (linear regression, generalised additive models, and random forest) on the input and output values of a probabilistic analysis.
+#'
+#' @param df_multi a dataframe.
+#' @param y_multi character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
+#' @param x_multi character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
+#' @param standardise_multi logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
+#' @param partition_multi numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
+#' @param seed_num_multi numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
+#' @param validation_multi logical. Determine whether R2 should be calculated on the validation set.
+#' @param show_intercept_multi logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
+#'
+#' @return A list with containing the fit of the model and validation estimates and plots when selected.
+#'
+#' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
+#' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
+#' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
+#'
+#' @examples
+#' # Fitting meta model with a single variable using the summary data
+#' data(df_pa)
+#' fit_multiple_metamodel(df = df_pa,
+#'                        y = "Inc_QALY",
+#'                        x = "p_pfsd")
+#'                        )
+#'
+#' # Fitting meta model with two variables using the summary data
+#' data(df_pa)
+#' fit_multiple_metamodel(df = df_pa,
+#'                        y = "Inc_QALY",
+#'                        x = c("p_pfsd", "p_pdd")
+#'                        )
+#'
+#' @export
+#'
+fit_multiple_metamodel <- function(df_multi,
+                                   y_multi,
+                                   x_multi,
+                                   standardise_multi = FALSE,
+                                   partition_multi = 1,
+                                   seed_num_multi = 1,
+                                   validation_multi = FALSE,
+                                   metamodels = c("lm", "gam", "rf")
+) {
+  # Set up
+  l_out <- list()
+
+  # Apply selected metamodels
+  if("lm" %in% metamodels){
+    # linear regression
+    l_lm <- pacheck::fit_lm_metamodel(df_multi,
+                                      y_multi,
+                                      x_multi,
+                                      standardise_multi,
+                                      partition_multi,
+                                      seed_num_multi,
+                                      validation_multi)
+  } else {
+    l_lm <- NULL
+  }
+  if("gam" %in% metamodels){
+    # generalised additive models
+    l_gam <- pacheck::fit_gam_metamodel(df_multi,
+                                        y_multi,
+                                        x_multi,
+                                        standardise_multi,
+                                        partition_multi,
+                                        seed_num_multi,
+                                        validation_multi)
+  } else {
+    l_gam <- NULL
+  }
+  if("rf" %in% metamodels){
+    # random forest
+    l_rf <- pacheck::fit_rf_metamodel(df_multi,
+                                      y_multi,
+                                      x_multi,
+                                      standardise_multi,
+                                      partition_multi,
+                                      seed_num_multi,
+                                      validation_multi)
+  } else {
+    l_rf <- NULL
+  }
+
+  # Return
+  l_out <- list(metamodel_lm = l_lm,
+                metamodel_gam = l_gam,
+                metamodel_rf = l_rf)
+  return(l_out)
 }
