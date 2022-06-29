@@ -43,7 +43,7 @@ fit_lm_metamodel <- function(df,
                              seed_num = 1,
                              validation = FALSE,
                              show_intercept = FALSE) {
-
+  # Flag errors
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for fitting the metamodel should be between 0 (excluded) and 1 (included)")
   }
@@ -51,8 +51,10 @@ fit_lm_metamodel <- function(df,
     stop("Cannot perform validation because all observations are inncluded in the training set. Lower `partition` below 1.")
   }
 
+  # Set seed
   set.seed(seed_num)
 
+  # Standardise inputs
   if(standardise == TRUE) {
     if(length(x) > 1){
       df[, x] <- lapply(df[, x], function(i) (i - mean(i)) / sd(i))
@@ -61,6 +63,7 @@ fit_lm_metamodel <- function(df,
     }
   }
 
+  # Partition data for linear regression validation
   if(partition < 1) {
     selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
     df_fit <- df[selection, ]
@@ -69,25 +72,24 @@ fit_lm_metamodel <- function(df,
     df_fit <- df
   }
 
-  if(length(x) > 1) {
-    v_x <- paste(x, collapse = " + ")
-    form <- as.formula(paste(y, "~", v_x))
-    lm_out <- lm(form, data = df_fit)
-  } else {
-    form <- as.formula(paste(y, "~", x))
-    lm_out <- lm(form, data = df_fit)
-  }
+  # Fit linear regression
+  v_x <- paste(x, collapse = " + ")
+  form <- as.formula(paste(y, "~", v_x))
 
+  # Output: no validation
+  lm_out <- lm(form, data = df_fit)
+
+  # Validation statistics and plots
   if(validation == TRUE) {
     df_valid  <- df[-selection, ]
 
-    # Fit in validation set
+    ## Fit in validation set
     v_y_valid            <- predict.lm(lm_out, newdata = df_valid)
     r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
     mae_validation       <- mean(abs(v_y_valid - df_valid[, y]))
     mre_validation       <- mean(abs((v_y_valid - df_valid[, y]) / df_valid[, y]))
 
-    # Plot precited versus observed
+    ## Calibration plot: predicted versus observed
     df_valid$y_pred <- v_y_valid
     p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
       ggplot2::geom_point(shape = 1) +
@@ -102,11 +104,12 @@ fit_lm_metamodel <- function(df,
         ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y)])))
       }
 
+    ## Output: validation
     lm_out <- list(lm_out,
                    stats_validation = data.frame(
-                     Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
-                     Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
-                     ),
+                   Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
+                   Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
+                   ),
                    p = p
                    )
   }
@@ -140,9 +143,7 @@ fit_lm_metamodel <- function(df,
 #' @export
 predict_lm_metamodel <- function(lm_metamodel,
                                  inputs){
-
-  v_names <- names(lm_metamodel$coefficients[c(2:length(lm_metamodel$coefficients))])
-
+  # Flag errors
   if(length(inputs) < length(v_names)) {
     stop("Number of inputs is lower than number of coefficients of the metamodel.")
   }
@@ -150,6 +151,8 @@ predict_lm_metamodel <- function(lm_metamodel,
   if(length(inputs) > length(v_names)) {
     stop("Number of inputs is higher than number of coefficients of the metamodel.")
   }
+
+  v_names <- names(lm_metamodel$coefficients[c(2:length(lm_metamodel$coefficients))])
 
   newdata <- data.frame(t(inputs))
   names(newdata) <- v_names
