@@ -143,13 +143,15 @@ fit_lm_metamodel <- function(df,
     df_valid  <- df[-selection, ]
 
     ## Fit in validation set
-    v_y_valid            <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_valid))))
-    r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
-    mae_validation       <- mean(abs(v_y_valid - as.numeric(as.character(df_valid[, y]))))
-    mre_validation       <- mean(abs((v_y_valid - as.numeric(as.character(df_valid[, y]))) / as.numeric(as.character(df_valid[, y]))))
+    v_y_predict            <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_valid))))
+    v_y_valid              <- as.numeric(as.character(df_valid[, y]))
+
+    r_squared_validation <- cor(v_y_predict, v_y_valid) ^ 2
+    mae_validation       <- mean(abs(v_y_predict - v_y_valid))
+    mre_validation       <- mean(abs((v_y_predict - v_y_valid) / v_y_valid))
 
     ## Calibration plot: predicted versus observed
-    df_valid$y_pred <- v_y_valid
+    df_valid$y_pred <- v_y_predict
     p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
       ggplot2::geom_point(shape = 1) +
       ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
