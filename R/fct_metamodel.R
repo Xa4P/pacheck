@@ -143,7 +143,7 @@ fit_lm_metamodel <- function(df,
     df_valid  <- df[-selection, ]
 
     ## Fit in validation set
-    v_y_valid            <- predict(lm_fit, newdata = df_valid)
+    v_y_valid            <- as.numeric(unlist(predict(lm_fit, newdata = df_valid)))
     r_squared_validation <- cor(v_y_valid, df_valid[, y]) ^ 2
     mae_validation       <- mean(abs(v_y_valid - df_valid[, y]))
     mre_validation       <- mean(abs((v_y_valid - df_valid[, y]) / df_valid[, y]))
