@@ -6,8 +6,8 @@
 \usage{
 fit_lm_metamodel(
   df,
-  y = NULL,
-  x = NULL,
+  y_var = NULL,
+  x_vars = NULL,
   standardise = FALSE,
   partition = 1,
   seed_num = 1,
@@ -23,9 +23,9 @@ fit_lm_metamodel(
 \arguments{
 \item{df}{a dataframe.}
 
-\item{y}{character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.}
+\item{y_var}{character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.}
 
-\item{x}{character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.}
+\item{x_vars}{character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.}
 
 \item{standardise}{logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.}
 

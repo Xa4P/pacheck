@@ -3,8 +3,8 @@
 #' @description This function fits and provides summary statistics of a linear regression model fitted on the input and output values of a probabilistic analysis.
 #'
 #' @param df a dataframe.
-#' @param y character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
-#' @param x character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
+#' @param y_var character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
+#' @param x_vars character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
 #' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
