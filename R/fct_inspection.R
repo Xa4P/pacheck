@@ -1162,6 +1162,40 @@ check_surv_mod <- function(df,
 
   l_out <- list()
 
+  if(surv_mod_1 == "exp") {
+    names(df)[which(names(df) %in% v_names_param_mod_1)]<- "rate"
+    v_names_param_mod_1 <- "rate"
+  } else if (surv_mod_1 == "weibull") {
+    names(df)[which(names(df) %in% v_names_param_mod_1)] <- c("shape", "scale")
+    v_names_param_mod_1 <- c("shape", "scale")
+  } else if (surv_mod_1 == "gamma") {
+    names(df)[which(names(df) %in% v_names_param_mod_1)]<- c("shape", "rate")
+    v_names_param_mod_1 <- c("shape", "rate")
+  } else if (surv_mod_1 == "lnorm") {
+    names(df)[which(names(df) %in% v_names_param_mod_1)] <- c("meanlog", "sdlog")
+    v_names_param_mod_1 <- c("meanlog", "sdlog")
+  } else if (surv_mod_1 == "logis") {
+    names(df)[which(names(df) %in% v_names_param_mod_1)] <- c("location", "shape")
+    v_names_param_mod_1 <- c("location", "shape")
+  }
+
+  if(surv_mod_2 == "exp") {
+    names(df)[which(names(df) %in% v_names_param_mod_2)]<- "rate"
+    v_names_param_mod_2 <- "rate"
+  } else if (surv_mod_2 == "weibull") {
+    names(df)[which(names(df) %in% v_names_param_mod_2)] <- c("shape", "scale")
+    v_names_param_mod_2 <- c("shape", "scale")
+  } else if (surv_mod_2 == "gamma") {
+    names(df)[which(names(df) %in% v_names_param_mod_2)]<- c("shape", "rate")
+    v_names_param_mod_2 <- c("shape", "rate")
+  } else if (surv_mod_2 == "lnorm") {
+    names(df)[which(names(df) %in% v_names_param_mod_2)] <- c("meanlog", "sdlog")
+    v_names_param_mod_2 <- c("meanlog", "sdlog")
+  } else if (surv_mod_2 == "logis") {
+    names(df)[which(names(df) %in% v_names_param_mod_2)] <- c("location", "shape")
+    v_names_param_mod_2 <- c("location", "shape")
+  }
+
   v_check_cross <- vapply(1:nrow(df), function (x) {
     v_surv_1 <- 1 - do.call(paste0("p", surv_mod_1), c(list(time), as.list(df[x, v_names_param_mod_1])))
     v_surv_2 <- 1 - do.call(paste0("p", surv_mod_2), c(list(time), as.list(df[x, v_names_param_mod_2])))
@@ -1172,14 +1206,14 @@ check_surv_mod <- function(df,
   logical(1)
   )
   v_n_cross <- which(v_check_cross == TRUE)
-  v_n_cross_message <- ifelse(v_n_cross > n_view, paste(v_n_cross[1:10], "and more"), v_n_cross)
-  message_fail_template <- "Pay attention, the {label_surv_1} curve is higher than the {label_surv_1} curve in iterations {v_n_cross_message}"
+  v_n_cross_message <- ifelse(length(v_n_cross) > n_view, paste(paste(v_n_cross[1:n_view], collapse = ", "), "and more"), v_n_cross)
+  message_fail_template <- "Pay attention, the {label_surv_1} curve is higher than the {label_surv_2} curve in iterations {v_n_cross_message}"
   message_ok <- "No survival curve cross"
   message_fail <- glue::glue(message_fail_template)
   message   <- ifelse(length(v_n_cross) > 0,
                       paste(message_fail),
                       paste(message_ok)
-  )
+                      )
   l_out <- list(message = message,
                 v_n_cross = v_n_cross)
   return(l_out)
