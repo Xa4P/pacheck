@@ -166,7 +166,7 @@ fit_lm_metamodel <- function(df,
     ## Output: validation
     l_out <- list(fit = lm_fit,
                   stats_validation = data.frame(
-                    Statistic = c("R^2", "Mean absolute error", "Mean relative error"),
+                    Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
                     Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
                     ),
                   calibration_plot = p
