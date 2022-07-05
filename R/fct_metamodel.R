@@ -83,15 +83,6 @@ fit_lm_metamodel <- function(df,
     }
   }
 
-  # Partition data for linear regression validation
-  if(partition < 1) {
-    selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
-    df_fit <- df[selection, ]
-    validation <- TRUE
-  } else {
-    df_fit <- df
-  }
-
   # Fit linear regression
   if(!is.null(x_poly_2)) {
     v_poly_2 <- paste("poly(", x_poly_2, ", 2)", collapse = " + ")
@@ -133,14 +124,14 @@ fit_lm_metamodel <- function(df,
 
   v_x <- paste(unique(c(x_vars, v_poly_2, v_poly_3, v_exp, v_log, v_inter)), collapse = " + ")
   form <- as.formula(paste(y_var, "~", v_x))
-  lm_fit <- lm(form, data = df_fit)
-
-  # Output: no validation
-  l_out <- list(fit = lm_fit)
 
   # Validation statistics and plots
   if(validation == TRUE) {
+    selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
+    df_fit <- df[selection, ]
     df_valid  <- df[-selection, ]
+
+    lm_fit <- lm(form, data = df_fit)
 
     ## Fit in validation set
     v_y_predict            <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_valid))))
@@ -173,6 +164,11 @@ fit_lm_metamodel <- function(df,
                     ),
                   calibration_plot = p
                   )
+  } else {
+    lm_fit <- lm(form, data = df)
+
+    # Output: no validation
+    l_out <- list(fit = lm_fit)
   }
   return(l_out)
 }
