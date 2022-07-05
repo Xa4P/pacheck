@@ -41,8 +41,8 @@
 #' @export
 #'
 fit_lm_metamodel <- function(df,
-                             y = NULL,
-                             x = NULL,
+                             y_var = NULL,
+                             x_vars = NULL,
                              standardise = FALSE,
                              partition = 1,
                              seed_num = 1,
@@ -60,13 +60,13 @@ fit_lm_metamodel <- function(df,
   if(partition == 1 && validation == TRUE) {
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
-  if(is.null(y)) {
+  if(is.null(y_var)) {
     stop("Cannot perform linear regression because there is no value provided for 'y'.")
   }
   if(!is.null(x_inter) && length(x_inter) != 2 * round(length(x_inter) / 2)) {
     stop("The number of interaction terms is oneven.")
   }
-  if(is.null(x) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
+  if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
     stop("Cannot perform linear regression because there is no value provided for the predictors.")
   }
 
@@ -131,8 +131,8 @@ fit_lm_metamodel <- function(df,
     v_inter <- NULL
   }
 
-  v_x <- paste(unique(c(x, v_poly_2, v_poly_3, v_exp, v_log, v_inter)), collapse = " + ")
-  form <- as.formula(paste(y, "~", v_x))
+  v_x <- paste(unique(c(x_vars, v_poly_2, v_poly_3, v_exp, v_log, v_inter)), collapse = " + ")
+  form <- as.formula(paste(y_var, "~", v_x))
   lm_fit <- lm(form, data = df_fit)
 
   # Output: no validation
@@ -144,7 +144,7 @@ fit_lm_metamodel <- function(df,
 
     ## Fit in validation set
     v_y_predict            <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_valid))))
-    v_y_valid              <- as.numeric(as.character(df_valid[, paste(y)]))
+    v_y_valid              <- as.numeric(as.character(df_valid[, paste(y_var)]))
 
     r_squared_validation <- cor(v_y_predict, v_y_valid) ^ 2
     mae_validation       <- mean(abs(v_y_predict - v_y_valid))
@@ -152,7 +152,7 @@ fit_lm_metamodel <- function(df,
 
     ## Calibration plot: predicted versus observed
     df_valid$y_pred <- v_y_predict
-    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y), data = df_valid) +
+    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_valid) +
       ggplot2::geom_point(shape = 1) +
       ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
       ggplot2::xlab("Predicted values") +
