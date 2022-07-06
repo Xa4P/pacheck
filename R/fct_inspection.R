@@ -1162,40 +1162,6 @@ check_surv_mod <- function(df,
 
   l_out <- list()
 
-  # if(surv_mod_1 == "exp") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_1)] <- "rate"
-  #   v_names_param_mod_1 <- "rate"
-  # } else if (surv_mod_1 == "weibull") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_1)] <- c("shape", "scale")
-  #   v_names_param_mod_1 <- c("shape", "scale")
-  # } else if (surv_mod_1 == "gamma") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_1)] <- c("shape", "rate")
-  #   v_names_param_mod_1 <- c("shape", "rate")
-  # } else if (surv_mod_1 == "lnorm") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_1)] <- c("meanlog", "sdlog")
-  #   v_names_param_mod_1 <- c("meanlog", "sdlog")
-  # } else if (surv_mod_1 == "logis") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_1)] <- c("location", "shape")
-  #   v_names_param_mod_1 <- c("location", "shape")
-  # }
-  #
-  # if(surv_mod_2 == "exp") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_2)] <- "rate"
-  #   v_names_param_mod_2 <- "rate"
-  # } else if (surv_mod_2 == "weibull") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_2)] <- c("shape", "scale")
-  #   v_names_param_mod_2 <- c("shape", "scale")
-  # } else if (surv_mod_2 == "gamma") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_2)]<- c("shape", "rate")
-  #   v_names_param_mod_2 <- c("shape", "rate")
-  # } else if (surv_mod_2 == "lnorm") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_2)] <- c("meanlog", "sdlog")
-  #   v_names_param_mod_2 <- c("meanlog", "sdlog")
-  # } else if (surv_mod_2 == "logis") {
-  #   names(df)[which(names(df) %in% v_names_param_mod_2)] <- c("location", "shape")
-  #   v_names_param_mod_2 <- c("location", "shape")
-  # }
-
   v_check_cross <- vapply(1:nrow(df), function (x) {
     v_surv_1 <- 1 - do.call(paste0("p", surv_mod_1), c(list(time), unname(as.list(df[x, v_names_param_mod_1]))))
     v_surv_2 <- 1 - do.call(paste0("p", surv_mod_2), c(list(time), unname(as.list(df[x, v_names_param_mod_2]))))
@@ -1249,7 +1215,7 @@ plot_surv_mod <- function(df,
                           label_surv_1 = "surv_mod_1",
                           label_surv_2 = "surv_mod_2",
                           iteration,
-                          time = seq(0, 100, 1)
+                          time = seq(0, 5, 1)
 ){
 
   df_plot <- data.frame(
