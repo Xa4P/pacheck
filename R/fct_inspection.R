@@ -1221,8 +1221,8 @@ plot_surv_mod <- function(df,
   df_plot <- data.frame(
     Time = rep(time, 2),
     Label = c(rep(label_surv_1, length(time)),rep(label_surv_2, length(time))),
-    Survival = c(1 - do.call(paste0("p", surv_mod_1), c(list(time), as.list(df[iteration, v_names_param_mod_1]))),
-                 1 - do.call(paste0("p", surv_mod_2), c(list(time), as.list(df[iteration, v_names_param_mod_2])))
+    Survival = c(1 - do.call(paste0("p", surv_mod_1), c(list(time), unname(as.list(df[iteration, v_names_param_mod_1])))),
+                 1 - do.call(paste0("p", surv_mod_2), c(list(time), unname(as.list(df[iteration, v_names_param_mod_2]))))
     )
   )
 
