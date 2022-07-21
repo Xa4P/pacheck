@@ -497,10 +497,9 @@ plot_convergence <- function(df,
      block_size > length(df[, outcome])) {
     block_size <- round(length(df[, outcome]) / 10)
   }
-
   l_output <- list()
-  v_breaks <- vector()
 
+  # Calculations
   v_output <- df[, outcome]
   v_av_mov  <- unname(cumsum(v_output)/c(1:length(v_output))) # moving average
   v_blocks <- seq(from = block_size, to = length(v_av_mov), by = block_size)
@@ -513,34 +512,29 @@ plot_convergence <- function(df,
   numeric(1)
   )
   v_var_blocks <- v_var_outcome[v_blocks]
-
-  l_output <- list(v_av_mov = v_av_mov,
-                   v_var_outcome = v_var_outcome,
-                   v_blocks = v_blocks,
-                   v_av_blocks = v_av_blocks,
-                   v_var_blocks = v_var_blocks,
-                   v_rel_diff_blocks = v_rel_diff_blocks,
-                   v_conv_rel = v_conv_rel) # list because objects have different length
+  v_var_rel_diff_blocks <- c(0, abs(diff(v_var_blocks))/ v_var_blocks[c(1:(length(v_var_blocks)-1))]) # Check relative difference a block and the previous
 
   # Dataframe for plotting the results
   df_plot <- data.frame(
-    Iterations = l_output$v_blocks,
-    Mean_value = l_output$v_av_blocks,
-    Rel_diff = l_output$v_rel_diff_blocks,
-    Variance = l_output$v_var_blocks
+    Iterations = v_blocks,
+    Mean_value = v_av_blocks,
+    Rel_diff = v_rel_diff_blocks,
+    Variance = v_var_blocks,
+    Rel_var_diff = v_var_rel_diff_blocks
   )
   names(df_plot)[2] <- outcome
-  names(df_plot)[3] <- paste0("Relative_difference_", outcome)
+  names(df_plot)[3] <- paste0("Relative_mean_diff_", outcome)
   names(df_plot)[4] <- paste0("Variance_", outcome)
+  names(df_plot)[5] <- paste0("Relative_var_diff_", outcome)
 
   # Determine breaks for plot
   v_breaks <- seq(from = breaks, to = length(v_av_mov), by = breaks)
-  v_breaks[length(v_breaks)] <- length(l_output$v_av_mov)
+  v_breaks[length(v_breaks)] <- length(v_av_mov)
 
   # Plot
   if(variance == FALSE){
     if(conv_limit > 0) {
-      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_difference_", outcome))) +
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_mean_diff_", outcome))) +
         ggplot2::geom_hline(yintercept = conv_limit,
                             colour = "orange",
                             linetype = "dashed")
@@ -548,7 +542,14 @@ plot_convergence <- function(df,
       p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = outcome))
     }
   } else {
-    p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Variance_", outcome)))
+    if(conv_limit > 0) {
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_var_diff_", outcome))) +
+        ggplot2::geom_hline(yintercept = conv_limit,
+                            colour = "orange",
+                            linetype = "dashed")
+    } else {
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Variance_", outcome)))
+    }
   }
   p_out <- p +
     ggplot2::xlab("Iterations (log scale)") +
@@ -557,6 +558,7 @@ plot_convergence <- function(df,
     ggplot2::geom_line() +
     ggplot2::theme_bw()
 
+  # Export
   return(p_out)
 }
 
