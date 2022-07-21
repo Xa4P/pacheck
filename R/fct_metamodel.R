@@ -54,7 +54,7 @@ fit_lm_metamodel <- function(df,
                              x_log = NULL,
                              x_inter = NULL) {
   # Flag errors
-  if(length(y) > 1) {
+  if(length(y_var) > 1) {
     stop("Multiple outcomes provided to 'y'.")
   }
   if(partition < 0 || partition > 1) {
@@ -64,7 +64,7 @@ fit_lm_metamodel <- function(df,
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
   if(is.null(y_var)) {
-    stop("Cannot perform linear regression because there is no value provided for 'y'.")
+    stop("Cannot perform linear regression because there is no value provided for 'y_var'.")
   }
   if(!is.null(x_inter) && length(x_inter) != 2 * round(length(x_inter) / 2)) {
     stop("The number of interaction terms is oneven.")
@@ -79,17 +79,16 @@ fit_lm_metamodel <- function(df,
 
   # Standardise inputs
   if(standardise == TRUE) {
-    if(length(x) > 1){
-      df[, x] <- lapply(df[, x], function(i) (i - mean(i)) / sd(i))
+    if(length(x_vars) > 1){
+      df[, x_vars] <- lapply(df[, x_vars], function(i) (i - mean(i)) / sd(i))
     } else {
-      df[, x] <- (df[, x] - mean(df[, x])) / sd(df[, x])
+      df[, x_vars] <- (df[, x_vars] - mean(df[, x_vars])) / sd(df[, x_vars])
     }
   }
 
-  # Fit linear regression
+  # Transform inputs
   if(!is.null(x_poly_2)) {
     v_poly_2 <- paste("poly(", x_poly_2, ", 2)", collapse = " + ")
-    #x <- x[-which(x %in% v_poly_2)]
   } else {
     v_poly_2 <- NULL
     }
@@ -118,9 +117,7 @@ fit_lm_metamodel <- function(df,
     v_inter <- vapply(pair_seq, function(x) {
       paste0(x_inter[2 * x + 1], ":", x_inter[2 * x + 2])
     }, character(1))
-
     v_inter <- c(v_inter, unique(x_inter))
-    #x <- x[-which(x %in% v_inter)]
   } else {
     v_inter <- NULL
   }
@@ -130,16 +127,15 @@ fit_lm_metamodel <- function(df,
 
   # Validation statistics and plots
   if(validation == TRUE) {
+    ## Partition data and fit to train data
     selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
-    df_fit <- df[selection, ]
+    df_fit    <- df[selection, ]
     df_valid  <- df[-selection, ]
-
     lm_fit <- lm(form, data = df_fit)
 
     ## Fit in validation set
-    v_y_predict            <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_valid))))
-    v_y_valid              <- as.numeric(as.character(df_valid[, paste(y_var)]))
-
+    v_y_predict          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_valid))))
+    v_y_valid            <- as.numeric(as.character(df_valid[, paste(y_var)]))
     r_squared_validation <- cor(v_y_predict, v_y_valid) ^ 2
     mae_validation       <- mean(abs(v_y_predict - v_y_valid))
     mre_validation       <- mean(abs((v_y_predict - v_y_valid) / v_y_valid))
@@ -155,8 +151,8 @@ fit_lm_metamodel <- function(df,
 
     if(show_intercept == TRUE) {
       p <- p +
-        ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y)]))) +
-        ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y)])))
+        ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y_var)]))) +
+        ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y_var)])))
       }
 
     ## Output: validation
@@ -169,10 +165,11 @@ fit_lm_metamodel <- function(df,
                   )
   } else {
     lm_fit <- lm(form, data = df)
-
-    # Output: no validation
+    ## Output: no validation
     l_out <- list(fit = lm_fit)
   }
+
+  # Export
   return(l_out)
 }
 
