@@ -89,17 +89,13 @@ generate_sum_stats <- function(df,
 #'
 generate_cor <- function(df,
                          v_params = "ALL"){ # doesn't work with 1 parameter!
-
   df <- if(v_params == "ALL") {
     df
   } else {
     data.frame(df[, v_params])
   }
-
   df_out <- cor(df)
-
   return(df_out)
-
 }
 
 
@@ -466,8 +462,10 @@ fit_dist <- function(df,
 #'
 #' @param df a dataframe.
 #' @param outcome character string. Name of variable of the dataframe for which to plot the moving average.
-#' @param block_size numeric. Define the number of iterations at which the mean outcome has to be defined and plotted. NOT USED YET!
-#' @param conv_limit numeric. Define the convergence limit, under which the relative change between block of iterations should lie.  NOT USED YET!
+#' @param block_size numeric. Define the number of iterations at which the mean outcome has to be defined and plotted.
+#' @param conv_limit numeric. Define the convergence limit, under which the relative change between block of iterations should lie.
+#' @param breaks numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `outcome` is used.
+#' @param variance logical. Determine whether the variance of the vector should be plotted instead of the mean. Default is FALSE.
 #'
 #' @return A ggplot graph.
 #'
@@ -475,61 +473,89 @@ fit_dist <- function(df,
 #' # Checking the moving average of the incremental QALYs using the example data.
 #' data(df_pa)
 #' plot_convergence(df = df_pa,
-#'                  outcome = "Inc_QALY"
+#'                  outcome = "inc_qaly"
 #'                  ))
-#'
+#' @import ggplot2
 #' @export
 #'
 plot_convergence <- function(df,
                              outcome,
                              block_size = 500,
-                             conv_limit = 0.01) {
-  require(ggplot2)
+                             conv_limit = 0,
+                             breaks = NULL,
+                             variance = FALSE) {
+  if(conv_limit > 1 ||
+     conv_limit < 0) {
+    stop("`conv_limit` should be a numeric between 0 and 1.")
+  }
+
+  if(is.null(breaks) ||
+     breaks > length(df[, outcome])) {
+    breaks <- round(length(df[, outcome]) / 10)
+  }
+  if(is.null(block_size) ||
+     block_size > length(df[, outcome])) {
+    block_size <- round(length(df[, outcome]) / 10)
+  }
 
   l_output <- list()
-  v_output <- df[, outcome]
+  v_breaks <- vector()
 
+  v_output <- df[, outcome]
   v_av_mov  <- unname(cumsum(v_output)/c(1:length(v_output))) # moving average
   v_blocks <- seq(from = block_size, to = length(v_av_mov), by = block_size)
   v_av_blocks <- v_av_mov[v_blocks] # average at each block
-
-  v_rel_diff_blocks <- abs(c(v_av_blocks[1], diff(v_av_blocks))/ v_av_blocks) # Check relative difference a block and the previous
-
+  v_rel_diff_blocks <- c(0, abs(diff(v_av_blocks))/ v_av_blocks[c(1:(length(v_av_blocks)-1))]) # Check relative difference a block and the previous
   v_conv_rel <- which(v_rel_diff_blocks < conv_limit)
+  v_var_outcome <- vapply(1:length(v_output), function (x){
+    var(v_output[1:x])
+  },
+  numeric(1)
+  )
+  v_var_blocks <- v_var_outcome[v_blocks]
 
   l_output <- list(v_av_mov = v_av_mov,
+                   v_var_outcome = v_var_outcome,
                    v_blocks = v_blocks,
                    v_av_blocks = v_av_blocks,
+                   v_var_blocks = v_var_blocks,
                    v_rel_diff_blocks = v_rel_diff_blocks,
-                   v_conv_rel = v_conv_rel)
+                   v_conv_rel = v_conv_rel) # list because objects have different length
 
   # Dataframe for plotting the results
   df_plot <- data.frame(
-    Iterations = c(1:length(l_output$v_av_mov)),
-    Res = l_output$v_av_mov
+    Iterations = l_output$v_blocks,
+    Mean_value = l_output$v_av_blocks,
+    Rel_diff = l_output$v_rel_diff_blocks,
+    Variance = l_output$v_var_blocks
   )
   names(df_plot)[2] <- outcome
+  names(df_plot)[3] <- paste0("Relative_difference_", outcome)
+  names(df_plot)[4] <- paste0("Variance_", outcome)
 
   # Determine breaks for plot
-  v_breaks <- vector()
-  v_breaks[1] <- block_size
-  for (i in 2:length(l_output$v_av_mov)) {
-    v_breaks[i] <- v_breaks[i - 1] * 3
-
-    if(v_breaks[i] >= length(l_output$v_av_mov)) {
-      break
-    }
-  }
+  v_breaks <- seq(from = breaks, to = length(v_av_mov), by = breaks)
   v_breaks[length(v_breaks)] <- length(l_output$v_av_mov)
 
   # Plot
-  p_out <- ggplot(data = df_plot, aes_string(x = "log(Iterations)", y = outcome)) +
-    xlab("Iterations (log scale)") +
-    scale_x_continuous(breaks = log(v_breaks),
-                       labels = v_breaks) +
-    geom_line() +
-    theme_bw()
-
+  if(variance == FALSE){
+    if(conv_limit > 0) {
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_difference_", outcome))) +
+        ggplot2::geom_hline(yintercept = conv_limit,
+                            colour = "orange",
+                            linetype = "dashed")
+    } else {
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = outcome))
+    }
+  } else {
+    p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Variance_", outcome)))
+  }
+  p_out <- p +
+    ggplot2::xlab("Iterations (log scale)") +
+    ggplot2::scale_x_continuous(breaks = log(v_breaks),
+                                labels = v_breaks) +
+    ggplot2::geom_line() +
+    ggplot2::theme_bw()
 
   return(p_out)
 }
