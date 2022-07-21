@@ -13,7 +13,7 @@ plot_surv_mod(
   label_surv_1 = "surv_mod_1",
   label_surv_2 = "surv_mod_2",
   iteration,
-  time = seq(0, 100, 1)
+  time = seq(0, 5, 1)
 )
 }
 \arguments{

@@ -12,7 +12,7 @@ fit_multiple_metamodel(
   partition_multi = 1,
   seed_num_multi = 1,
   validation_multi = FALSE,
-  metamodels = c("lm", "gam", "rf")
+  metamodels = c("lm", "rf")
 )
 }
 \arguments{
