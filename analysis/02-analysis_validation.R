@@ -61,6 +61,13 @@ df_pa_error[c(6200, 545, 3688, 1236, 9991), "t_qaly_d_comp"] <- -10 # negative t
 
 df_pa_error[c(25, 256, 2567, 8462), "t_qaly_d_int"] <- df_pa_error[c(25, 256, 2567, 8462), "t_qaly_int"] + 1 # discounted outcomes higher than undiscounted outcomes
 
+df_pa_error <- calculate_nb(df_pa_error,
+                            e_int = "t_qaly_d_int",
+                            c_int = "t_costs_d_int",
+                            e_comp = "t_qaly_d_comp",
+                            c_comp = "t_costs_d_comp",
+                            wtp = wtp)
+
 #------------------------------#
 ##### CHECK FUNCTIONALITIES ####
 #------------------------------#
