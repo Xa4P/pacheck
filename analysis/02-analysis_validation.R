@@ -59,6 +59,8 @@ df_pa_error[c(620, 5430, 368, 1235, 999), "t_costs_pd_d_comp"]  <- 0   # discoun
 
 df_pa_error[c(6200, 545, 3688, 1236, 9991), "t_qaly_d_comp"] <- -10 # negative total outcomes
 
+df_pa_error[c(25, 256, 2567, 8462), "t_qaly_d_int"] <- df_pa_error[c(25, 256, 2567, 8462), "t_qaly_int"] + 1 # discounted outcomes higher than undiscounted outcomes
+
 #------------------------------#
 ##### CHECK FUNCTIONALITIES ####
 #------------------------------#
@@ -72,7 +74,6 @@ res_quick_check <- do_quick_check(df_pa_error,
                                    v_r = NULL,
                                    v_outcomes = c("t_qaly_d_comp", "t_qaly_d_int", "t_costs_d_comp", "t_costs_d_int")
                                   )
-
 check_all_false <- testthat::test_that("Results are as expected",
                                        {for (i in c(1, 2, 3, 4, 5, 7, 9)){
                                          testthat::expect_equal(res_quick_check[i, 2], "FALSE")
