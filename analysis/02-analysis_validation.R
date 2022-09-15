@@ -11,9 +11,12 @@ library(pacheck)
 library(patchwork)
 source(paste(getwd(), "/R/fct_hemodel.R", sep = "")) # because functions contained in this script are not automatically exported when installing `pacheck`
 data(df_pa)
-data(df_pa_validation)
+#data(df_pa_validation)
 n_sim <- nrow(df_pa)
-df_pa_orig <- df_pa
+set.seed(500)
+selection <- sample(1:nrow(df_pa), size = round(nrow(df_pa) * 0.75), replace = FALSE)
+df_pa_orig <- df_pa[selection, ]
+df_pa_validation <- df_pa[-selection, ]
 wtp <- 80000
 
 # calculate (i)NMBs and i(NHB)s
@@ -32,9 +35,6 @@ df_pa_validation_complete <- calculate_nb(df_pa_validation,
                                           c_comp = "t_costs_d_comp",
                                           wtp = wtp)
 
-
-# rescale inputs
-# df_pa_complete_rescaled <- df_pa_complete
 v_names_inputs <- names(df_pa_complete)[-grep("t_", names(df_pa_complete))]
 v_names_inputs <- v_names_inputs[-grep("inc_", v_names_inputs)]
 v_names_inputs <- v_names_inputs[-grep("NMB", v_names_inputs)]
@@ -43,7 +43,7 @@ v_names_inputs <- v_names_inputs[-grep("NHB", v_names_inputs)]
 #-------------------------#
 ##### INTRODUCE ERRORS ####
 #-------------------------#
-df_pa_error <- df_pa_complete
+df_pa_error <- df_pa
 
 df_pa_error[c(1, 10, 600, 503, 8888), "u_pfs"]   <- -1  # negative utility values
 df_pa_error[c(2, 20, 1200, 1006, 4444), "u_pd"]  <- 2   # utility values above 1
@@ -102,7 +102,6 @@ res_check_range_below_no_error <- check_range(df = df_pa,
 res_check_range_above_no_error <- check_range(df = df_pa,
                                               outcome = "u_pfs",
                                               min_val = 0) # ok!
-
 res_check_range_binary_error <- check_range(df = df_pa_error,
                                                outcome = "u_pfs",
                                                min_val = 0,
@@ -157,29 +156,64 @@ v_inputs_short <- c("p_pfspd",
                     #"u_d",
                     "u_ae",
                     "c_pfs",
-                    #"c_pd",
                     #"c_d",
-                    "c_thx"#,
-                    #"c_ae"
+                    "c_thx",
+                    "c_pd",
+                    "c_ae"
 )
 
-# All parameters factorial
+# All parameters
 lm_valid <- fit_lm_metamodel(df = df_pa_complete,
-                             y = "iNMB",
-                             x = v_inputs_short
+                             y_var = "iNMB",
+                             x_vars = v_inputs_short
                              )
+# Calculate mean absolute error in validation set
+v_predictions_validation_full <- predict.lm(lm_valid$fit,
+                                       newdata = df_pa_validation)
+mae_validation_full <- mean(abs(v_predictions_validation_full - df_pa_validation_complete[, "iNMB"]))
 
-#summary(lm_valid) # all predictors are statistically significant at 0.05, except c_pd and c_ae
+summary(lm_valid$fit) # all predictors are statistically significant at 0.05, except c_pd and c_ae, removing them does not increase mea absolute error, hence they all remain in
+
+# Remove c_ae and re-calculate mae
+v_inputs_short_1 <- c("p_pfspd",
+                    "p_pfsd",
+                    "p_pdd",
+                    #"p_dd",
+                    "p_ae",
+                    "rr",
+                    "u_pfs",
+                    "u_pd",
+                    #"u_d",
+                    "u_ae",
+                    "c_pfs",
+                    #"c_d",
+                    "c_thx",
+                    "c_pd"#,
+                    # "c_ae"
+)
+lm_valid_1 <- fit_lm_metamodel(df = df_pa_complete,
+                             y_var = "iNMB",
+                             x_vars = v_inputs_short_1
+)
+v_predictions_validation_1 <- predict.lm(lm_valid_1$fit,
+                                         newdata = df_pa_validation)
+mae_validation_1 <- mean(abs(v_predictions_validation_1 - df_pa_validation_complete[, "iNMB"]))
+
+# Check whether mae decreased
+mae_validation_1 < mae_validation_full # FALSE
+
+# --> continue with v_inputs_short and all parameters
+
 #summary(lm_valid)$adj.r.squared
 #summary(lm_valid_2)$adj.r.squared
 ## does not really matter!
 
 # Predict on training set
-v_predictions_training <- predict.lm(lm_valid,
+v_predictions_training <- predict.lm(lm_valid$fit,
                                      newdata = df_pa_complete)
 
 # Predict on validation set
-v_predictions_validation <- predict.lm(lm_valid,
+v_predictions_validation <- predict.lm(lm_valid$fit,
                                        newdata = df_pa_validation)
 
 # Calculate mean iNMBs - training set
@@ -224,7 +258,7 @@ m_res_validation <- matrix(round(c(mean_inmb_validation_set,
 
 # Calculate mean absolute error
 mae_validation <- mean(abs(v_predictions_validation - df_pa_validation_complete[, "iNMB"]))
-mre_validation <- mean(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / df_pa_validation_complete[, "iNMB"]))
+mre_validation <- mean(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"])) / abs(df_pa_validation_complete[, "iNMB"]))
 r_squared_validation <-  cor(v_predictions_validation, df_pa_validation_complete[, "iNMB"]) ^ 2
 
 ## matrix to export
@@ -243,7 +277,7 @@ m_fit <- matrix(NA,
 m_fit["MAE", ] <- unlist(summary(abs(v_predictions_validation - df_pa_validation_complete[, "iNMB"])))
 m_fit["Rsquared", "mean"] <- r_squared_validation
 m_fit <- round(m_fit, 3)
-m_fit["MRE", ] <- paste(round(unlist(summary(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / df_pa_validation_complete[, "iNMB"]))) * 100), "%")
+m_fit["MRE", ] <- paste(round(unlist(summary(abs(v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / abs(df_pa_validation_complete[, "iNMB"]))) * 100), "%")
 
 p_mre_above_1 <- length(which(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / df_pa_validation_complete[, "iNMB"]) > 1)) / nrow(df_pa_validation_complete)
 
@@ -261,7 +295,7 @@ df_res_dowsa$Upper_Bound_relative <- (df_res_dowsa$Upper_Bound - mean(df_pa_vali
 
 ## Metamodel - full factorial
 df_res_dowsa_meta <- dsa_lm_metamodel(df = df_pa_complete,
-                                      lm_metamodel = lm_valid)
+                                      lm_metamodel = lm_valid$fit)
 tornado_dowsa_meta <- plot_tornado(df = df_res_dowsa_meta,
                                    df_basecase = df_pa_complete,
                                    outcome = "iNMB")
