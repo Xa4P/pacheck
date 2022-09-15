@@ -138,7 +138,7 @@ fit_lm_metamodel <- function(df,
     v_y_valid            <- as.numeric(as.character(df_valid[, paste(y_var)]))
     r_squared_validation <- cor(v_y_predict, v_y_valid) ^ 2
     mae_validation       <- mean(abs(v_y_predict - v_y_valid))
-    mre_validation       <- mean(abs((v_y_predict - v_y_valid) / v_y_valid))
+    mre_validation       <- mean(abs(v_y_predict - v_y_valid) / abs(v_y_valid))
 
     ## Calibration plot: predicted versus observed
     df_valid$y_pred <- v_y_predict
