@@ -412,7 +412,7 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
                                                                   rep(1, 500)
                                                           )
                                            ),
-                                           lambdas = 0.3,
+                                           lambdas = 0.8,
                                            betas = c(trt = -0.5),
                                            maxt = 5
   )
