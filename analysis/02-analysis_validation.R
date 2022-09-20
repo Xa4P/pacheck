@@ -7,11 +7,10 @@
 #--------------#
 rm(list = ls())
 options(scipen = 999)
-library(pacheck)
-library(patchwork)
-source(paste(getwd(), "/R/fct_hemodel.R", sep = "")) # because functions contained in this script are not automatically exported when installing `pacheck`
+devtools::load_all()
+
 data(df_pa)
-#data(df_pa_validation)
+data(df_pa_psm)
 n_sim <- nrow(df_pa)
 set.seed(500)
 selection <- sample(1:nrow(df_pa), size = round(nrow(df_pa) * 0.75), replace = FALSE)
@@ -43,6 +42,7 @@ v_names_inputs <- v_names_inputs[-grep("NHB", v_names_inputs)]
 #-------------------------#
 ##### INTRODUCE ERRORS ####
 #-------------------------#
+# In HSTM model
 df_pa_error <- df_pa
 
 df_pa_error[c(1, 10, 600, 503, 8888), "u_pfs"]   <- -1  # negative utility values
@@ -67,6 +67,10 @@ df_pa_error <- calculate_nb(df_pa_error,
                             e_comp = "t_qaly_d_comp",
                             c_comp = "t_costs_d_comp",
                             wtp = wtp)
+
+# In partitioned survival model
+df_pa_psm_error <- df_pa_psm
+df_pa_psm_error[c(1, 120, 156, 777), "r_exp_pfs_comp"] <- 0.01
 
 #------------------------------#
 ##### CHECK FUNCTIONALITIES ####
@@ -318,6 +322,7 @@ df_res_dowsa_meta$Upper_Bound_relative <- (df_res_dowsa_meta$Upper_Bound - mean(
 write.csv(df_pa_complete, file = paste(getwd(), "/data/data_with_nb.csv", sep = ""))
 write.csv(df_pa_complete_rescaled, file = paste(getwd(), "/data/data_with_nb_rescaled.csv", sep = ""))
 write.csv(df_pa_error, file = paste(getwd(), "/data/data_with_nb_error.csv", sep = ""))
+write.csv(df_pa_psm_error, file = paste(getwd(), "/data/data_psm_error.csv", sep = ""))
 
 # Tables ----
 ## Mean outcomes training set and metamodel
