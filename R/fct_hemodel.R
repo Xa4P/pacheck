@@ -479,7 +479,7 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
     ### PFS
     r_exp_pfs_comp = l_boot_pfs$t[, 1],
     rr_thx_pfs     = l_boot_pfs$t[, 2],
-    r_exp_pfs_trt  = l_boot_pfs$t[, 1] * l_boot_pfs$t[, 2],
+    r_exp_pfs_int  = l_boot_pfs$t[, 1] * l_boot_pfs$t[, 2],
     ### OS
     shape_weib_os      = l_boot_os$t[, 1],
     scale_weib_os_comp = l_boot_os$t[, 2],
