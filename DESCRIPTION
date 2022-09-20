@@ -1,7 +1,7 @@
 Type: Package
 Package: pacheck
 Title: Probabilistic Analysis Check Package
-Version: 0.2.0
+Version: 0.2.1
 Author: Xavier G.L.V. Pouwels [aut, cre]
 Maintainer: Xavier G.L.V. Pouwels <x.g.l.v.pouwels@utwente.nl>
 Description: This package contains a suite of functions to investigate
