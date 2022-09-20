@@ -548,29 +548,29 @@ perform_simulation_psm <- function(l_params,
     m_hs_comp[, "D"]   <- n_ind * pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os)
     if(min_fct == TRUE) {
       m_hs_comp[, "PFS"] <- n_ind * vapply(1:length(v_time), function(x){
-        min(1 - pexp(v_time[x], rate = r_exp_pfs),
-            1 - pweibull(v_time[x], shape = shape_weib_os, scale = scale_weib_os)
+        min(1 - pexp(v_time[x], rate = r_exp_pfs_comp),
+            1 - pweibull(v_time[x], shape = shape_weib_os, scale = scale_weib_os_comp)
             )
       },
       numeric(1)
       )
     } else {
-      m_hs_comp[, "PFS"] <- n_ind * (1 - pexp(v_time, rate = r_exp_pfs))
+      m_hs_comp[, "PFS"] <- n_ind * (1 - pexp(v_time, rate = r_exp_pfs_comp))
       }
 
     m_hs_comp[, "PD"]  <- n_ind - m_hs_comp[, "D"] - m_hs_comp[, "PFS"]
 
-    m_hs_int[, "D"]   <- n_ind * pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os * rr_thx_os)
+    m_hs_int[, "D"]   <- n_ind * pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os_int)
     if(min_fct == TRUE) {
       m_hs_int[, "PFS"] <- n_ind * vapply(1:length(v_time), function(x){
-        min(1 - pexp(v_time[x], rate = r_exp_pfs * rr_thx_pfs),
-            1 - pweibull(v_time[x], shape = shape_weib_os, scale = scale_weib_os * rr_thx_os)
+        min(1 - pexp(v_time[x], rate = r_exp_pfs_int),
+            1 - pweibull(v_time[x], shape = shape_weib_os, scale = scale_weib_os_int)
             )
       },
       numeric(1)
       )
     } else {
-      m_hs_comp[, "PFS"] <- n_ind * (1 - pexp(v_time, rate = r_exp_pfs))
+      m_hs_int[, "PFS"] <- n_ind * (1 - pexp(v_time, rate = r_exp_pfs_int))
     }
     m_hs_int[, "PD"]  <- n_ind - m_hs_int[, "D"] - m_hs_int[, "PFS"]
 
