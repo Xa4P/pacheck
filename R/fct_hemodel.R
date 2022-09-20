@@ -469,10 +469,6 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
   l_boot_pfs  <- boot::boot(df_sim_surv_pfs, R = n_sim, statistic = fct_surv_params_exp, strata = df_sim_surv_pfs[, "trt"])
   l_boot_os <- boot::boot(df_sim_surv_os, R = n_sim, statistic = fct_surv_params_weib, strata = df_sim_surv_os[, "trt"])
 
-  # Determine probabilistic model input values
-  df_tp_pfs <- gtools::rdirichlet(n_sim, c(75, 15, 10))
-  names(df_tp_pfs) <- c("p_pfspfs", "p_pfspd",  "p_pfsd")
-
   df_output = data.frame(
 
     ## Rates & probabilities
@@ -481,12 +477,14 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
 
     ## Surv model parameters
     ### PFS
-    r_exp_pfs = l_boot_pfs$t[, 1],
-    rr_thx_pfs = l_boot_pfs$t[, 2],
+    r_exp_pfs_comp = l_boot_pfs$t[, 1],
+    rr_thx_pfs     = l_boot_pfs$t[, 2],
+    r_exp_pfs_trt  = l_boot_pfs$t[, 1] * l_boot_pfs$t[, 2],
     ### OS
-    shape_weib_os = l_boot_os$t[, 1],
-    scale_weib_os = l_boot_os$t[, 2],
-    rr_thx_os = l_boot_os$t[, 3],
+    shape_weib_os      = l_boot_os$t[, 1],
+    scale_weib_os_comp = l_boot_os$t[, 2],
+    rr_thx_os          = l_boot_os$t[, 3],
+    scale_weib_os_int  = l_boot_os$t[, 2] * l_boot_os$t[, 3],
 
     ## Utility values
     u_pfs = rbeta(n_sim, estimate_params_beta(0.75, 0.07)[[1]], estimate_params_beta(0.75, 0.07)[[2]]),
