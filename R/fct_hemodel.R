@@ -545,7 +545,7 @@ perform_simulation_psm <- function(l_params,
                                                     v_names_hs))
 
     # Fill in matrix using survival models
-    m_hs_comp[, "D"]   <- n_ind * pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os)
+    m_hs_comp[, "D"]   <- n_ind * pweibull(v_time, shape = shape_weib_os, scale = scale_weib_os_comp)
     if(min_fct == TRUE) {
       m_hs_comp[, "PFS"] <- n_ind * vapply(1:length(v_time), function(x){
         min(1 - pexp(v_time[x], rate = r_exp_pfs_comp),
