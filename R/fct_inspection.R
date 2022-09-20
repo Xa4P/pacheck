@@ -1200,7 +1200,7 @@ check_surv_mod <- function(df,
   logical(1)
   )
   v_n_cross <- which(v_check_cross == TRUE)
-  v_n_cross_message <- ifelse(length(v_n_cross) > n_view, paste(paste(v_n_cross[1:n_view], collapse = ", "), "and more"), v_n_cross)
+  v_n_cross_message <- ifelse(length(v_n_cross) > n_view, paste(paste(v_n_cross[1:n_view], collapse = ", "), "and more"), paste(v_n_cross, collapse = ", "))
   message_fail_template <- "Pay attention, the {label_surv_1} curve is higher than the {label_surv_2} curve in iterations {v_n_cross_message}"
   message_ok_template <- "The {label_surv_1} curve is lower than the {label_surv_2} curve in all iterations."
   message_ok <- glue::glue(message_ok_template)
