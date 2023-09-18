@@ -62,15 +62,15 @@ For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et a
 # Fitting meta model with a single variable using the summary data
 data(df_pa)
 fit_lm_metamodel(df = df_pa,
-                 y = "Inc_QALY",
-                 x = "p_pfsd")
+                 y_var = "inc_qaly",
+                 x_vars = "p_pfsd")
                  )
 
 # Fitting meta model with two variables using the summary data
 data(df_pa)
 fit_lm_metamodel(df = df_pa,
-                 y = "Inc_QALY",
-                 x = c("p_pfsd", "p_pdd")
+                 y_var = "inc_qaly",
+                 x_vars = c("p_pfsd", "p_pdd")
                  )
 
 }

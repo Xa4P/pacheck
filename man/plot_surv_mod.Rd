@@ -44,6 +44,3 @@ This function plots two parametric survival models based on he functional form o
 \details{
 The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
 }
-\examples{
-
-}
