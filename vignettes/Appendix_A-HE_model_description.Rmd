@@ -1,7 +1,5 @@
 ---
-title: "PACBOARD: Probabilistic Analysis dashBOARD" 
-subtitle: "Appendix A: Health Economic Model Description"
-author: "Xavier G.L.V. Pouwels, Karel Kroeze, Naomi van der Linden, Michelle M.A. Kip, Hendrik Koffijberg"
+title: "Health Economic Model Description" 
 date: "`r paste(Sys.Date())`"
 output: 
   pdf_document: default

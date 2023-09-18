@@ -1,5 +1,5 @@
 ---
-title: "PACHBOARD"
+title: "Example workflow using the `pacheck` R package"
 author: "X. Pouwels"
 date: "`r paste(Sys.Date())`"
 output: 
@@ -17,31 +17,10 @@ library(ggplot2)
 data(df_pa)
 ```
 
-# Aim (grant application)
-The aim of this project is to develop a generic dashboard, e.g. a R shiny application to 1) inspect model inputs and outputs, 2) visualise the original inputs and outputs, 3) investigate the relationship between model inputs and outputs through metamodelling and data visualisation methods, 4) save the performed analyses.
-
-# For info
-Package with supporting functions can be found here: https://github.com/Xa4P/pacheck.  
-This App should focus on validation of the health economic model (using the probabilistic inputs/ outputs).  
-
-# Structure shiny app
-The envisoned R Shiny app will have the following tabs.
-I've developed some functions which are ready to be implemented.
-Currently, I've only considered 2 strategies ("intervention" (`_int`) and "comparator" (`_comp`)).
-What is shown in this document is based on the probabilistic analysis of a (toy) 3-states Health State Transition Model (Progression-free (PF), Progressed disease (PD), Dead (D)) depicted in Figure 1. The intervention is only having an effect on the probability of progression, and incurs costs in the Progression-Free health state.
-
-**Karel**: elke cijfer is een aparte tab van de app.  
-
+# Introduction
+This article describes an example workflow for the use of the 
 ## 1.	Upload of original health economic model inputs and outputs
-Content:
-
-- Welcome message
-- Instructions
-- Upload 1 file with inputs and outputs (or 2? inputs and outputs separately?)
-- Select variables representing total costs and effects for each strategy (to calculate increments and (incremental) net benefits)  
-- Determine whether the NMBs have been calculated (if not perform calculations)  
-- Make groups of variables per type of inputs (e.g. for costs, utility values, probabilities), is that possible Karel?  
-- If multiple scenario's of the model have been uploaded, select the one you want to work with  
+ 
 
 
 ```{r calc_nb, echo = T}
@@ -173,10 +152,14 @@ Questions met Karel te bespreken:
 - Combineren van de plot hierbeneden met de histogrammen van de waarden op de x en y as, of als niet overzichtelijk: met ticks op de axes als er een datapunt is.  
 
 ```{r dist_plot_2p, echo = T}
-p_3 <- plot_ice(df = df_pa,
-                param_1 = "inc_qaly",
-                param_2 = "inc_costs",
-                wtp = 80000)
+p_3 <- plot_ice(
+  df = df_pa,
+  e_int = "t_qaly_d_int",
+  e_comp = "t_qaly_d_comp",
+  c_int = "t_costs_d_int",
+  c_comp = "t_costs_d_comp",
+  wtp = 8000
+)
 p_3
 p_3_interact <- ggplotly(p_3)
 p_3_interact
@@ -228,30 +211,36 @@ check_mean_qol(df = df_pa,
 
 ```{r fit_metamod_single, echo = T}
 lm_rr <- fit_lm_metamodel(df = df_pa,
-                          x = "rr",
-                          y = "iNMB")
-lm_pred <- unlist(predict(lm_rr, data.frame(rr = df_pa$rr)))
+                          x_vars = "rr",
+                          y_var = "inc_qaly")
+lm_pred <- unlist(predict(lm_rr$fit, data.frame(rr = df_pa$rr)))
 df_obs_pred <- data.frame(
   Values = df_pa$rr,
-  Observed = df_pa$iNMB,
+  Observed = df_pa$inc_qaly,
   Predicted = lm_pred
 )
 ggplot(data = df_obs_pred, aes(x = Values, y = Observed)) +
   geom_point(shape = 1, colour = "lightgrey") +
   geom_smooth(method = "lm") +
   theme_bw()
-plot(lm_rr)
+plot(lm_rr$fit)
 ```
 
 ### Multiple
 
-- To do XP: Add R^2^  
-
 ```{r fit_metamod_mult, echo = T}
 lm_full <- fit_lm_metamodel(df = df_pa,
-                          x = c("rr", "u_pfs", "u_pd", "c_pfs", "c_pd", "c_thx", "p_pfspd", "p_pfsd", "p_pdd"),
-                          y = "iNMB")
-lm_pred_full <- predict(lm_full, data.frame(rr = df_pa$rr,
+                            x_vars = c("rr",
+                                       "u_pfs",
+                                       "u_pd",
+                                       "c_pfs",
+                                       "c_pd",
+                                       "c_thx",
+                                       "p_pfspd",
+                                       "p_pfsd",
+                                       "p_pdd"),
+                            y_var = "inc_qaly")
+lm_pred_full <- predict(lm_full$fit, data.frame(rr = df_pa$rr,
                             u_pfs = mean(df_pa$u_pfs),
                             u_pd = mean(df_pa$u_pd),
                             c_pfs = mean(df_pa$c_pfs),
@@ -263,7 +252,7 @@ lm_pred_full <- predict(lm_full, data.frame(rr = df_pa$rr,
 
 df_obs_pred_full <- data.frame(
   Values = df_pa$rr,
-  Observed = df_pa$iNMB,
+  Observed = df_pa$inc_qaly,
   Predicted = lm_pred_full
 )
 
@@ -272,26 +261,26 @@ ggplot(data = df_obs_pred_full, aes(x = Values, y = Observed)) +
   geom_line(data = df_obs_pred_full, aes(x = Values, y = Predicted), colour = "blue") +
   theme_bw()
 
-plot(lm_full)
-
-df_dsa <- dsa_lm_metamodel(df = df_pa,
-                           lm_metamodel = lm_full)
-plot_tornado(df = df_dsa,
-             df_basecase = df_pa,
-             outcome = "iNMB")
+plot(lm_full$fit)
 ```
 
 ## 5. Predictions based on metamodel  
 ```{r metamodel_pred, echo = T}
-# fit metamodel
-lm_res <- fit_lm_metamodel(df = df_pa,
-                           y = "inc_qaly",
-                           x = c("p_pfsd", "p_pdd")
-                           )
-# Predicting using this metamodel
-predict_lm_metamodel(lm_metamodel = lm_res,
-                     inputs = c(0.75, 0.2)
-                     )
+# Predicting using metamodel fitted above
+predict(
+  lm_full$fit,
+  data.frame(
+    rr = 0.9,
+    u_pfs = 0.75,
+    u_pd = 0.4,
+    c_pfs = 1000,
+    c_pd = 2000,
+    c_thx = 0,
+    p_pfspd = 0.5,
+    p_pfsd = 0.3,
+    p_pdd = 0.4
+  )
+)
 ```
 
 # Other activities/ questions/ to do's
@@ -301,5 +290,3 @@ predict_lm_metamodel(lm_metamodel = lm_res,
 - XP/Karel to do: Add possibility of having multiple scenarios loaded. --> door selectie aan het begin van de app?    
 - Shapley values, zou dat kunnen ? Zou het mogelijk zijn om dat op de originele data set te doen? **KernelExplainer** on this github: https://github.com/slundberg/shap. Of is dit iets? https://github.com/nredell/shapFlex, maar ziet eruit dat je ook een model moet fitten (niet model agnostic)  
 - Check whether violin plot have added value  
-- KAREL: voor selectie variabelen voor de verschillende functies: gebruik van buttons lijkt me het handigste, wat denk jij?  
-- KAREL: is het mogelijk om groepen van variabelen te 'labellen' (dus alle kosten, utiliteiten, probabiliteiten) en dat de Shiny App het als 'groep' ziet en dus dat bepaalde functies (semi-automatisch) uitgevoerd worden op deze groepen variabelen?     
