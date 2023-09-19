@@ -9,7 +9,7 @@ output:
 # library(DiagrammeR)
 # library(DiagrammeRsvg)
 # library(rsvg)
-devtools::load_all()
+library(pacheck)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
@@ -142,7 +142,7 @@ plot_ice(df = df_pa,
          c_int = "t_costs_d_int",
          c_comp = "t_costs_d_comp",
          wtp = 80000) +
-  ggtitle("Incremental cost-effectiveness plane")
+  ggplot2::ggtitle("Incremental cost-effectiveness plane")
 ```
 
 ```{r ceac, message = FALSE}
@@ -157,7 +157,7 @@ df_ceac_p <- as.data.frame(m_res_ceac)
 
 plot_ceac(df = df_ceac_p,
           wtp = "WTP_threshold") +
-  ggtitle("Cost-effectiveness acceptability curves")
+  ggplot2::ggtitle("Cost-effectiveness acceptability curves")
 ```
 
 # Results PSM
@@ -180,7 +180,7 @@ plot_ice(df = df_pa_psm,
          c_int = "t_costs_d_int",
          c_comp = "t_costs_d_comp",
          wtp = 80000) +
-  ggtitle("Incremental cost-effectiveness plane")
+  ggplot2::ggtitle("Incremental cost-effectiveness plane")
 ```
 
 ```{r ceac_psm, message = FALSE}
@@ -195,5 +195,5 @@ df_ceac_p <- as.data.frame(m_res_ceac)
 
 plot_ceac(df = df_ceac_p,
           wtp = "WTP_threshold") +
-  ggtitle("Cost-effectiveness acceptability curves")
+  ggplot2::ggtitle("Cost-effectiveness acceptability curves")
 ```
