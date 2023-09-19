@@ -76,8 +76,12 @@
 <div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>This article describes an example workflow for the use of the ## 1.
-Upload of original health economic model inputs and outputs</p>
+<p>This article describes an example workflow for the use of the
+<code>pacheck</code> package.<br>
+This vignette is still in development.</p>
+<div class="section level3">
+<h3 id="upload-of-original-health-economic-model-inputs-and-outputs">1. Upload of original health economic model inputs and outputs<a class="anchor" aria-label="anchor" href="#upload-of-original-health-economic-model-inputs-and-outputs"></a>
+</h3>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df_pa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calculate_nb.html">calculate_nb</a></span><span class="op">(</span>df <span class="op">=</span> <span class="va">df_pa</span>,</span>
 <span>                      e_int <span class="op">=</span> <span class="st">"t_qaly_d_int"</span>,</span>
@@ -85,6 +89,7 @@ Upload of original health economic model inputs and outputs</p>
 <span>                      c_int <span class="op">=</span> <span class="st">"t_costs_d_int"</span>,</span>
 <span>                      c_comp <span class="op">=</span> <span class="st">"t_costs_d_comp"</span>,</span>
 <span>                      wtp <span class="op">=</span> <span class="fl">80000</span><span class="op">)</span><span class="co"># calculate net benefits</span></span></code></pre></div>
+</div>
 <div class="section level3">
 <h3 id="investigate-model-inputs-and-outputs">2. Investigate model inputs and outputs<a class="anchor" aria-label="anchor" href="#investigate-model-inputs-and-outputs"></a>
 </h3>
