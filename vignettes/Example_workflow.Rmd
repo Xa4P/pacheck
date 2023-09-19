@@ -12,7 +12,6 @@ output:
 ```{r setup, include = FALSE}
 library(pacheck)
 library(knitr)
-library(plotly)
 library(ggplot2)
 data(df_pa)
 ```
@@ -161,8 +160,6 @@ p_3 <- plot_ice(
   wtp = 8000
 )
 p_3
-p_3_interact <- ggplotly(p_3)
-p_3_interact
 
 summary_ice(df_pa,
            "inc_qaly",
