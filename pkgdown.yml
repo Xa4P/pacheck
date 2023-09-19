@@ -1,0 +1,11 @@
+pandoc: 2.19.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  Appendix_A-HE_model_description: Appendix_A-HE_model_description.html
+  Example_workflow: Example_workflow.html
+last_built: 2023-09-19T07:09Z
+urls:
+  reference: https://xa4p.github.io/pacheck/reference
+  article: https://xa4p.github.io/pacheck/articles
+
