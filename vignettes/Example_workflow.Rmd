@@ -17,10 +17,10 @@ data(df_pa)
 ```
 
 # Introduction
-This article describes an example workflow for the use of the 
-## 1.	Upload of original health economic model inputs and outputs
- 
+This article describes an example workflow for the use of the `pacheck` package.  
+This vignette is still in development.  
 
+## 1.	Upload of original health economic model inputs and outputs
 
 ```{r calc_nb, echo = T}
 df_pa <- calculate_nb(df = df_pa,
