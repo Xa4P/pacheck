@@ -474,7 +474,7 @@ fit_dist <- function(df,
 #' data(df_pa)
 #' plot_convergence(df = df_pa,
 #'                  outcome = "inc_qaly"
-#'                  ))
+#'                  )
 #' @import ggplot2
 #' @export
 #'

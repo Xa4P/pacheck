@@ -37,5 +37,5 @@ This function plots the moving average of a outcome variable
 data(df_pa)
 plot_convergence(df = df_pa,
                  outcome = "inc_qaly"
-                 ))
+                 )
 }
