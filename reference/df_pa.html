@@ -78,6 +78,9 @@
   <dt>u_d</dt>
 <dd><p>Utility value (per cycle) associated with D health state</p></dd>
 
+  <dt>u_ae</dt>
+<dd><p>Utility decrement associated with the occurrence of an adverse event</p></dd>
+
   <dt>c_pfs</dt>
 <dd><p>Costs (per cycle) associated with PFS health state</p></dd>
 
@@ -88,66 +91,96 @@
 <dd><p>Costs (per cycle) associated with D health state</p></dd>
 
   <dt>c_thx</dt>
-<dd><p>Costs (per cycle) associated receiving treatment, in the PFS health state</p></dd>
+<dd><p>Costs (per cycle) associated with receiving treatment, in the PFS health state</p></dd>
 
-  <dt>QALY_comp</dt>
-<dd><p>Total QALY obtained with the comparator, i.e. no treatment administered</p></dd>
+  <dt>c_ae</dt>
+<dd><p>Costs associated with experiencing an adverse event</p></dd>
 
-  <dt>QALY_int</dt>
-<dd><p>Total QALY obtained with the intervention, i.e. treatment administered</p></dd>
+  <dt>t_qaly_comp</dt>
+<dd><p>Total undiscounted QALY obtained with the comparator, i.e. no treatment administered</p></dd>
 
-  <dt>Costs_comp</dt>
-<dd><p>Total costs obtained with the comparator, i.e. no treatment administered</p></dd>
+  <dt>t_qaly_int</dt>
+<dd><p>Total undiscounted QALY obtained with the intervention, i.e. treatment administered</p></dd>
 
-  <dt>Costs_int</dt>
-<dd><p>Total costs obtained with the intervention, i.e. treatment administered</p></dd>
+  <dt>t_qaly_d_comp</dt>
+<dd><p>Total discounted QALY obtained with the comparator, i.e. no treatment administered</p></dd>
 
-  <dt>LY_pfs_comp</dt>
-<dd><p>Life years accrued in PFS health state, comparator strategy</p></dd>
+  <dt>t_qaly_d_int</dt>
+<dd><p>Total discounted QALY obtained with the intervention, i.e. treatment administered</p></dd>
 
-  <dt>LY_pfs_int</dt>
-<dd><p>Life years accrued in PFS health state, intervention strategy</p></dd>
+  <dt>t_costs_comp</dt>
+<dd><p>Total undiscounted costs obtained with the comparator, i.e. no treatment administered</p></dd>
 
-  <dt>LY_pd_comp</dt>
-<dd><p>Life years accrued in PD health state, comparator strategy</p></dd>
+  <dt>t_costs_int</dt>
+<dd><p>Total undiscounted costs obtained with the intervention, i.e. treatment administered</p></dd>
 
-  <dt>LY_pd_int</dt>
-<dd><p>Life years accrued in PD health state, intervention strategy</p></dd>
+  <dt>t_costs_d_comp</dt>
+<dd><p>Total discounted costs obtained with the comparator, i.e. no treatment administered</p></dd>
 
-  <dt>QALY_pfs_comp</dt>
-<dd><p>Quality-adjusted life years accrued in PFS health state, comparator strategy</p></dd>
+  <dt>t_costs_d_int</dt>
+<dd><p>Total discounted costs obtained with the intervention, i.e. treatment administered</p></dd>
 
-  <dt>QALY_pfs_int</dt>
-<dd><p>Quality-adjusted life years accrued in PFS health state, intervention strategy</p></dd>
+  <dt>t_ly_comp</dt>
+<dd><p>Total undiscounted LY obtained with the comparator, i.e. no treatment administered</p></dd>
 
-  <dt>QALY_pd_comp</dt>
-<dd><p>Quality-adjusted life years accrued in PD health state, comparator strategy</p></dd>
+  <dt>t_ly_int</dt>
+<dd><p>Total undiscounted LY obtained with the intervention, i.e. treatment administered</p></dd>
 
-  <dt>QALY_pd_int</dt>
-<dd><p>Quality-adjusted life years accrued in PD health state, intervention strategy</p></dd>
+  <dt>t_ly_d_comp</dt>
+<dd><p>Total discounted LY obtained with the comparator, i.e. no treatment administered</p></dd>
 
-  <dt>Costs_pfs_comp</dt>
-<dd><p>Costs accrued in PFS health state, comparator strategy</p></dd>
+  <dt>t_ly_d_int</dt>
+<dd><p>Total discounted LY obtained with the intervention, i.e. treatment administered</p></dd>
 
-  <dt>Costs_pfs_int</dt>
-<dd><p>Costs accrued in PFS health state, intervention strategy</p></dd>
+  <dt>t_ly_pfs_d_comp</dt>
+<dd><p>Total discounted life years accrued in PFS health state, comparator strategy</p></dd>
 
-  <dt>Costs_pd_comp</dt>
-<dd><p>Costs accrued in PD health state, comparator strategy</p></dd>
+  <dt>t_ly_pfs_d_int</dt>
+<dd><p>Total discounted life years accrued in PFS health state, intervention strategy</p></dd>
 
-  <dt>Costs_pd_int</dt>
-<dd><p>Costs accrued in PD health state, intervention strategy</p></dd>
+  <dt>t_ly_pd_d_comp</dt>
+<dd><p>Total discounted life years accrued in PD health state, comparator strategy</p></dd>
 
-  <dt>QALY_ae_int</dt>
-<dd><p>Quality-adjusted life year impact of the occurence of adverse events, intervention strategy</p></dd>
+  <dt>t_ly_pd_d_int</dt>
+<dd><p>Total discounted life years accrued in PD health state, intervention strategy</p></dd>
 
-  <dt>Costs_ae_int</dt>
+  <dt>t_qaly_pfs_d_comp</dt>
+<dd><p>Total discounted quality-adjusted life years accrued in PFS health state, comparator strategy</p></dd>
+
+  <dt>t_qaly_pfs_d_int</dt>
+<dd><p>Total discounted quality-adjusted life years accrued in PFS health state, intervention strategy</p></dd>
+
+  <dt>t_qaly_pd_d_comp</dt>
+<dd><p>Total discounted quality-adjusted life years accrued in PD health state, comparator strategy</p></dd>
+
+  <dt>t_qaly_pd_d_int</dt>
+<dd><p>Total discounted quality-adjusted life years accrued in PD health state, intervention strategy</p></dd>
+
+  <dt>t_costs_pfs_d_comp</dt>
+<dd><p>Total discounted costs accrued in PFS health state, comparator strategy</p></dd>
+
+  <dt>t_costs_pfs_d_int</dt>
+<dd><p>Total discounted costs accrued in PFS health state, intervention strategy</p></dd>
+
+  <dt>t_costs_pd_d_comp</dt>
+<dd><p>Total discounted costs accrued in PD health state, comparator strategy</p></dd>
+
+  <dt>t_costs_pd_d_int</dt>
+<dd><p>Total discounted costs accrued in PD health state, intervention strategy</p></dd>
+
+  <dt>t_qaly_ae_int</dt>
+<dd><p>Quality-adjusted life year decrement associated with the occurence of adverse events, intervention strategy</p></dd>
+
+  <dt>t_costs_ae_int</dt>
 <dd><p>Costs associated with the occurence of adverse events, intervention strategy</p></dd>
 
-  <dt>Inc_QALY</dt>
+  <dt>inc_ly</dt>
 <dd><p>Incremental QALYs obtained with the intervention versus the comparator</p></dd>
 
-  <dt>Inc_Costs</dt>
+  <dt>inc_qaly</dt>
+<dd><p>Incremental QALYs obtained with the intervention versus the comparator</p></dd>
+
+  <dt>inc_costs</dt>
 <dd><p>Incremental costs obtained with the intervention versus the comparator</p></dd>
 
 
