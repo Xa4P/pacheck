@@ -10,12 +10,14 @@ Description: This package contains a suite of functions to investigate
     health economic visualisation and metamodelling methods.
 License: GPL (>= 3)
 Imports: 
+    assertthat,
     boot,
     dplyr,
     fitdistrplus,
     flexsurv,
     gam,
     ggplot2,
+    glue,
     gtools,
     magrittr,
     moments,
@@ -25,7 +27,8 @@ Imports:
     simsurv,
     stats,
     stringi,
-    testthat
+    testthat,
+    tidyr
 Author@: c(person(given = "Xavier", family = "Pouwels", role = c("aut",
     "cre"), email = "x.g.l.v.pouwels@utwente.nl"))
 Config/testthat/edition: 3

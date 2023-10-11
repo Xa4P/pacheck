@@ -4,7 +4,17 @@
 \alias{plot_ice}
 \title{Plotting the incremental cost-effectiveness plane.}
 \usage{
-plot_ice(df, e_int, e_comp, c_int, c_comp, col = NULL, n_it = NULL, wtp = NULL)
+plot_ice(
+  df,
+  e_int,
+  e_comp,
+  c_int,
+  c_comp,
+  col = NULL,
+  n_it = NULL,
+  wtp = NULL,
+  currency = "euro"
+)
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -22,9 +32,11 @@ plot_ice(df, e_int, e_comp, c_int, c_comp, col = NULL, n_it = NULL, wtp = NULL)
 \item{n_it}{(vector of) numeric value(s). Designate which iteration should be coloured in the colour red.}
 
 \item{wtp}{numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.}
+
+\item{currency}{character. Default is "euro". Determines the currency sign to use in the incremental cost effectiveness plane. Currently included signs: "euro", "dollar", "yen", "none".}
 }
 \value{
-A ggplot graph.
+A ggplot2 graph.
 }
 \description{
 This function plots the incremental cost-effectiveness plane.
@@ -38,5 +50,4 @@ plot_ice(df = df_pa,
          c_int = "t_costs_d_int",
          c_comp = "t_costs_d_comp",
          wtp = 8000)
-
 }

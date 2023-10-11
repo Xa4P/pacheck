@@ -4,7 +4,7 @@
 \alias{plot_ce}
 \title{Plot cost-effectiveness plane.}
 \usage{
-plot_ce(df, e_int, e_comp, c_int, c_comp)
+plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro")
 }
 \arguments{
 \item{df}{a dataframe.}
@@ -16,9 +16,11 @@ plot_ce(df, e_int, e_comp, c_int, c_comp)
 \item{c_int}{character. Name of variable of the dataframe containing total costs of the intervention strategy.}
 
 \item{c_comp}{character. Name of variable of the dataframe containing total costs of the comparator strategy.}
+
+\item{currency}{character. Default is "euro". Determines the currency sign to use in the incremental cost effectiveness plane. Currently included signs: "euro", "dollar", "yen", "none".}
 }
 \value{
-A ggplot graph.
+A ggplot2 graph.
 }
 \description{
 This function plots the cost-effectiveness plane.
@@ -32,5 +34,4 @@ plot_ce(df_pa,
         c_int = "t_costs_d_int",
         c_comp = "t_costs_d_comp"
         )
-
 }

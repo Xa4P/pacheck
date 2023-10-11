@@ -3,7 +3,8 @@
 \docType{data}
 \name{df_pa}
 \alias{df_pa}
-\title{Dataframe for testing}
+\title{Dataframe for testing
+A dataframe containing 10,000 iterations of a probabilistic analysis.}
 \format{
 A dataframe with 10,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 35 variables:
 \describe{
@@ -56,6 +57,7 @@ A dataframe with 10,000 rows, each row being the inputs and (intermediate) outpu
 df_pa
 }
 \description{
+Dataframe for testing
 A dataframe containing 10,000 iterations of a probabilistic analysis.
 }
 \keyword{datasets}

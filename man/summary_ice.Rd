@@ -26,8 +26,10 @@ This function computes the probability that the probabilistic outcome is in each
 \examples{
 # Generating statistics of the incremental cost-effectiveness plane using the example data.
 data(df_pa)
-plot_ice(df = df_pa,
-         inc_e = "inc_qaly",
-         inc_c = "inc_costs")
-
+summary_ice(df_pa,
+            e_int = "t_qaly_d_int",
+            e_comp = "t_qaly_d_comp",
+            c_int = "t_costs_d_int",
+            c_comp = "t_costs_d_comp"
+            )
 }

@@ -2,17 +2,17 @@
 % Please edit documentation in R/fct_costeffectiveness.R
 \name{plot_ceac}
 \alias{plot_ceac}
-\title{Plot cost-effectiveness acceptability curves.}
+\title{Plot the cost-effectiveness acceptability curves.}
 \usage{
 plot_ceac(df, wtp)
 }
 \arguments{
-\item{df}{a dataframe.}
+\item{df}{a dataframe obtained through the `calculate_ceac()`.}
 
-\item{wtp}{character Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.}
+\item{wtp}{character. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.}
 }
 \value{
-A ggplot graph.
+A ggplot2 graph.
 }
 \description{
 This function calculates the probabilities that each strategy is the most cost effective.
@@ -20,13 +20,11 @@ This function calculates the probabilities that each strategy is the most cost e
 \examples{
 # Plot CEAC based on results from calculate_ceac()
 data("df_pa")
-m_res_ceac <- calculate_ceac(df_pa,
-                             e_int = "t_qaly_d_int",
-                             e_comp = "t_qaly_d_comp",
-                             c_int = "t_costs_d_int",
-                             c_comp = "t_costs_d_comp")
-df_ceac_p <- as.data.frame(m_res_ceac)
-
+df_ceac_p <- calculate_ceac(df_pa,
+                            e_int = "t_qaly_d_int",
+                            e_comp = "t_qaly_d_comp",
+                            c_int = "t_costs_d_int",
+                            c_comp = "t_costs_d_comp")
 plot_ceac(df = df_ceac_p,
-          v_wtp = "WTP_threshold")
+          wtp = "WTP_threshold")
 }

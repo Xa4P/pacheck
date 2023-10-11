@@ -20,7 +20,15 @@ calculate_nb(df, e_int, e_comp, c_int, c_comp, wtp)
 \item{wtp}{numerical values. Willingness-to-pay thresholds to use for NMB and NHB calculations.}
 }
 \value{
-A dataframe.
+A dataframe containing the original data and the following variables:
+\itemize{
+  \item NMB_int = Net monetary benefit of the intervention
+  \item NMB_comp = Net monetary benefit of the comparator
+  \item iNMB = Incremental net monetary benefit of the intervention versus the comparator
+  \item NHB_int = Net health benefit of the intervention
+  \item NHB_comp = Net health benefit of the comparator
+  \item iNHB = Net health benefit of the intervention versus the comparator
+}
 }
 \description{
 This function calculates the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
@@ -34,5 +42,4 @@ calculate_nb(df_pa,
              c_int = "t_costs_d_int",
              c_comp = "t_costs_d_comp",
              wtp = 80000)
-
 }

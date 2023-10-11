@@ -21,6 +21,9 @@ A ggplot graph.
 \description{
 This function plots the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
 }
+\details{
+The use this function, the dataframe `df` should contain the variables `NMB_int`, `NMB_comp`, `iNMB`, `NHB_int`, `NHB_comp`, and `iNHB`. For instance, use the \code{\link{calculate_nb}} function to calculate these outcomes.
+}
 \examples{
 # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
 data("df_pa")
