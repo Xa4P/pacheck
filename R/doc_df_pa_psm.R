@@ -1,15 +1,17 @@
 #' Dataframe for testing
 #'
-#' A dataframe containing 10,000 iterations of a probabilistic analysis of a health state transition model.
+#' A dataframe containing 10,000 iterations of a probabilistic analysis of a partitioned survival model.
 #'
-#' @format A dataframe with 10,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 44 variables:
+#' @format A dataframe with 10,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 46 variables:
 #' \describe{
-#'   \item{p_pfspd}{Probability to transit from the progression-free survival (PFS) to progressed disease (PD) health state}
-#'   \item{p_pfsd}{Probability to transit from the PFS to Death (D) health state}
-#'   \item{p_pdd}{Probability to transit from the PD to D health state}
-#'   \item{p_dd}{Probability to transit from the D to D health state}
 #'   \item{p_ae}{Probability of occurence of an adverse event in the intervention stategy}
-#'   \item{rr}{Relative effectiveness of the treatment (_int)}
+#'   \item{r_exp_pfs_comp}{Rate of the exponential survival model used to estimate PFS of the comparator}
+#'   \item{rr_thx_pfs}{Relative risk of the occurrence of progression of the intervention versus the comparator, used to estimate PFS of the intervention}
+#'   \item{r_exp_pfs_int}{Rate of the exponential survival model used to estimate PFS of the intervention}
+#'   \item{shape_weib_os}{Shape of the Weibull survival model used to estimate OS of the comparator and intervention}
+#'   \item{scale_weib_os_comp}{Scale of the Weibull survival model used to estimate OS of the comparator}
+#'   \item{rr_thx_os}{Relative risk of the occurrence of death of the intervention versus the comparator, used to estimate PFS of the intervention}
+#'   \item{scale_weib_os_int}{Scale of the Weibull survival model used to estimate OS of the intervention}
 #'   \item{u_pfs}{Utility value (per cycle) associated with PFS health state}
 #'   \item{u_pd}{Utility value (per cycle) associated with PD health state}
 #'   \item{u_d}{Utility value (per cycle) associated with D health state}
@@ -49,4 +51,4 @@
 #'   \item{inc_qaly}{Incremental QALYs obtained with the intervention versus the comparator}
 #'   \item{inc_costs}{Incremental costs obtained with the intervention versus the comparator}
 #' }
-"df_pa"
+"df_pa_psm"
