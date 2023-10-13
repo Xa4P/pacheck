@@ -160,19 +160,16 @@ res_check_mean_qol_above_error <- check_mean_qol(df = df_pa,
 v_inputs_short <- c("p_pfspd",
                     "p_pfsd",
                     "p_pdd",
-                    #"p_dd",
                     "p_ae",
                     "rr",
                     "u_pfs",
                     "u_pd",
-                    #"u_d",
                     "u_ae",
                     "c_pfs",
-                    #"c_d",
                     "c_thx",
                     "c_pd",
                     "c_ae"
-)
+                    )
 
 # All parameters
 lm_valid <- fit_lm_metamodel(df = df_pa_complete,
@@ -182,71 +179,48 @@ lm_valid <- fit_lm_metamodel(df = df_pa_complete,
 # Calculate mean absolute error in validation set
 v_predictions_validation_full <- predict.lm(lm_valid$fit,
                                        newdata = df_pa_validation)
-mae_validation_full <- mean(abs(v_predictions_validation_full - df_pa_validation_complete[, "iNMB"]))
-
 summary(lm_valid$fit) # all predictors are statistically significant at 0.05, except c_pd and c_ae, removing them does not increase mea absolute error, hence they all remain in
 
-# Remove c_ae and re-calculate mae
+# Remove c_ae and re-fit
 v_inputs_short_1 <- c("p_pfspd",
                     "p_pfsd",
                     "p_pdd",
-                    #"p_dd",
                     "p_ae",
                     "rr",
                     "u_pfs",
                     "u_pd",
-                    #"u_d",
                     "u_ae",
                     "c_pfs",
-                    #"c_d",
                     "c_thx",
-                    "c_pd"#,
-                    # "c_ae"
-)
+                    "c_pd"
+                    )
 lm_valid_1 <- fit_lm_metamodel(df = df_pa_complete,
                              y_var = "iNMB",
                              x_vars = v_inputs_short_1
 )
-v_predictions_validation_1 <- predict.lm(lm_valid_1$fit,
-                                         newdata = df_pa_validation)
-mae_validation_1 <- mean(abs(v_predictions_validation_1 - df_pa_validation_complete[, "iNMB"]))
+summary(lm_valid_1$fit)
 
-# Check whether mae decreased
-mae_validation_1 < mae_validation_full # FALSE
-
-# --> continue with v_inputs_short and all parameters
-
-#summary(lm_valid)$adj.r.squared
-#summary(lm_valid_2)$adj.r.squared
-## does not really matter!
-
-# Predict on training set
-v_predictions_training <- predict.lm(lm_valid$fit,
-                                     newdata = df_pa_complete)
+# Remove c_pd and re-fit
+v_inputs_short_2 <- c("p_pfspd",
+                      "p_pfsd",
+                      "p_pdd",
+                      "p_ae",
+                      "rr",
+                      "u_pfs",
+                      "u_pd",
+                      "u_ae",
+                      "c_pfs",
+                      "c_thx"
+                      )
+lm_valid_2 <- fit_lm_metamodel(df = df_pa_complete,
+                               y_var = "iNMB",
+                               x_vars = v_inputs_short_2
+)
+summary(lm_valid_2$fit)
 
 # Predict on validation set
-v_predictions_validation <- predict.lm(lm_valid$fit,
+v_predictions_validation <- predict.lm(lm_valid_2$fit,
                                        newdata = df_pa_validation)
-
-# Calculate mean iNMBs - training set
-mean_inmb_training_set <- mean(df_pa_complete[, "iNMB"])
-mean_inmb_prediction_training   <- mean(v_predictions_training)
-sd_inmb_training_set   <- sd(df_pa_complete[, "iNMB"])
-sd_inmb_prediction_training     <- sd(v_predictions_training)
-
-m_res_training <- matrix(round(c(mean_inmb_training_set,
-                                 mean_inmb_prediction_training,
-                                 sd_inmb_training_set,
-                                 sd_inmb_prediction_training)
-                               ),
-                         byrow = FALSE,
-                         nrow = 2,
-                         ncol = 2,
-                         dimnames = list(
-                           c("Training set", "Metamodel predictions"),
-                           c("Mean iNMB", "SD iNMB")
-                           )
-                         )
 
 # Calculate mean iNMBs - validation set
 mean_inmb_validation_set <- mean(df_pa_validation_complete[, "iNMB"])
@@ -293,28 +267,13 @@ m_fit["MRE", ] <- paste(round(unlist(summary(abs(v_predictions_validation - df_p
 
 p_mre_above_1 <- length(which(abs((v_predictions_validation - df_pa_validation_complete[, "iNMB"]) / df_pa_validation_complete[, "iNMB"]) > 1)) / nrow(df_pa_validation_complete)
 
-# One-way deterministic analyses ----
-## Original model
-df_res_dowsa <- perform_dowsa(df = df_pa_complete,
-                              vars = v_names_inputs,
-                              wtp = 80000)
-tornado_dowsa <- plot_tornado(df = df_res_dowsa,
-                              df_basecase = df_pa_complete,
-                              outcome = "iNMB")
-
-df_res_dowsa$Lower_Bound_relative <- (df_res_dowsa$Lower_Bound - mean(df_pa_validation_complete[, "iNMB"])) / abs(mean(df_pa_validation_complete[, "iNMB"]))
-df_res_dowsa$Upper_Bound_relative <- (df_res_dowsa$Upper_Bound - mean(df_pa_validation_complete[, "iNMB"])) / abs(mean(df_pa_validation_complete[, "iNMB"]))
-
-## Metamodel - full factorial
-df_res_dowsa_meta <- dsa_lm_metamodel(df = df_pa_complete,
-                                      lm_metamodel = lm_valid$fit)
-tornado_dowsa_meta <- plot_tornado(df = df_res_dowsa_meta,
-                                   df_basecase = df_pa_complete,
-                                   outcome = "iNMB")
-
-df_res_dowsa_meta$Lower_Bound_relative <- (df_res_dowsa_meta$Lower_Bound - mean(v_predictions_validation)) / abs(mean(v_predictions_validation))
-df_res_dowsa_meta$Upper_Bound_relative <- (df_res_dowsa_meta$Upper_Bound - mean(v_predictions_validation)) / abs(mean(v_predictions_validation))
-
+# Probabilities cost-effectiveness both metamodel and original validation data ----
+p_ce_original  <- length(which(df_pa_validation_complete[, "iNMB"] > 0)) / length(df_pa_validation_complete[, "iNMB"])
+p_ce_metamodel <-length(which(v_predictions_validation > 0)) / length(v_predictions_validation)
+df_probs <- data.frame(
+  Data = c("Original validation set", "Metamodel prediction"),
+  Probability_costeffectiveness = c(p_ce_original, p_ce_metamodel)
+)
 #--------------#
 #### EXPORT ####
 #--------------#
@@ -325,27 +284,25 @@ write.csv(df_pa_error, file = paste(getwd(), "/data/data_with_nb_error.csv", sep
 write.csv(df_pa_psm_error, file = paste(getwd(), "/data/data_psm_error.csv", sep = ""))
 
 # Tables ----
-## Mean outcomes training set and metamodel
-readr::write_excel_csv2(data.frame(cbind(
-  Stat = rownames(m_res_training),
-  m_res_training)
-), file = paste(getwd(), "/output/iNMB_metamodel_training_set.csv", sep = ""))
+# ## Mean outcomes training set and metamodel
+# readr::write_excel_csv2(data.frame(cbind(
+#   Stat = rownames(m_res_training),
+#   m_res_training)
+# ), file = paste(getwd(), "/output/iNMB_metamodel_training_set.csv", sep = ""))
 
 ## Mean outcomes validation set and metamodel
 readr::write_excel_csv2(data.frame(cbind(
   Stat = rownames(m_res_validation),
   m_res_validation)
 ), file = paste(getwd(), "/output/iNMB_metamodel_validation_set.csv", sep = ""))
+readr::write_excel_csv2(df_probs,
+                        file = paste(getwd(), "/output/P_costeffectiveness_metamodel_validation_set.csv", sep = ""))
 
 ## Fit statistics validation set
 readr::write_excel_csv2(data.frame(cbind(
   Stat = rownames(m_fit),
   m_fit)
   ), file = paste(getwd(), "/output/fit_metamodel_validation_set.csv", sep = ""))
-
-## Tornado diagram results
-readr::write_excel_csv(df_res_dowsa, file = paste(getwd(), "/output/tbl_tornado_validation_set.csv", sep = ""), delim = ";")
-readr::write_excel_csv(df_res_dowsa_meta, file = paste(getwd(), "/output/tbl_tornado_metamodel.csv", sep = ""), delim = ";")
 
 # Predicted versus observed & QQ-plot ----
 png(paste(getwd(), "/figs/Prediction_versus_observation.png", sep = ""),
@@ -370,28 +327,4 @@ qqplot(x = df_pa_validation_complete[, "iNMB"],
        main = "B")
 abline(coef = c(0,1),
        col = "red")
-dev.off()
-
-# Tornado's ----
-png(paste(getwd(), "/figs/tornado_original.png", sep = ""))
-print(tornado_dowsa)
-dev.off()
-
-png(paste(getwd(), "/figs/tornado_meta.png", sep = ""))
-print(tornado_dowsa_meta)
-dev.off()
-
-# Add A & B
-tornado_dowsa <- tornado_dowsa +
-  ggplot2::ggtitle("A")
-
-tornado_dowsa_meta <- tornado_dowsa_meta +
-  ggplot2::ggtitle("B")
-
-png(paste(getwd(), "/figs/tornados_together.png", sep = ""),
-    units = "cm",
-    width = 21,
-    height = 21 / 16 * 9,
-    res = 300)
-tornado_dowsa + tornado_dowsa_meta
 dev.off()
