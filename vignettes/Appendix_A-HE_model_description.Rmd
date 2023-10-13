@@ -14,14 +14,14 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 # Description
-This Appendix describes the probabilistic model inputs and outputs of the mock health economic (HE) models developed to tests the functionalities of the Probabilistic Analysis Check dashBOARD (PACBOARD). The HE models and functions are available at https://github.com/Xa4P/pacheck. The inputs and outputs value are stored within the `df_pa` and `df_pa_psm` objects of the `pacheck` package. The `df_pa` and `df_pa_psm` objects were obtained by running the `01-data_preparation.R` R script. The `df_pa` object contains the probabilistic inputs and outputs obtained with a health state transition model (HSTM) and the `df_pa_psm` object contains the probabilistic inputs and outputs obtained with a partitioned survival model (PSM).   
+This Appendix describes the probabilistic model inputs and outputs of the mock health economic (HE) models developed to tests the functionalities of the Probabilistic Analysis Check dashBOARD (PACBOARD). The HE models and functions are available at https://github.com/Xa4P/pacheck. The input and output values are stored within the `df_pa` and `df_pa_psm` objects of the `pacheck` package. The `df_pa` and `df_pa_psm` objects were obtained by running the `01-data_preparation.R` R script. The `df_pa` object contains the probabilistic inputs and outputs obtained with a health state transition model (HSTM) and the `df_pa_psm` object contains the probabilistic inputs and outputs obtained with a partitioned survival model (PSM).   
 
 # Model description  
-Both HE model compares two strategies, called "intervention" and "comparator" for the treatment of mestatatic breast cancer. We used a yearly cycle and a time horizon of 30 years. We did not apply half cycle correction.  
-The "intervention" strategy incurs treatment costs and reduces the transition probability from PFS to PD compared to the "comparator" strategy in the HSTM and it reduces the probability of progression and death in the PSM. In addition, there is a chance of experiencing adverse events in the intervention strategy which incurs additional costs and utility decrement once at the beginning of both HE models. The "comparator" strategy entails "doing nothing" and does not incur any treatment costs and adverse event-related utility decrement and costs.  
+Both HE models compare two strategies, called "intervention" and "comparator" for the treatment of metastatic breast cancer. We used a yearly cycle and a time horizon of 30 years. We did not apply half cycle correction.  
+The "intervention" strategy incurs treatment costs and reduces the transition probability from "progression free" (PF) to "progressed disease" (PD) compared to the "comparator" strategy in the HSTM and it reduces the probability of progression and death in the PSM. In addition, there is a chance of experiencing adverse events in the intervention strategy which incurs additional costs and utility decrement once at the beginning of both HE models. The "comparator" strategy entails "doing nothing" and does not incur any treatment costs and adverse event-related utility decrement or costs.  
 
 ## Model structure & assumptions
-A cohort-based HSTM and PSM with three health states were developed. The health states were: "Progression-free" (PF), "Progressed disease" (PD), and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
+A cohort-based HSTM and PSM with three health states were developed. The health states were: PF, D, and "Dead" (D). All individuals of the cohort start in the PF health state and can progress to the PD health state or to the D health state. Once individuals are in the PD health state, they cannot transit back to the PF health state but they can transit to the D health state. The D health state is the absorbing health state. The model structure is provided below.  
 
 ```{r mod_structure, include = FALSE}
 # diagram <- "
@@ -115,7 +115,7 @@ A probabilistic analysis of 10,000 iterations was performed through Monte Carlo 
 - `t_ly_pfs_d_int`, `t_ly_pd_d_int`, `t_ly_pfs_d_comp` & `t_ly_pd_d_comp`: discounted life years per health state for each strategy  
 - `t_qaly_pfs_d_int`, `t_qaly_pd_d_int`, `t_qaly_pfs_d_comp` & `t_qaly_pd_d_comp`: discounted quality-adjusted life years per health state for each strategy  
 - `t_costs_pfs_d_int`, `t_costs_pd_d_int`, `t_costs_pfs_d_comp` & `t_costs_pd_d_comp`: discounted costs per health state for each strategy  
-- `t_qaly_ae_int`: total QALY decrement associated with the occurrence of adverse events  
+- `t_qaly_ae_int`: total quality-adjusted life years decrement associated with the occurrence of adverse events  
 - `t_costs_ae_int`: total costs associated with the occurrence of adverse events  
 - `inc_ly`: incremental discounted life years of the intervention versus the comparator   
 - `inc_qaly`: incremental discounted quality-adjusted life years of the intervention versus the comparator   
@@ -126,13 +126,13 @@ The probabilistic analysis is performed using a for loop and the function `perfo
 The intervention results in `r round(mean(df_pa$inc_ly), 2)` incremental life years, `r round(mean(df_pa$inc_qaly), 2)` incremental quality-adjusted life years, and `r paste("\u20ac", format(round(mean(df_pa$inc_costs), 0), scientific = FALSE, big.mark = ","))` incremental costs versus the comparator. The incremental cost effectiveness ratio of the intervention versus the comparator is `r paste("\u20ac", format(round(mean(df_pa$inc_costs) / mean(df_pa$inc_qaly), 0), scientific = FALSE, big.mark = ","))` per QALY.  
 The probabilistic results of this HE model are provided in the table below and are plotted in an incremental cost-effectiveness plane (displaying a willingness to pay threshold line of `r paste("\u20ac")`80,000 per QALY) and a cost-effectiveness acceptability curve.  
 
-| Strategy     | Total LY | Total QALY | Total costs | Inc. QALY | Inc. costs | ICER per QALY |
+| Strategy     | Total LYs | Total QALYs | Total costs | Inc. QALYs | Inc. costs | ICER per QALYs |
 |:-------------|:---------|:-----------|:------------|:----------|:-----------|:--------------|
 | Comparator   |`r round(mean(df_pa$t_ly_d_comp), 2)`|`r round(mean(df_pa$t_qaly_d_comp), 2)`|`r paste("\u20ac", format(round(mean(df_pa$t_costs_d_comp), 0), scientific = FALSE, big.mark = ","))`| - | - | - |
 | Intervention |`r round(mean(df_pa$t_ly_d_int), 2)`|`r round(mean(df_pa$t_qaly_d_int), 2)`|`r paste("\u20ac", format(round(mean(df_pa$t_costs_d_int), 0), scientific = FALSE, big.mark = ","))`|`r round(mean(df_pa$inc_qaly), 2)`|`r paste("\u20ac", format(round(mean(df_pa$inc_costs), 0), scientific = FALSE, big.mark = ","))`|`r paste("\u20ac", format(round(mean(df_pa$inc_costs) / mean(df_pa$inc_qaly), 0), scientific = FALSE, big.mark = ","))`|
   : Overview of the results of the HE model  
 
-Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. = incremental; LY = life years; QALY = quality-adjusted life years  
+Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. = incremental; LYs = life years; QALYs = quality-adjusted life years  
 
 \newpage
 ```{r ice_plot}
@@ -164,13 +164,13 @@ plot_ceac(df = df_ceac_p,
 The intervention results in `r round(mean(df_pa_psm$inc_ly), 2)` incremental life years, `r round(mean(df_pa_psm$inc_qaly), 2)` incremental quality-adjusted life years, and `r paste("\u20ac", format(round(mean(df_pa_psm$inc_costs), 0), scientific = FALSE, big.mark = ","))` incremental costs versus the comparator. The incremental cost effectiveness ratio of the intervention versus the comparator is `r paste("\u20ac", format(round(mean(df_pa_psm$inc_costs) / mean(df_pa_psm$inc_qaly), 0), scientific = FALSE, big.mark = ","))` per QALY.  
 The probabilistic results of this HE model are provided in the table below and are plotted in an incremental cost-effectiveness plane (displaying a willingness to pay threshold line of `r paste("\u20ac")`80,000 per QALY) and a cost-effectiveness acceptability curve.  
 
-| Strategy     | Total LY | Total QALY | Total costs | Inc. QALY | Inc. costs | ICER per QALY |
+| Strategy     | Total LYs | Total QALYs | Total costs | Inc. QALYs | Inc. costs | ICER per QALYs |
 |:-------------|:---------|:-----------|:------------|:----------|:-----------|:--------------|
 | Comparator   |`r round(mean(df_pa_psm$t_ly_d_comp), 2)`|`r round(mean(df_pa_psm$t_qaly_d_comp), 2)`|`r paste("\u20ac", format(round(mean(df_pa_psm$t_costs_d_comp), 0), scientific = FALSE, big.mark = ","))`| - | - | - |
 | Intervention |`r round(mean(df_pa_psm$t_ly_d_int), 2)`|`r round(mean(df_pa_psm$t_qaly_d_int), 2)`|`r paste("\u20ac", format(round(mean(df_pa_psm$t_costs_d_int), 0), scientific = FALSE, big.mark = ","))`|`r round(mean(df_pa_psm$inc_qaly), 2)`|`r paste("\u20ac", format(round(mean(df_pa_psm$inc_costs), 0), scientific = FALSE, big.mark = ","))`|`r paste("\u20ac", format(round(mean(df_pa_psm$inc_costs) / mean(df_pa_psm$inc_qaly), 0), scientific = FALSE, big.mark = ","))`|
   : Overview of the results of the HE model  
 
-Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. = incremental; LY = life years; QALY = quality-adjusted life years  
+Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. = incremental; LYs = life years; QALYs = quality-adjusted life years  
 
 \newpage
 ```{r ice_plot_psm}
