@@ -9,7 +9,7 @@ perform_dowsa(df, vars, wtp = 120000)
 \arguments{
 \item{df}{a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.}
 
-\item{vars}{a vector of strings. Contains the name of the variables for which to perform thedeterministic one-way sensitivity analysis.}
+\item{vars}{a vector of strings. Contains the name of the variables for which to perform the deterministic one-way sensitivity analysis.}
 
 \item{wtp}{numeric. The willingness to pay per QALY in euros. Default is 120,000 euros per QALY.}
 }
@@ -23,6 +23,5 @@ This function performs the deterministic one-way sensitivity analyses (DOWSA) us
 # Perform the deterministic one-way sensitivity analyses for a selection of parameters
 data(df_pa)
 df_res_dowsa <- perform_dowsa(df = df_pa,
-                              vars = c("rr", "c_pfs", "p_pd", "u_pfs", "u_pd"))
-
+                              vars = c("rr", "c_pfs", "p_pfsd", "u_pfs", "u_pd"))
 }

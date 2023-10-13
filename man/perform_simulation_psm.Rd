@@ -7,9 +7,9 @@
 perform_simulation_psm(l_params, min_fct = TRUE)
 }
 \arguments{
-\item{l_params}{list. List of inputs of the health economic model}
+\item{l_params}{list. List of inputs of the health economic model.}
 
-\item{min_fct}{logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE}
+\item{min_fct}{logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE.}
 }
 \value{
 A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
@@ -21,5 +21,4 @@ This function performs the simulation of the partitioned survival health economi
 # Perform the simulation using the deterministic model inputs
 l_inputs_det <- generate_det_inputs()
 v_results_det <- perform_simulation(l_inputs_det)
-
 }

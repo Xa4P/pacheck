@@ -1,15 +1,10 @@
 #' Generate deterministic model inputs.
-#'
 #' @description This function generates the deterministic model inputs for the example health economic model developed to test the functionalities of the package.
-#'
-#' @return A list.
-#'
+#' @return A list. A description of the inputs parameters is available in the documentation of the \code{\link{df_pa}} dataframe.
 #' @examples
 #' # Generating deterministic model inputs and storing them in an object.
 #' l_inputs_det <- generate_det_inputs()
-#'
 #' @export
-#'
 generate_det_inputs <- function() {
 
    l_output = list(
@@ -42,25 +37,28 @@ generate_det_inputs <- function() {
 }
 
 #' Generate probabilistic model inputs.
-#'
 #' @description This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
-#'
 #' @param n_sim integer. Number of probabilistic value to draw for each model input. Default is 10,000.
 #' @param sd_var numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20\%).
 #' @param seed_num integer. The seed number to use when drawing the probabilistic values. Default is 452.
-#'
-#' @return A list.
-#'
+#' @return A dataframe. A description of the variables of the returned dataframe is available in the documentation of the \code{\link{df_pa}} dataframe.
 #' @examples
 #' # Generating deterministic model inputs and storing them in an object.
 #' df_inputs_prob <- generate_pa_inputs()
-#'
+#' @import assertthat
+#' @import glue
 #' @import gtools
 #' @export
-#'
 generate_pa_inputs <- function(n_sim = 10000,
                                sd_var = 0.2,
                                seed_num = 452) {
+  # Checks
+  assertthat::assert_that(is.numeric(c(n_sim, sd_var, seed_num)), msg = "One of the argument of the function is not numeric")
+  n_sim_raw <- n_sim
+  n_sim <- as.integer(n_sim) # convert n_sim to integer to avoid errors with numbers of iterations which are not rounded to an integer.
+  if(n_sim != n_sim_raw){
+    warning(glue::glue("'n_sim' was not an integer and has been rounded to {n_sim}"))
+  }
 
   # Set seed
   set.seed(seed_num)
@@ -116,21 +114,20 @@ generate_pa_inputs <- function(n_sim = 10000,
 }
 
 #' Perform the health economic simulation.
-#'
 #' @description This function performs the simulation of the health economic model developed to test the functionalities of the package.
-#'
 #' @param l_params list. List of inputs of the health economic model
-#'
 #' @return A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
-#'
 #' @examples
 #' # Perform the simulation using the deterministic model inputs
 #' l_inputs_det <- generate_det_inputs()
 #' v_results_det <- perform_simulation(l_inputs_det)
-#'
+#' @import assertthat
 #' @export
 perform_simulation <- function(l_params) {
+  # Checks
+  assertthat::assert_that(is.list(l_params), msg = "'l_params' is not a list.")
 
+  # Simulation
   with(as.list(l_params), {
 
     # Setting parameters
@@ -146,6 +143,7 @@ perform_simulation <- function(l_params) {
     v_dw_e <- 1 / (1 + r_d_effects) ^ c(1:n_cycles)
     v_dw_c <- 1 / (1 + r_d_costs) ^ c(1:n_cycles)
 
+    # Fill in transition matrices
     m_tp_comp <- matrix(0,
                    ncol = n_hs,
                    nrow = n_hs,
@@ -164,6 +162,7 @@ perform_simulation <- function(l_params) {
     m_tp_int["PFS", "PD"]    <- 1 - exp(log(1 - p_pfspd) * rr)
     m_tp_int["PFS", "PFS"]   <- 1 - m_tp_int["PFS", "PD"] - m_tp_int["PFS", "D"]
 
+    # Initialise cohort simulation
     m_hs_comp <- m_hs_int <- matrix(0,
                                     nrow = n_cycles + 1,
                                     ncol = length(v_names_hs),
@@ -198,16 +197,13 @@ perform_simulation <- function(l_params) {
     v_c_comp <- c("PFS" = c_pfs,
                   "PD" = c_pd,
                   "D" = c_d)
-
     v_c_int <- c("PFS" = c_pfs + c_thx,
                  "PD" = c_pd,
                  "D" = c_d)
-
     v_t_c_comp <- m_hs_comp[2:nrow(m_hs_comp),] %*% v_c_comp
     v_t_c_int  <- m_hs_int[2:nrow(m_hs_int),] %*% v_c_int
 
     # Calculate discounted output
-
     ## Life years
     n_t_ly_comp_d <- t(v_t_ly_comp) %*% v_dw_e
     n_t_ly_int_d  <- t(v_t_ly_int) %*% v_dw_e
@@ -218,7 +214,6 @@ perform_simulation <- function(l_params) {
 
     ## QALYs
     t_qaly_ae_int <- n_ind * p_ae * u_ae # total qaly loss adverse events
-
     n_t_qaly_comp_d <- t(v_t_qaly_comp) %*% v_dw_e
     n_t_qaly_int_d  <- t(v_t_qaly_int) %*% v_dw_e - t_qaly_ae_int
     t_qaly_pfs_comp <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 1] * u_pfs) %*% v_dw_e)
@@ -228,7 +223,6 @@ perform_simulation <- function(l_params) {
 
     ## Costs
     t_c_ae_int <- n_ind * p_ae * c_ae # total costs adverse events
-
     n_t_c_comp_d <- t(v_t_c_comp) %*% v_dw_c
     n_t_c_int_d  <- (t(v_t_c_int) %*% v_dw_c) + t_c_ae_int
     t_c_pfs_comp <- sum(t(m_hs_comp[2:nrow(m_hs_comp), 1] * c_pfs) %*% v_dw_c)
@@ -265,32 +259,33 @@ perform_simulation <- function(l_params) {
                t_costs_ae_int = t_c_ae_int / n_ind
     )
 
+    # Export
     return(v_res)
-
-  }
+    }
   )
 }
 
 #' Perform deterministic one-way sensitivity analyses using probabilistic inputs and outputs.
-#'
 #' @description This function performs the deterministic one-way sensitivity analyses (DOWSA) using probabilistic inputs and outputs for the health economic model developed to test the package. The outcome of the DOWSA is the incremental net monetary benefit.
-#'
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
-#' @param vars a vector of strings. Contains the name of the variables for which to perform thedeterministic one-way sensitivity analysis.
+#' @param vars a vector of strings. Contains the name of the variables for which to perform the deterministic one-way sensitivity analysis.
 #' @param wtp numeric. The willingness to pay per QALY in euros. Default is 120,000 euros per QALY.
-#'
 #' @return A dataframe. The ouctome of the deterministic one-way sensitivity analyses is the iNMB by default.
-#'
 #' @examples
 #' # Perform the deterministic one-way sensitivity analyses for a selection of parameters
 #' data(df_pa)
 #' df_res_dowsa <- perform_dowsa(df = df_pa,
-#'                               vars = c("rr", "c_pfs", "p_pd", "u_pfs", "u_pd"))
-#'
+#'                               vars = c("rr", "c_pfs", "p_pfsd", "u_pfs", "u_pd"))
+#' @import assertthat
 #' @export
 perform_dowsa <- function(df,
                           vars,
                           wtp = 120000) {
+  # Checks
+  assertthat::assert_that(all(vars %in% names(df_pa)),
+                          msg = "At least one variable of 'vars' is not included in the dataframe")
+  assertthat::assert_that(is.numeric(wtp),
+                          msg = "'wtp' should be a numeric value")
 
   # Determine lower and upper bound using the probabilistic outcomes
   df_dsa <- data.frame(
@@ -300,7 +295,7 @@ perform_dowsa <- function(df,
     )
   )
 
-  # Initiate matrices to store results
+  # Initialise matrices to store results
   m_low <- matrix(NA,
                   ncol = 2,
                   nrow = ncol(df_dsa),
@@ -361,28 +356,31 @@ perform_dowsa <- function(df,
 }
 
 #' Generate probabilistic model inputs for partitioned survival model.
-#'
 #' @description This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
-#'
 #' @param n_sim integer. Number of probabilistic value to draw for each model input. Default is 10,000.
 #' @param sd_var numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20\%).
 #' @param seed_num integer. The seed number to use when drawing the probabilistic values. Default is 452.
-#'
-#' @return A list.
-#'
+#' @return A dataframe. A description of the returned dataframe is available in the documentation of the \code{\link{df_pa_psm}} dataframe.
 #' @examples
 #' # Generating deterministic model inputs and storing them in an object.
-#' df_inputs_prob <- generate_pa_inputs()
-#'
-#' @import gtools
-#' @import flexsurv
+#' df_inputs_prob <- generate_pa_inputs_psm()
+#' @import assertthat
 #' @import boot
+#' @import glue
+#' @import flexsurv
+#' @import gtools
 #' @import simsurv
 #' @export
-#'
 generate_pa_inputs_psm <- function(n_sim = 10000,
                                    sd_var = 0.2,
                                    seed_num = 452) {
+  # Checks
+  assertthat::assert_that(is.numeric(c(n_sim, sd_var, seed_num)), msg = "One of the argument of the function is not numeric")
+  n_sim_raw <- n_sim
+  n_sim <- as.integer(n_sim) # convert n_sim to integer to avoid errors with numbers of iterations which are not rounded to an integer.
+  if(n_sim != n_sim_raw){
+    warning(glue::glue("'n_sim' was not an integer and has been rounded to {n_sim}"))
+  }
 
   # Set seed
   set.seed(seed_num)
@@ -472,7 +470,6 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
   df_output = data.frame(
 
     ## Rates & probabilities
-
     p_ae = rbeta(n_sim, 5, 95),
 
     ## Surv model parameters
@@ -499,27 +496,29 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
     c_thx = rnorm(n_sim, 10000, 100),
     c_ae = rgamma(n_sim, estimate_params_gamma(500, 500 * sd_var)[[1]], estimate_params_gamma(500, 500 * sd_var)[[2]])
   )
+
+  # Export
   return(df_output)
 }
 
 #' Perform the health economic simulation using partitioned survival model.
-#'
 #' @description This function performs the simulation of the partitioned survival health economic model developed to test the functionalities of the package.
-#'
-#' @param l_params list. List of inputs of the health economic model
-#' @param min_fct logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE
-#'
+#' @param l_params list. List of inputs of the health economic model.
+#' @param min_fct logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE.
 #' @return A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
-#'
 #' @examples
 #' # Perform the simulation using the deterministic model inputs
 #' l_inputs_det <- generate_det_inputs()
 #' v_results_det <- perform_simulation(l_inputs_det)
-#'
+#' @import assertthat
 #' @export
 perform_simulation_psm <- function(l_params,
                                    min_fct = TRUE) {
+  # Checks
+  assertthat::assert_that(is.list(l_params), msg = "'l_params' is not a list.")
+  assertthat::assert_that(is.logical(min_fct), msg = "'min_fct' should be a logical value (TRUE/FALSE).")
 
+  # Simulation model
   with(as.list(l_params), {
 
     # Setting parameters
@@ -660,8 +659,8 @@ perform_simulation_psm <- function(l_params,
                t_costs_ae_int = t_c_ae_int / n_ind
     )
 
+    # Export
     return(v_res)
-
-  }
+    }
   )
-}
+  }

@@ -14,13 +14,12 @@ generate_pa_inputs_psm(n_sim = 10000, sd_var = 0.2, seed_num = 452)
 \item{seed_num}{integer. The seed number to use when drawing the probabilistic values. Default is 452.}
 }
 \value{
-A list.
+A dataframe. A description of the returned dataframe is available in the documentation of the \code{\link{df_pa_psm}} dataframe.
 }
 \description{
 This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
 }
 \examples{
 # Generating deterministic model inputs and storing them in an object.
-df_inputs_prob <- generate_pa_inputs()
-
+df_inputs_prob <- generate_pa_inputs_psm()
 }

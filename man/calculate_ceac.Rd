@@ -36,7 +36,8 @@ A dataframe with three columns: "WTP_threshold", "Prob_int", "Prob_comp":
 This function calculates the probabilities that each strategy is the most cost effective.
 }
 \examples{
-# Calculate probabilities of cost effectiveness using the example dataframe, for willlingness-to-pay thresholds of 0 to 50,0000 euros.
+# Calculate probabilities of cost effectiveness using the example dataframe,
+# for willlingness-to-pay thresholds of 0 to 50,0000 euros.
 data("df_pa")
 calculate_ceac(df_pa,
                e_int = "t_qaly_d_int",

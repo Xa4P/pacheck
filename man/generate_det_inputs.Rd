@@ -7,7 +7,7 @@
 generate_det_inputs()
 }
 \value{
-A list.
+A list. A description of the inputs parameters is available in the documentation of the \code{\link{df_pa}} dataframe.
 }
 \description{
 This function generates the deterministic model inputs for the example health economic model developed to test the functionalities of the package.
@@ -15,5 +15,4 @@ This function generates the deterministic model inputs for the example health ec
 \examples{
 # Generating deterministic model inputs and storing them in an object.
 l_inputs_det <- generate_det_inputs()
-
 }

@@ -19,5 +19,4 @@ This function performs the simulation of the health economic model developed to 
 # Perform the simulation using the deterministic model inputs
 l_inputs_det <- generate_det_inputs()
 v_results_det <- perform_simulation(l_inputs_det)
-
 }
