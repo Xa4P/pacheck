@@ -9,7 +9,7 @@ vis_1_param(
   param = NULL,
   binwidth = NULL,
   type = "histogram",
-  dist = c("lnorm", "norm", "beta"),
+  dist = c("lnorm", "norm", "beta", "gamma"),
   user_dist = NULL,
   user_param_1 = NULL,
   user_param_2 = NULL,
@@ -36,7 +36,7 @@ vis_1_param(
 \item{user_mean}{numeric value. mean value to plot on the graph. Default is NULL}
 }
 \value{
-A ggplot graph.
+A ggplot2 graph.
 }
 \description{
 This function plots the distribution of a single parameter.
@@ -45,8 +45,7 @@ This function plots the distribution of a single parameter.
 The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). TO CHECK --> ask for mean and SD/SE for the user-defined distribution???
 }
 \examples{
-# Generating histogram using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
+# Generating histogram for the costs of progression-free health state, bins of 50 euros
 data(df_pa)
 vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
-
 }

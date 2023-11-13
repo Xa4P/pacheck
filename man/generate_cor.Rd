@@ -4,12 +4,12 @@
 \alias{generate_cor}
 \title{Generate correlation matrix}
 \usage{
-generate_cor(df, v_params = "ALL")
+generate_cor(df, vars = NULL)
 }
 \arguments{
-\item{df}{a dataframe.}
+\item{df}{a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.}
 
-\item{v_params}{character or vector of character. Vector of names of the inputs and outputs for which to return the correlation matrix. Default is "ALL" which returns the correlation matrix for all inputs and outputs in the dataframe.}
+\item{vars}{a vector of strings. Contains the name of the variables to include in the correlation matrix. Default is NULL meaning all variables will be included.}
 }
 \value{
 A table with summary data for selected inputs and outputs.
@@ -21,5 +21,4 @@ This function generates the correlation matrix of input and output values of a p
 # Generating summary data of all inputs using the example dataframe
 data(df_pa)
 generate_cor(df_pa)
-
 }

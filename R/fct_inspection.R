@@ -1,58 +1,44 @@
 #' Generate summary statistics
-#'
 #' @description This function generates summary statistics of input and output values of a probabilistic analysis.
-#'
-#' @param df a dataframe.
-#' @param v_params character or vector of character. Vector of names of the variables of `df` for which to return summary statistics. Default is NULL which returns summary values for all inputs and outputs in the dataframe.
-#' @param x character string. Name of the first variable used to select a range of outcomes.
-#' @param y character string. Name of the second variable used to select a range of outcomes.
-#' @param xmin numeric. Minimum value the `x` variable can have (inclusive).
-#' @param xmax numeric. Maximum value the `x` variable can have (inclusive).
-#' @param ymin numeric. Minimum value the `y` variable can have (inclusive).
-#' @param ymax numeric. Maximum value the `y` variable can have (inclusive).
-#'
-#' @return A dataframe with summary data for the selected variables.
-#'
+#' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
+#' @param vars a vector of strings. Contains the name of the variables to include in the summary statistics table. Default is NULL meaning all variables will be included.#' @return A dataframe with summary data for the selected variables. The returned summary statistics are:
+#' \itemize{
+#'   \item Mean
+#'   \item Standard deviation
+#'   \item 2.5th percentile
+#'   \item 97.5th percentile
+#'   \item Minimum
+#'   \item Maximum
+#'   \item Median
+#'   \item Skewness
+#'   \item Kurtosis
+#' }
 #' @examples
 #' # Generating summary data of all inputs using the example dataframe
 #' data(df_pa)
 #' df_summary <- generate_sum_stats(df_pa)
-#'
+#' @import assertthat
 #' @import moments
 #' @export
 generate_sum_stats <- function(df,
-                               v_params = NULL,
-                               x = NULL,
-                               y = NULL,
-                               xmax = max(df[, x]),
-                               xmin = min(df[, x]),
-                               ymax = max(df[, y]),
-                               ymin = min(df[, y])){
+                               vars = NULL
+                               ){
+  # Checks
+  if(!is.null(vars)){
+    assertthat::assert_that(all(vars %in% names(df_pa)),
+                            msg = "At least one variable of 'vars' is not included in the dataframe")
+  }
 
+  # Initiation dataframes
   df_out <- df_select <- data.frame()
-
-  if(!is.null(x)){
-    if(xmax < xmin){
-      stop("xmax lower than xmin")
-    }
-    df <- df[which(df[, x] <= xmax &
-                     df[, x] >= xmin), ]
-  }
-  if(!is.null(y)){
-    if(ymax < ymin){
-      stop("ymax lower than ymin")
-    }
-    df <- df[which(df[, y] <= ymax &
-                     df[, y] >= ymin), ]
-  }
-
-  if(!is.null(v_params)){
-    df_select <- data.frame(df[, v_params])
+  if(!is.null(vars)){
+    df_select <- data.frame(df[, vars])
   } else {
     df_select <- data.frame(df)
   }
 
-  df_out <- data.frame(Parameter = if(length(v_params) == 1) { v_params } else{ names(df_select) },
+  # Calculate summary statistics
+  df_out <- data.frame(Parameter = if(length(vars) == 1) { vars } else{ names(df_select) },
                        Mean = apply(df_select, 2, mean),
                        SD = apply(df_select, 2, sd),
                        Percentile_2.5th = apply(df_select, 2, function(x) quantile(x, 0.025)),
@@ -63,46 +49,49 @@ generate_sum_stats <- function(df,
                        Skewness = apply(df_select, 2, moments::skewness),
                        Kurtosis = apply(df_select, 2, moments::kurtosis)
                        )
-
   df_out[, 2:ncol(df_out)] <- apply(df_out[, 2:ncol(df_out)], 2, function(x) round(x, 3))
   rownames(df_out) <- NULL
 
+  # Export
   return(df_out)
 }
 
 #' Generate correlation matrix
-#'
 #' @description This function generates the correlation matrix of input and output values of a probabilistic analysis.
-#'
-#' @param df a dataframe.
-#' @param v_params character or vector of character. Vector of names of the inputs and outputs for which to return the correlation matrix. Default is "ALL" which returns the correlation matrix for all inputs and outputs in the dataframe.
-#'
+#' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
+#' @param vars a vector of strings. Contains the name of the variables to include in the correlation matrix. Default is NULL meaning all variables will be included.
 #' @return A table with summary data for selected inputs and outputs.
-#'
 #' @examples
 #' # Generating summary data of all inputs using the example dataframe
 #' data(df_pa)
 #' generate_cor(df_pa)
-#'
+#' @import assertthat
 #' @export
-#'
-#'
 generate_cor <- function(df,
-                         v_params = "ALL"){ # doesn't work with 1 parameter!
-  df <- if(v_params == "ALL") {
+                         vars = NULL){
+  # Checks
+  if(!is.null(vars)) {
+    assertthat::assert_that(length(vars) > 1,
+                            msg = "There should be two or more variables mentioned in 'vars'"
+                            )
+  }
+
+  # Select variables
+  df <- if(is.null(vars)) {
     df
   } else {
-    data.frame(df[, v_params])
+    data.frame(df[, vars])
   }
+
+  # Correlation
   df_out <- cor(df)
+
+  # Export
   return(df_out)
 }
 
-
 #' Visualise the distribution of a single parameter
-#'
 #' @description This function plots the distribution of a single parameter.
-#'
 #' @param df a dataframe.
 #' @param param character. Name of variable of the dataframe for which the distribution should be plotted.
 #' @param binwidth numeric. Determine the width of the bins to use, only applied in combination with "histogram". Default is 30 bins.
@@ -112,62 +101,119 @@ generate_cor <- function(df,
 #' @param user_param_1 character string. First parameter of the user-defined distribution to fit.
 #' @param user_param_2 character string. Second parameter of the user-defined distribution to fit.
 #' @param user_mean numeric value. mean value to plot on the graph. Default is NULL
-#'
 #' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). TO CHECK --> ask for mean and SD/SE for the user-defined distribution???
-#'
-#' @return A ggplot graph.
-#'
+#' @return A ggplot2 graph.
 #' @examples
-#' # Generating histogram using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
+#' # Generating histogram for the costs of progression-free health state, bins of 50 euros
 #' data(df_pa)
 #' vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
-#'
+#' @import assertthat
 #' @import fitdistrplus
 #' @import ggplot2
-#'
 #' @export
 vis_1_param <- function(df,
                         param = NULL,
                         binwidth = NULL,
                         type = "histogram",
-                        dist = c("lnorm", "norm", "beta"),
+                        dist = c("lnorm", "norm", "beta", "gamma"),
                         user_dist = NULL,
                         user_param_1 = NULL,
                         user_param_2 = NULL,
                         user_mean = NULL) {
-  # THIS FUNCTION COULD ALSO USE THE `denscomp` fct of fitdistrplus...
+  # Checks
+  assertthat::assert_that(length(param) == 1,
+                          msg = "Multiple variables provided for 'param' argument. Please provide only one variable.")
+  if(!is.null(binwidth)){
+    assertthat::assert_that(length(binwidth) == 1,
+                            msg = "Multiple values provided for 'binwidth' argument. Please provide only one value.")
+    assertthat::assert_that(is.numeric(binwidth),
+                            msg = "'binwidth' is not a numeric value. Please provide a numeric value.")
+  }
+  assertthat::assert_that(type %in% c("histogram", "density"),
+                          msg = "'type' argument is invalid. 'type' should be 'histogram' or 'density'.")
+  assertthat::assert_that(all(dist %in% c("lnorm", "norm", "beta", "gamma")),
+                          msg = "'dist' argument is invalid. 'dist' should be 'lnorm', 'norm', 'beta', or 'gamma'.")
+  if(!is.null(user_dist)){
+    assertthat::assert_that(length(user_dist) == 1,
+                            msg = "Multiple values provided for 'user_dist' argument. Please provide only one value.")
+    assertthat::assert_that(user_dist %in% c("lnorm", "norm", "beta", "gamma"),
+                            msg = "'user_dist' argument is invalid. 'user_dist' should be 'lnorm', 'norm', 'beta', or 'gamma'.")
+  }
+  if(!is.null(user_param_1)){
+    assertthat::assert_that(is.numeric(user_param_1),
+                            msg = "'user_param_1' is not a numeric value. Please provide a numeric value.")
+  }
+  if (!is.null(user_param_2)) {
+    assertthat::assert_that(is.numeric(user_param_2),
+                            msg = "'user_param_2' is not a numeric value. Please provide a numeric value.")
+  }
+  if(!is.null(user_mean)) {
+    assertthat::assert_that(is.numeric(user_mean),
+                            msg = "'user_mean' is not a numeric value. Please provide a numeric value.")
+  }
 
-  if("beta" %in% dist) {beta_dist <- fitdistrplus::fitdist(df[, param], distr = "beta")}
-  if("gamma" %in% dist) {gamma_dist <- fitdistrplus::fitdist(df[, param], distr = "gamma")}
-  if("norm" %in% dist) {norm_dist <- fitdistrplus::fitdist(df[, param], distr = "norm")}
-  if("lnorm" %in% dist) {lnorm_dist <- fitdistrplus::fitdist(df[, param], distr = "lnorm")}
-
+  # Fit distributions - only in case the density is plotted, because distributions not plotted on histogram
+  if (type == "density") {
+    if ("beta" %in% dist)  {
+      if (any(df[, param] > 1) |
+          any(df[, param] < 0)) {
+        warning(
+          "Beta distribution not fitted to the parameter values because the variable contains values below 0 and/or above 1.",
+          immediate. = TRUE
+        )
+      } else {
+        beta_dist  <- fitdistrplus::fitdist(df[, param], distr = "beta")
+      }
+    }
+    if ("gamma" %in% dist) {
+      if (any(df[, param] <= 0)) {
+        warning(
+          "Gamma distribution not fitted to the parameter values because the variable contains values below or equal to 0.",
+          immediate. = TRUE
+        )
+      } else {
+        gamma_dist <- fitdistrplus::fitdist(df[, param], distr = "gamma")
+      }
+    }
+    if ("norm" %in% dist)  {
+      norm_dist  <- fitdistrplus::fitdist(df[, param], distr = "norm")
+    }
+    if ("lnorm" %in% dist) {
+      if (any(df[, param] <= 0)) {
+        warning(
+          "Log-normal distribution not fitted to the parameter values because the variable contains values below or equal to 0.",
+          immediate. = TRUE
+        )
+      } else {
+        lnorm_dist <- fitdistrplus::fitdist(df[, param], distr = "lnorm")
+      }
+    }
+  }
+  # Defining legend
   df_legend <- data.frame(
     dist_call = c("user", "norm", "beta", "gamma", "lnorm"),
     col = c("black", "orange", "red", "blue", "green")
   )
-
   if(!is.null(user_dist)) {
     dist <- c("user", dist)
   }
-
-
   df_legend <- df_legend[which(df_legend$dist_call %in% dist),]
   df_legend <- df_legend[order(df_legend$dist_call),]
 
+  # Plot
   p <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param)) +
     ggplot2::theme_bw()
-
   if(type == "histogram") {
     p_out <- p + ggplot2::geom_histogram(binwidth = binwidth)
-
   } else if(type == "density") {
     p_out <- p +
       ggplot2::geom_histogram(ggplot2::aes(y = ..density..),
                               colour = "grey",
-                              fill = "lightgrey")
-
-    if("beta" %in% dist) {
+                              fill = "lightgrey",
+                              binwidth = binwidth)
+    if("beta" %in% dist &
+       all(df[, param] <= 1) &
+       all(df[, param] >= 0)) {
       df_beta <- data.frame(
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
         y = dbeta(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), beta_dist$estimate[[1]], beta_dist$estimate[[2]]))
@@ -178,8 +224,8 @@ vis_1_param <- function(df,
                                                        colour = "Beta")
       )
     }
-
-    if("gamma" %in% dist) {
+    if("gamma" %in% dist &
+       all(df[, param] > 0)) {
       df_gamma <- data.frame(
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
         y = dgamma(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), gamma_dist$estimate[[1]], gamma_dist$estimate[[2]]))
@@ -190,7 +236,6 @@ vis_1_param <- function(df,
                                                        colour = "Gamma")
       )
     }
-
     if("norm" %in% dist) {
       df_norm <- data.frame(
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
@@ -202,8 +247,8 @@ vis_1_param <- function(df,
                                           colour = "Normal")
                                           )
     }
-
-    if("lnorm" %in% dist) {
+    if("lnorm" %in% dist &
+       all(df[, param] > 0)) {
       df_lnorm <- data.frame(
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
         y = dlnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), lnorm_dist$estimate[[1]], lnorm_dist$estimate[[2]]))
@@ -214,7 +259,6 @@ vis_1_param <- function(df,
                                                        colour = "Lognormal")
                                           )
     }
-
     if("user" %in% dist) {
       df_user <- data.frame(
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
@@ -230,7 +274,6 @@ vis_1_param <- function(df,
 
         }
       )
-
       p_out <- p_out + ggplot2::geom_line(data = df_user,
                                           ggplot2::aes(x = x,
                                           y = y,
@@ -240,33 +283,27 @@ vis_1_param <- function(df,
 
   }
 
+  # Export
   p_out <- p_out +
     ggplot2::scale_colour_manual(name = "Distributions",
                                  values = df_legend$col) +
     ggplot2::theme(legend.key = element_rect(fill = "lightgrey"))
-
   if(!is.null(user_mean)) {
     p_out <- p_out + ggplot2::geom_vline(xintercept = user_mean, lty = 3)
   }
-
   p_out
 }
 
 #' Check range
-#'
 #' @description This function checks the probability that an input or output falls within a user-defined range.
-#'
 #' @param df a dataframe.
-#' @param outcome character string. Name of variable of the dataframe for which to check the range.
+#' @param param character string. Name of variable of the dataframe for which to check the range.
 #' @param min_val numeric. Define the minimum value of the range.
 #' @param max_val numeric. Define the maximum value of the range.
-#'
 #' @return A numeric.
-#'
 #' @details
 #' If only `min_val` is specified, the proportion of iteration above this value will be computed.
 #' If only `max_val` is specified, the proportion of iteration below this value will be computed.
-#'
 #' @examples
 #' # Checking how often the "u_pfs" values falls within 0.55 and 0.72.
 #' data(df_pa)
@@ -275,39 +312,66 @@ vis_1_param <- function(df,
 #'             min_val = 0.55,
 #'             max_val = 0.72
 #'                  ))
-#'
+#' @import assertthat
 #' @export
 check_range <- function(df,
-                        outcome,
+                        param,
                         min_val = NULL,
                         max_val = NULL) {
+  # Checks
+  assertthat::assert_that(!is.null(df),
+                          msg = "No 'df' argument provided.")
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe.")
+  assertthat::assert_that(!is.null(param),
+                          msg = "No 'param' argument provided.")
+  assertthat::assert_that(is.character(param),
+                          msg = "'param' argument is not a character.")
+  assertthat::assert_that(!is.null(min_val) & !is.null(max_val),
+                          msg = "At least one of the arguments 'min_val' or 'max_val' should be provided.")
 
-  if(is.null(min_val) & !is.null(max_val)) {
-
-    n_out <- round(length(which(df[, outcome] <= max_val)) / nrow(df) * 100, 4)
-    n_out <- paste("The proportion of iterations below ", max_val, " is ", n_out, "%", sep = "")
-
-    }  else if(!is.null(min_val) & is.null(max_val)) {
-
-    n_out <- round(length(which(df[, outcome] >= min_val)) / nrow(df) * 100, 4)
-    n_out <- paste("The proportion of iterations above ", min_val, " is ", n_out, "%", sep = "")
-
-
-  } else if(!is.null(min_val) & !is.null(max_val)) {
-
-  n_out <- round(length(which(df[, outcome] >= min_val &
-                                df[, outcome] <= max_val)) / nrow(df) * 100, 4)
-  n_out <- paste("The proportion of iterations between ", min_val, " and ", max_val, " is ", n_out, "%", sep = "")
+  # Compute proportions below, above, both
+  if(is.null(min_val) &
+     !is.null(max_val)) {
+    p_out <-
+      round(length(which(df[, param] <= max_val)) / nrow(df) * 100, 4)
+    n_out <-
+      paste("The proportion of iterations below ",
+            max_val,
+            " is ",
+            p_out,
+            "%",
+            sep = "")
+  }  else if (!is.null(min_val) & is.null(max_val)) {
+    p_out <-
+      round(length(which(df[, param] >= min_val)) / nrow(df) * 100, 4)
+    n_out <-
+      paste("The proportion of iterations above ",
+            min_val,
+            " is ",
+            p_out,
+            "%",
+            sep = "")
+  } else if (!is.null(min_val) & !is.null(max_val)) {
+    p_out <- round(length(which(df[, param] >= min_val &
+                                  df[, param] <= max_val)) / nrow(df) * 100, 4)
+    n_out <-
+      paste("The proportion of iterations between ",
+            min_val,
+            " and ",
+            max_val,
+            " is ",
+            p_out,
+            "%",
+            sep = "")
   }
 
+  # Export
   return(n_out)
 }
 
-
 #' Visualise the distribution of two parameters
-#'
 #' @description This function plots the distribution of two parameters in a scatterplot.
-#'
 #' @param df a dataframe.
 #' @param param_1 character. Name of variable of the dataframe to be plotted on the x-axis.
 #' @param param_2 character. Name of variable of the dataframe to be plotted on the y-axis.
@@ -315,14 +379,12 @@ check_range <- function(df,
 #' @param intercept numeric. Default is 0. Intercept of the user-defined slope.
 #' @param check character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.
 #' @param fit character. Designate the type of smooth model to fit to the relation of `param_1` (x) and `param_2` (y). It can take the values "lm, "glm", "gam", and "loess". A model will be fitted according to the methods described in \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}.
-#'
 #' @return A ggplot graph.
-#'
 #' @examples
-#' # Generating plot using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
+#' # Generating plot for the costs of progression-free health state versus incremental costs
 #' data(df_pa)
-#' vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
-#'
+#' vis_2_params(df = df_pa, param_1 = "c_pfs", "inc_costs")
+#' @import assertthat
 #' @import ggplot2
 #' @export
 vis_2_params <- function(df,
@@ -332,23 +394,45 @@ vis_2_params <- function(df,
                          intercept = 0,
                          check = NULL,
                          fit = NULL) {
+  # Checks
+  assertthat::assert_that(!is.null(df),
+                          msg = "No 'df' argument provided.")
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe.")
+  assertthat::assert_that(!is.null(param_1),
+                          msg = "No 'param_1' argument provided.")
+  assertthat::assert_that(is.character(param_1),
+                          msg = "'param_1' argument is not a character.")
+  assertthat::assert_that(!is.null(param_2),
+                          msg = "No 'param_2' argument provided.")
+  assertthat::assert_that(is.character(param_2),
+                          msg = "'param_2' argument is not a character.")
+  if(!is.null(check)){
+    assertthat::assert_that(is.character(check),
+                            msg = "'check' argument is not a character.")
+    assertthat::assert_that(check == "param_2 > param_1",
+                            msg = "'check' argument is not valid. It should be set to 'param_2 > param_1'.")
+  }
+  if(!is.null(fit)){
+    assertthat::assert_that(fit %in% c("lm", "glm", "gam", "loess"),
+                            msg = "'fit' argument is not valid. It should be set to 'lm', 'glm', 'gam', or 'loess'.")
+  }
 
+  # Create backbone of the ggplot
   p <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param_1, y = param_2)) +
     ggplot2::theme_bw()
 
+  # Add styling / options to plot
+  ## Slope
   if(!is.null(slope)) {
     p <- p + ggplot2::geom_abline(intercept = intercept, slope = slope, lty = 2, colour = "orange")
   }
-
+  ## % values of param_2 > param_1
   if(!is.null(check)) {
-
     if(check == "param_2 > param_1"){
-
       df$col <- ifelse(df[, param_2] > df[, param_1], "TRUE", "FALSE")
       df$col <- as.factor(df$col)
-
       p_true <- round(length(which(df$col == "TRUE"))/ length(df$col) * 100, 0)
-
       p_out <- p +
         ggplot2::geom_point(data = df, ggplot2::aes_string(x = param_1, y = param_2, colour = "col"), shape = 1) +
         ggplot2::scale_colour_manual(name = "Check",
@@ -356,72 +440,64 @@ vis_2_params <- function(df,
                                                 "FALSE" = "grey"
                                                 )) +
         ggplot2::annotate("text", label = print(paste("P(TRUE):", p_true, "%")), x = min(df[, param_1]) + (max(df[, param_1]) - min(df[, param_1])) * 0.2,  y = max(df[, param_2]))
-
     }
-
   } else {
     p_out <- p + ggplot2::geom_point(shape = 1, colour = "grey")
   }
 
+  ## Automatic slop
   if(!is.null(fit)){
-    if(fit == "lm") {
-    p_out <- p_out +
-      ggplot2::geom_smooth(method = "lm")
-    }
-    if(fit == "glm") {
       p_out <- p_out +
-        ggplot2::geom_smooth(method = "glm")
+        ggplot2::geom_smooth(method = fit)
     }
-    if(fit == "loess") {
-      p_out <- p_out +
-        ggplot2::geom_smooth(method = "loess")
-    }
-    if(fit == "gam") {
-      p_out <- p_out +
-        ggplot2::geom_smooth(method = "gam")
-    }
-  }
 
+  # Export
   p_out
 }
 
 #' Fit distribution to parameter
-#'
 #' @description This function fits statistical distributions to a parameter.
-#'
 #' @param df a dataframe.
 #' @param param character. Name of variable of the dataframe on which to fit the distributions.
 #' @param dist character or vector of character. Determine which distribution to fit on the density plot.
-#'
 #' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). The arguments of the lists are "AIC" which contains the Akaike Information Criteria for each fitted distribution and "Dist_parameters" which contains the parameters of the fitted distributions.
-#'
-#' @return A list with two arguments
-#'
+#' @return A list with two objects #TODO: add what for objects!
 #' @examples
 #' # Fitting normal and beta distribution to the "u_pfs" variable of the example dataframe.
 #' data(df_pa)
 #' fit_dist(df = df_pa,
 #'          param = "u_pfs",
 #'          dist = c("norm", "beta"))
+#' @import assertthat
 #' @import fitdistrplus
 #' @export
 fit_dist <- function(df,
                      param,
                      dist = c("norm", "beta", "gamma", "lnorm")) {
 
+  # Checks
+  assertthat::assert_that(!is.null(df),
+                          msg = "No 'df' argument provided.")
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe.")
+  assertthat::assert_that(!is.null(param),
+                          msg = "No 'param' argument provided.")
+  assertthat::assert_that(is.character(param),
+                          msg = "'param' argument is not a character.")
+  assertthat::assert_that(all(dist %in% c("lnorm", "norm", "beta", "gamma")),
+                          msg = "'dist' argument is invalid. 'dist' should be 'lnorm', 'norm', 'beta', or 'gamma'.")
+
+  # Set up objects to store statistical fit and parameters of fitted distributions
   l_dist <- l_gof <- vector(mode = "list", length = length(dist))
   names(l_dist) <- names(l_gof) <- dist
-
   l_out <- vector(mode = "list", length = 2)
   names(l_out) <- c("Statistical_fit", "Dist_parameters")
-
   m_stats <- matrix(NA,
                     ncol = 4,
                     nrow = length(dist),
                     dimnames = list(NULL,
                                     c("Distribution", "AIC", "BIC", "Kolmorogov-Smirnov")))
   m_stats[, "Distribution"] <- dist
-
   m_params <- matrix(NA,
                      ncol = 5,
                      nrow = length(dist),
@@ -429,89 +505,94 @@ fit_dist <- function(df,
                                      c("Distribution", "Name_param_1", "Value_param_1", "Name_param_2", "Value_param_2")))
   m_params[, "Distribution"] <- dist
 
-
-  for (i in 1:length(dist)){
+  # Fit distribution and determine statistical fit of the fitted distributions
+  for (i in 1:length(dist)){ # Use apply function here?
     l_dist[[i]] <- fitdistrplus::fitdist(df[, param], distr = dist[i])
   }
-
-  for (i in 1:length(dist)){
+  for (i in 1:length(dist)){ # Use apply function here?
     l_gof[[i]] <- fitdistrplus::gofstat(l_dist[[i]])
   }
-
-  for (i in 1:length(dist)){
+  for (i in 1:length(dist)){ # Use apply function here?
     m_stats[i, "AIC"] <- round(l_dist[[i]]$aic)
     m_stats[i, "BIC"] <- round(l_dist[[i]]$bic)
     m_stats[i, "Kolmorogov-Smirnov"] <- round(l_gof[[i]]$ks, 3)
   }
-
   for (i in 1:length(dist)){
-    m_params[i, 2:ncol(m_params)] <- c(names(l_dist[[i]]$estimate)[1], round(l_dist[[i]]$estimate[1], 2), names(l_dist[[i]]$estimate)[2], round(l_dist[[i]]$estimate[2], 2))
+    m_params[i, 2:ncol(m_params)] <-
+      c(
+        names(l_dist[[i]]$estimate)[1],
+        round(l_dist[[i]]$estimate[1], 2),
+        names(l_dist[[i]]$estimate)[2],
+        round(l_dist[[i]]$estimate[2], 2)
+      )
   }
 
+  # Export
   l_out[[1]] <- as.data.frame(m_stats)
   l_out[[2]] <- as.data.frame(m_params)
-
   return(l_out)
-
 }
 
-
 #' Plot moving average
-#'
-#' @description This function plots the moving average of a outcome variable
-#'
+#' @description This function plots the moving average of a user-defined variable.
 #' @param df a dataframe.
-#' @param outcome character string. Name of variable of the dataframe for which to plot the moving average.
-#' @param block_size numeric. Define the number of iterations at which the mean outcome has to be defined and plotted.
+#' @param param character string. Name of variable of the dataframe for which to plot the moving average.
+#' @param block_size numeric. Define the number of iterations at which the mean param has to be defined and plotted.
 #' @param conv_limit numeric. Define the convergence limit, under which the relative change between block of iterations should lie.
-#' @param breaks numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `outcome` is used.
+#' @param breaks numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `param` is used.
 #' @param variance logical. Determine whether the variance of the vector should be plotted instead of the mean. Default is FALSE.
-#'
 #' @return A ggplot graph.
-#'
 #' @examples
 #' # Checking the moving average of the incremental QALYs using the example data.
 #' data(df_pa)
 #' plot_convergence(df = df_pa,
-#'                  outcome = "inc_qaly"
+#'                  param = "inc_qaly"
 #'                  )
+#' @import assertthat
 #' @import ggplot2
 #' @export
-#'
 plot_convergence <- function(df,
-                             outcome,
+                             param,
                              block_size = 500,
                              conv_limit = 0,
                              breaks = NULL,
                              variance = FALSE) {
+  # Checks
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe.")
+  assertthat::assert_that(!is.null(param),
+                          msg = "No 'param' argument provided.")
+  assertthat::assert_that(is.character(param),
+                          msg = "'param' argument is not a character.")
+  assertthat::assert_that(block_size < length(df[, param]),
+                          msg = "'block_size' is greater than the number of iterations. 'block_size' should be smaller than the number of rows in 'df'.")
   if(conv_limit > 1 ||
      conv_limit < 0) {
     stop("`conv_limit` should be a numeric between 0 and 1.")
   }
-
   if(is.null(breaks) ||
-     breaks > length(df[, outcome])) {
-    breaks <- round(length(df[, outcome]) / 10)
+     breaks > length(df[, param])) {
+    breaks <- round(length(df[, param]) / 10)
   }
   if(is.null(block_size) ||
-     block_size > length(df[, outcome])) {
-    block_size <- round(length(df[, outcome]) / 10)
+     block_size > length(df[, param])) {
+    block_size <- round(length(df[, param]) / 10)
   }
   l_output <- list()
 
   # Calculations
-  v_output <- df[, outcome]
+  v_output <- df[, param]
   v_av_mov  <- unname(cumsum(v_output)/c(1:length(v_output))) # moving average
   v_blocks <- seq(from = block_size, to = length(v_av_mov), by = block_size)
   v_av_blocks <- v_av_mov[v_blocks] # average at each block
   v_rel_diff_blocks <- c(0, abs(diff(v_av_blocks))/ v_av_blocks[c(1:(length(v_av_blocks)-1))]) # Check relative difference a block and the previous
   v_conv_rel <- which(v_rel_diff_blocks < conv_limit)
-  v_var_outcome <- vapply(1:length(v_output), function (x){
+  v_var_param <- vapply(1:length(v_output), function (x){
     var(v_output[1:x])
   },
   numeric(1)
   )
-  v_var_blocks <- v_var_outcome[v_blocks]
+  v_var_blocks <- v_var_param[v_blocks]
   v_var_rel_diff_blocks <- c(0, abs(diff(v_var_blocks))/ v_var_blocks[c(1:(length(v_var_blocks)-1))]) # Check relative difference a block and the previous
 
   # Dataframe for plotting the results
@@ -522,10 +603,10 @@ plot_convergence <- function(df,
     Variance = v_var_blocks,
     Rel_var_diff = v_var_rel_diff_blocks
   )
-  names(df_plot)[2] <- outcome
-  names(df_plot)[3] <- paste0("Relative_mean_diff_", outcome)
-  names(df_plot)[4] <- paste0("Variance_", outcome)
-  names(df_plot)[5] <- paste0("Relative_var_diff_", outcome)
+  names(df_plot)[2] <- param
+  names(df_plot)[3] <- paste0("Relative_mean_diff_", param)
+  names(df_plot)[4] <- paste0("Variance_", param)
+  names(df_plot)[5] <- paste0("Relative_var_diff_", param)
 
   # Determine breaks for plot
   v_breaks <- seq(from = breaks, to = length(v_av_mov), by = breaks)
@@ -534,21 +615,21 @@ plot_convergence <- function(df,
   # Plot
   if(variance == FALSE){
     if(conv_limit > 0) {
-      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_mean_diff_", outcome))) +
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_mean_diff_", param))) +
         ggplot2::geom_hline(yintercept = conv_limit,
                             colour = "orange",
                             linetype = "dashed")
     } else {
-      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = outcome))
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = param))
     }
   } else {
     if(conv_limit > 0) {
-      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_var_diff_", outcome))) +
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Relative_var_diff_", param))) +
         ggplot2::geom_hline(yintercept = conv_limit,
                             colour = "orange",
                             linetype = "dashed")
     } else {
-      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Variance_", outcome)))
+      p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Variance_", param)))
     }
   }
   p_out <- p +
@@ -563,17 +644,13 @@ plot_convergence <- function(df,
 }
 
 #' Check sum probabilities
-#'
 #' @description This function checks whether the sum of user-defined probabilities is below or equal to 1
-#'
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
 #' @param digits numeric. Define the number of digits at which the sum of probabilities is rounded
 #' @param check logical. Define which check to perform."lower" checks whether the sum of the selected variables is lower than or equal to 1 for each iteration. "equal" checks whether the sum of the selected variables is equal to 1 for each iteration. Default is "lower".
 #' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 100.
-#'
 #' @return A text.
-#'
 #' @examples
 #' # Checking whether the sum of the two probabilities is lower than or equal to 1
 #' check_sum_probs("p_pfspd", "p_pfsd", df = df_pa, check = "lower")
@@ -581,21 +658,27 @@ plot_convergence <- function(df,
 #' # Checking the sum of the two probabilities equals 1 using a vector to select them,
 #' # Rounding off to two digits, and extending the number of iterations to display to 250.
 #' check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
-#'
+#' @import assertthat
 #' @export
-#'
 check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 100){
 
+  # Gather inputs and checks
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
+  assertthat::assert_that(all(v_vars %in% names(df)),
+                          msg = "'...' contains names of variables that are not included in 'df'.")
+  assertthat::assert_that(check %in% c("lower", "equal"),
+                          msg = "'check' argument is invalid. It should be set to 'lower' or 'equal'.")
+  assertthat::assert_that(is.numeric(digits),
+                          msg = "'digit' argument is invalid. It should be a numeric value.")
+
+  # Calculate sum
   v_calc <- rowSums(df[, as.character(v_vars)])
 
   if(!is.null(digits)) {
-    v_calc <- v_calc <- round(v_calc, digits)
+    v_calc <- round(v_calc, digits)
   }
-
   if(check == "lower") {
-
     v_id_higher <- which(v_calc > 1)
     if(length(v_id_higher) > 0) {
       max_view <- ifelse(max_view > length(v_id_higher), length(v_id_higher), max_view)
@@ -603,9 +686,7 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
     } else {
       return("The sum of probabilities in all iterations is lower or equal to 1")
     }
-
   } else if(check == "equal") {
-
     v_id_diff <- which(v_calc != 1)
     if(length(v_id_diff) > 0) {
       max_view <- ifelse(max_view > length(v_id_diff), length(v_id_diff), max_view)
@@ -618,16 +699,12 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 }
 
 
-#' Check whether variable is strictly positive
-#'
+#' Check whether variables are strictly positive
 #' @description This function checks whether variables are strictly positive (for instance for costs and relative risks inputs)
-#'
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
 #' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 50.
-#'
 #' @return A dataframe.
-#'
 #' @examples
 #' # Checking whether a variable is strictly positive
 #' check_positive("c_pfs", df = df_pa)
@@ -635,19 +712,17 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 #' # Checking whether two variables are strictly positive
 #' # Descreasing the number of iterations to display to 20.
 #' check_positive("c_pfs", "c_pd", df = df_pa)
-#'
+#' @import assertthat
+#' @import stringi
 #' @export
-#'
 check_positive <- function(..., df, max_view = 50){
-
-  if (!requireNamespace("stringi", quietly = TRUE)) {
-    stop(
-      "Package \"stringi\" must be installed to use this function.",
-      call. = FALSE
-    )
-  }
+  # Gather inputs and checks
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
+  assertthat::assert_that(all(v_vars %in% names(df)),
+                          msg = "'...' contains names of variables that are not included in 'df'.")
+  assertthat::assert_that(is.numeric(max_view),
+                          msg = "'max_view' argument is invalid. It should be a numeric value.")
 
   # Create list of negative values per input, or a single list when only 1 input is selected
   list_neg <- if(length(v_vars) > 1){
@@ -694,7 +769,7 @@ check_positive <- function(..., df, max_view = 50){
 #' @return A string.
 #'
 #' @examples
-#' # Checking whether health state and adverse event costs of the intervention equal the total discounted costs
+#' # Checking whether health state and adverse event costs equal the total discounted costs
 #' check_sum_vars("t_costs_pfs_d_int", "t_costs_pd_d_int", "t_costs_ae_int",
 #'                df = head(df_pa),
 #'                outcome = "t_costs_d_int",
@@ -861,11 +936,9 @@ check_binary <- function(..., df, max_view = 50) {
 #' @param t_qaly character. Name of the variable containing the total undiscounted quality-adjusted life years.
 #' @param u_values (vector of) character. Name(s) of the variable containing the utility values.
 #' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 100.
-#'
 #' @return A matrix.
-#'
 #' @examples
-#' # Checking whether the mean quality of life of the comparator strategy falls within the range of the max and min utility values
+#' # Check whether mean quality of life is within min-max utility values
 #' check_mean_qol(df = df_pa,
 #'                t_ly = "t_ly_comp",
 #'                t_qaly = "t_qaly_comp",

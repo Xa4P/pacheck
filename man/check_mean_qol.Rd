@@ -24,7 +24,7 @@ A matrix.
 This function checks whether the mean quality of life outcome of each iteration remain between the maximum and minimum utility values of the specific iteration.
 }
 \examples{
-# Checking whether the mean quality of life of the comparator strategy falls within the range of the max and min utility values
+# Check whether mean quality of life is within min-max utility values
 check_mean_qol(df = df_pa,
                t_ly = "t_ly_comp",
                t_qaly = "t_qaly_comp",

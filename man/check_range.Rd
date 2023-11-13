@@ -4,12 +4,12 @@
 \alias{check_range}
 \title{Check range}
 \usage{
-check_range(df, outcome, min_val = NULL, max_val = NULL)
+check_range(df, param, min_val = NULL, max_val = NULL)
 }
 \arguments{
 \item{df}{a dataframe.}
 
-\item{outcome}{character string. Name of variable of the dataframe for which to check the range.}
+\item{param}{character string. Name of variable of the dataframe for which to check the range.}
 
 \item{min_val}{numeric. Define the minimum value of the range.}
 
@@ -33,5 +33,4 @@ check_range(df = df_pa,
             min_val = 0.55,
             max_val = 0.72
                  ))
-
 }

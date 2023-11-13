@@ -22,7 +22,7 @@ A string.
 This function checks whether the sum of selected variables are equal to another.
 }
 \examples{
-# Checking whether health state and adverse event costs of the intervention equal the total discounted costs
+# Checking whether health state and adverse event costs equal the total discounted costs
 check_sum_vars("t_costs_pfs_d_int", "t_costs_pd_d_int", "t_costs_ae_int",
                df = head(df_pa),
                outcome = "t_costs_d_int",

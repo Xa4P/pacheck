@@ -36,8 +36,7 @@ A ggplot graph.
 This function plots the distribution of two parameters in a scatterplot.
 }
 \examples{
-# Generating plot using the example dataframe for the costs of progression-free health state, and bins of 50 euros.
+# Generating plot for the costs of progression-free health state versus incremental costs
 data(df_pa)
-vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
-
+vis_2_params(df = df_pa, param_1 = "c_pfs", "inc_costs")
 }
