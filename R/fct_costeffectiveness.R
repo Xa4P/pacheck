@@ -85,14 +85,14 @@ plot_ice <- function(df,
   p_out
 }
 
-#' Plot cost-effectiveness plane.
+#' Plotting cost-effectiveness plane.
 #' @description This function plots the cost-effectiveness plane.
 #' @inheritParams plot_ice
 #' @return A ggplot2 graph.
 #' @examples
 #' # Plot cost effectiveness plane
 #' data("df_pa")
-#' plot_ce(df_pa,
+#' plot_ce(df = df_pa,
 #'         e_int = "t_qaly_d_int",
 #'         e_comp = "t_qaly_d_comp",
 #'         c_int = "t_costs_d_int",
@@ -126,37 +126,41 @@ plot_ce <- function (df,
                 none = "")
 
   # Plot
-  ggplot2::ggplot(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Intervention"))) +
-    ggplot2::geom_point(shape = 1) +
-    ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Mean intervention"))) +
-    ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_int]), y = mean(df[, c_int]), colour = factor("Mean intervention")), shape = 2) +
-    ggplot2::geom_point(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Comparator")), shape = 1) +
-    ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Mean comparator"))) +
-    ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_comp]), y = mean(df[, c_comp]), colour = factor("Mean comparator")), shape = 2) +
-    ggplot2::geom_hline(yintercept = 0) +
-    ggplot2::geom_vline(xintercept = 0) +
-    ggplot2::xlab ("Total effects") +
-    ggplot2::ylab("Total costs") +
-    ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
-    ggplot2::scale_colour_manual(name = "Strategy",
-                                 # labels = c("Intervention", "Comparator", "Mean intervention", "Mean comparator"),
-                                 # breaks = c(1, 2, 3, 4),
-                                 values = c(Intervention = "grey",
-                                            Comparator = "orange",
-                                            `Mean intervention` = "black",
-                                            `Mean comparator` = "blue")
-    ) +
-    ggplot2::theme_bw()
+  p_out <-
+    ggplot2::ggplot(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Intervention"))) +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Mean intervention"))) +
+      ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_int]), y = mean(df[, c_int]), colour = factor("Mean intervention")), shape = 2) +
+      ggplot2::geom_point(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Comparator")), shape = 1) +
+      ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Mean comparator"))) +
+      ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_comp]), y = mean(df[, c_comp]), colour = factor("Mean comparator")), shape = 2) +
+      ggplot2::geom_hline(yintercept = 0) +
+      ggplot2::geom_vline(xintercept = 0) +
+      ggplot2::xlab ("Total effects") +
+      ggplot2::ylab("Total costs") +
+      ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
+      ggplot2::scale_colour_manual(name = "Strategy",
+                                   # labels = c("Intervention", "Comparator", "Mean intervention", "Mean comparator"),
+                                   # breaks = c(1, 2, 3, 4),
+                                   values = c(Intervention = "grey",
+                                              Comparator = "orange",
+                                              `Mean intervention` = "black",
+                                              `Mean comparator` = "blue")
+      ) +
+      ggplot2::theme_bw()
+
+  # Export
+  p_out
 }
 
 #' Summary statistics of the incremental cost-effectiveness plane.
-#' @description This function computes the probability that the probabilistic outcome is in each of the quadrant.
+#' @description This function computes the probability that the probabilistic outcome is in each of the quadrants.
 #' @inheritParams plot_ice
 #' @return A dataframe.
 #' @examples
 #' # Generating statistics of the incremental cost-effectiveness plane using the example data.
 #' data(df_pa)
-#' summary_ice(df_pa,
+#' summary_ice(df = df_pa,
 #'             e_int = "t_qaly_d_int",
 #'             e_comp = "t_qaly_d_comp",
 #'             c_int = "t_costs_d_int",
@@ -198,16 +202,17 @@ summary_ice <- function(df,
 #' Calculate cost-effectiveness probabilities.
 #' @description This function calculates the probabilities that each strategy is the most cost effective.
 #' @inheritParams plot_ice
-#' @param v_wtp vector of numerical values. Vectors of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.
-#' @return A dataframe with three columns: "WTP_threshold", "Prob_int", "Prob_comp":
-#' - "WTP_threshold" contains the willingness-to-pay thresholds at which the probability of cost effectiveness has been calculated for both strategies.
-#' - "Prob_int" contains the probability that the intervention strategy is cost effective at a given willingness-to-pay threshold.
-#' - "Prob_comp" contains the probability that the comparator strategy is cost effective at a given willingness-to-pay threshold.
+#' @param v_wtp vector of numerical values. Vector of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.
+#' @return A dataframe with three columns:
+#' \itemize{
+#'    \item WTP_threshold = The willingness-to-pay thresholds at which the probability of cost effectiveness has been calculated for both strategies
+#'    \item Prob_int = The probability that the intervention strategy is cost effective at a given willingness-to-pay threshold
+#'    \item Prob_comp = The probability that the comparator strategy is cost effective at a given willingness-to-pay threshold
 #' @examples
 #' # Calculate probabilities of cost effectiveness using the example dataframe,
 #' # for willlingness-to-pay thresholds of 0 to 50,0000 euros.
 #' data("df_pa")
-#' calculate_ceac(df_pa,
+#' calculate_ceac(df = df_pa,
 #'                e_int = "t_qaly_d_int",
 #'                e_comp = "t_qaly_d_comp",
 #'                c_int = "t_costs_d_int",
@@ -250,26 +255,26 @@ calculate_ceac <- function (df,
   return(df_res)
 }
 
-#' Plot the cost-effectiveness acceptability curves.
-#' @description This function calculates the probabilities that each strategy is the most cost effective.
+#' Plotting the cost-effectiveness acceptability curves.
+#' @description This function plots cost-effectiveness acceptability curves.
 #' @param df a dataframe obtained through the `calculate_ceac()`.
 #' @param wtp character. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.
 #' @return A ggplot2 graph.
 #' @examples
 #' # Plot CEAC based on results from calculate_ceac()
 #' data("df_pa")
-#' df_ceac_p <- calculate_ceac(df_pa,
+#' df_ceac_p <- calculate_ceac(df = df_pa,
 #'                             e_int = "t_qaly_d_int",
 #'                             e_comp = "t_qaly_d_comp",
 #'                             c_int = "t_costs_d_int",
 #'                             c_comp = "t_costs_d_comp")
 #' plot_ceac(df = df_ceac_p,
 #'           wtp = "WTP_threshold")
-#' @import assertthat
 #' @import ggplot2
+#' @import scales
+#' @import assertthat
 #' @import glue
 #' @import reshape2
-#' @import scales
 #' @export
 plot_ceac <- function(df,
                       wtp) {
@@ -296,7 +301,7 @@ plot_ceac <- function(df,
 #' Calculate NMB and NHB.
 #' @description This function calculates the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
 #' @inheritParams plot_ice
-#' @param wtp numerical values. Willingness-to-pay thresholds to use for NMB and NHB calculations.
+#' @param wtp numeric. Willingness-to-pay thresholds to use for NMB and NHB calculations.
 #' @return
 #' A dataframe containing the original data and the following variables:
 #' \itemize{
@@ -310,7 +315,7 @@ plot_ceac <- function(df,
 #' @examples
 #' # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
 #' data("df_pa")
-#' calculate_nb(df_pa,
+#' calculate_nb(df = df_pa,
 #'              e_int = "t_qaly_d_int",
 #'              e_comp = "t_qaly_d_comp",
 #'              c_int = "t_costs_d_int",
@@ -347,16 +352,16 @@ calculate_nb <- function(df,
 
 #' Plot (i)NMB or (i)NHB.
 #' @description This function plots the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
-#' @param df a dataframe. Output of `calculate_nb()`
+#' @param df a dataframe obtained through `calculate_nb()`
 #' @param NMB logical. Should the (i)NMBs be plotted? Default is TRUE, if FALSE, (i)NHBs are plotted.
 #' @param comparators logical. Should the NMB/NHB for each comparator be plotted? Default is TRUE.
 #' @param incremental logical. Should the incremental NMB/NHB be plotted? Default is FALSE
-#' @return A ggplot graph.
+#' @return A ggplot2 graph.
 #' @details The use this function, the dataframe `df` should contain the variables `NMB_int`, `NMB_comp`, `iNMB`, `NHB_int`, `NHB_comp`, and `iNHB`. For instance, use the \code{\link{calculate_nb}} function to calculate these outcomes.
 #' @examples
 #' # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
 #' data("df_pa")
-#' df_nmb <- calculate_nb(df_pa,
+#' df_nmb <- calculate_nb(df = df_pa,
 #'              e_int = "t_qaly_d_int",
 #'              e_comp = "t_qaly_d_comp",
 #'              c_int = "t_costs_d_int",
@@ -367,7 +372,6 @@ calculate_nb <- function(df,
 #' plot_nmb(df = df_nmb,
 #'          NMB = TRUE,
 #'          comparators = TRUE)
-#'
 #' @import ggplot2
 #' @export
 plot_nb <- function(df,
