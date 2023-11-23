@@ -116,7 +116,7 @@ generate_pa_inputs <- function(n_sim = 10000,
 #' Perform the health economic simulation.
 #' @description This function performs the simulation of the health economic model developed to test the functionalities of the package.
 #' @param l_params list. List of inputs of the health economic model
-#' @return A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
+#' @return A vector. This vector contains the (un)discounted intermediate and final outcomes of the health economic model.
 #' @examples
 #' # Perform the simulation using the deterministic model inputs
 #' l_inputs_det <- generate_det_inputs()
@@ -270,7 +270,7 @@ perform_simulation <- function(l_params) {
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
 #' @param vars a vector of strings. Contains the name of the variables for which to perform the deterministic one-way sensitivity analysis.
 #' @param wtp numeric. The willingness to pay per QALY in euros. Default is 120,000 euros per QALY.
-#' @return A dataframe. The ouctome of the deterministic one-way sensitivity analyses is the iNMB by default.
+#' @return A dataframe. The outcome of the deterministic one-way sensitivity analyses is the iNMB by default.
 #' @examples
 #' # Perform the deterministic one-way sensitivity analyses for a selection of parameters
 #' data(df_pa)
@@ -343,7 +343,7 @@ perform_dowsa <- function(df,
     m_upp[j, ] <- c(names(df)[which(names(df) == j)], mean(v_iNMB))
   }
 
-  # Combine matrices and export
+  # Combine matrices
   rownames(m_low) <- rownames(m_upp) <- NULL
   df_low <- as.data.frame(m_low)
   df_upp <- as.data.frame(m_upp)
@@ -351,16 +351,15 @@ perform_dowsa <- function(df,
   df_out <- merge(df_low, df_upp)
   df_out[, 2:ncol(df_out)] <- apply(df_out[, 2:ncol(df_out)], 2, function(x) as.numeric(as.character(x)))
 
+  # Export
   return(df_out)
 
 }
 
 #' Generate probabilistic model inputs for partitioned survival model.
 #' @description This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
-#' @param n_sim integer. Number of probabilistic value to draw for each model input. Default is 10,000.
-#' @param sd_var numeric. Determines the standard error of the mean to use for the normal distributions when the standard error not known. Default is 0.2 (20\%).
-#' @param seed_num integer. The seed number to use when drawing the probabilistic values. Default is 452.
-#' @return A dataframe. A description of the returned dataframe is available in the documentation of the \code{\link{df_pa_psm}} dataframe.
+#' @inheritParams generate_ps_inputs
+#' @return A dataframe. A description of the variables of the returned dataframe is available in the documentation of the \code{\link{df_pa_psm}} dataframe.
 #' @examples
 #' # Generating deterministic model inputs and storing them in an object.
 #' df_inputs_prob <- generate_pa_inputs_psm()
@@ -505,11 +504,11 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
 #' @description This function performs the simulation of the partitioned survival health economic model developed to test the functionalities of the package.
 #' @param l_params list. List of inputs of the health economic model.
 #' @param min_fct logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE.
-#' @return A vector. This vector contains the (un)discouted intermediate and final outcomes of the health economic model.
+#' @return A vector. This vector contains the (un)discounted intermediate and final outcomes of the health economic model.
 #' @examples
 #' # Perform the simulation using the deterministic model inputs
 #' l_inputs_det <- generate_det_inputs()
-#' v_results_det <- perform_simulation(l_inputs_det)
+#' v_results_det <- perform_simulation_psm(l_inputs_det)
 #' @import assertthat
 #' @export
 perform_simulation_psm <- function(l_params,
