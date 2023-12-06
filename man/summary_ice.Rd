@@ -21,12 +21,12 @@ summary_ice(df, e_int, e_comp, c_int, c_comp)
 A dataframe.
 }
 \description{
-This function computes the probability that the probabilistic outcome is in each of the quadrant.
+This function computes the probability that the probabilistic outcome is in each of the quadrants.
 }
 \examples{
 # Generating statistics of the incremental cost-effectiveness plane using the example data.
 data(df_pa)
-summary_ice(df_pa,
+summary_ice(df = df_pa,
             e_int = "t_qaly_d_int",
             e_comp = "t_qaly_d_comp",
             c_int = "t_costs_d_int",

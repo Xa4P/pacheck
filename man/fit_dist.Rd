@@ -14,7 +14,7 @@ fit_dist(df, param, dist = c("norm", "beta", "gamma", "lnorm"))
 \item{dist}{character or vector of character. Determine which distribution to fit on the density plot.}
 }
 \value{
-A list with two arguments
+A list with two objects #TODO: add what for objects!
 }
 \description{
 This function fits statistical distributions to a parameter.

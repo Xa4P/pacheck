@@ -30,5 +30,4 @@ check_sum_probs("p_pfspd", "p_pfsd", df = df_pa, check = "lower")
 # Checking the sum of the two probabilities equals 1 using a vector to select them,
 # Rounding off to two digits, and extending the number of iterations to display to 250.
 check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
-
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_costeffectiveness.R
 \name{plot_ceac}
 \alias{plot_ceac}
-\title{Plot the cost-effectiveness acceptability curves.}
+\title{Plotting the cost-effectiveness acceptability curves.}
 \usage{
 plot_ceac(df, wtp)
 }
@@ -15,12 +15,12 @@ plot_ceac(df, wtp)
 A ggplot2 graph.
 }
 \description{
-This function calculates the probabilities that each strategy is the most cost effective.
+This function plots cost-effectiveness acceptability curves.
 }
 \examples{
 # Plot CEAC based on results from calculate_ceac()
 data("df_pa")
-df_ceac_p <- calculate_ceac(df_pa,
+df_ceac_p <- calculate_ceac(df = df_pa,
                             e_int = "t_qaly_d_int",
                             e_comp = "t_qaly_d_comp",
                             c_int = "t_costs_d_int",

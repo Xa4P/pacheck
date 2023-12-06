@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_inspection.R
 \name{check_positive}
 \alias{check_positive}
-\title{Check whether variable is strictly positive}
+\title{Check whether variables are strictly positive}
 \usage{
 check_positive(..., df, max_view = 50)
 }
@@ -26,5 +26,4 @@ check_positive("c_pfs", df = df_pa)
 # Checking whether two variables are strictly positive
 # Descreasing the number of iterations to display to 20.
 check_positive("c_pfs", "c_pd", df = df_pa)
-
 }

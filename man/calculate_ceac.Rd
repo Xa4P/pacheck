@@ -24,13 +24,10 @@ calculate_ceac(
 
 \item{c_comp}{character. Name of variable of the dataframe containing total costs of the comparator strategy.}
 
-\item{v_wtp}{vector of numerical values. Vectors of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.}
+\item{v_wtp}{vector of numerical values. Vector of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.}
 }
 \value{
-A dataframe with three columns: "WTP_threshold", "Prob_int", "Prob_comp":
-- "WTP_threshold" contains the willingness-to-pay thresholds at which the probability of cost effectiveness has been calculated for both strategies.
-- "Prob_int" contains the probability that the intervention strategy is cost effective at a given willingness-to-pay threshold.
-- "Prob_comp" contains the probability that the comparator strategy is cost effective at a given willingness-to-pay threshold.
+
 }
 \description{
 This function calculates the probabilities that each strategy is the most cost effective.
@@ -39,7 +36,7 @@ This function calculates the probabilities that each strategy is the most cost e
 # Calculate probabilities of cost effectiveness using the example dataframe,
 # for willlingness-to-pay thresholds of 0 to 50,0000 euros.
 data("df_pa")
-calculate_ceac(df_pa,
+calculate_ceac(df = df_pa,
                e_int = "t_qaly_d_int",
                e_comp = "t_qaly_d_comp",
                c_int = "t_costs_d_int",

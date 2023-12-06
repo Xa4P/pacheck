@@ -17,7 +17,7 @@ calculate_nb(df, e_int, e_comp, c_int, c_comp, wtp)
 
 \item{c_comp}{character. Name of variable of the dataframe containing total costs of the comparator strategy.}
 
-\item{wtp}{numerical values. Willingness-to-pay thresholds to use for NMB and NHB calculations.}
+\item{wtp}{numeric. Willingness-to-pay thresholds to use for NMB and NHB calculations.}
 }
 \value{
 A dataframe containing the original data and the following variables:
@@ -36,7 +36,7 @@ This function calculates the Net Monetary Benefits (NMB) and Net Health Benefits
 \examples{
 # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
 data("df_pa")
-calculate_nb(df_pa,
+calculate_nb(df = df_pa,
              e_int = "t_qaly_d_int",
              e_comp = "t_qaly_d_comp",
              c_int = "t_costs_d_int",

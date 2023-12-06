@@ -6,7 +6,7 @@
 \usage{
 plot_convergence(
   df,
-  outcome,
+  param,
   block_size = 500,
   conv_limit = 0,
   breaks = NULL,
@@ -16,13 +16,13 @@ plot_convergence(
 \arguments{
 \item{df}{a dataframe.}
 
-\item{outcome}{character string. Name of variable of the dataframe for which to plot the moving average.}
+\item{param}{character string. Name of variable of the dataframe for which to plot the moving average.}
 
-\item{block_size}{numeric. Define the number of iterations at which the mean outcome has to be defined and plotted.}
+\item{block_size}{numeric. Define the number of iterations at which the mean param has to be defined and plotted.}
 
 \item{conv_limit}{numeric. Define the convergence limit, under which the relative change between block of iterations should lie.}
 
-\item{breaks}{numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `outcome` is used.}
+\item{breaks}{numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `param` is used.}
 
 \item{variance}{logical. Determine whether the variance of the vector should be plotted instead of the mean. Default is FALSE.}
 }
@@ -30,12 +30,12 @@ plot_convergence(
 A ggplot graph.
 }
 \description{
-This function plots the moving average of a outcome variable
+This function plots the moving average of a user-defined variable.
 }
 \examples{
 # Checking the moving average of the incremental QALYs using the example data.
 data(df_pa)
 plot_convergence(df = df_pa,
-                 outcome = "inc_qaly"
+                 param = "inc_qaly"
                  )
 }

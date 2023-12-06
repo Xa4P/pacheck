@@ -7,7 +7,7 @@
 plot_nb(df, NMB = TRUE, comparators = TRUE, incremental = FALSE)
 }
 \arguments{
-\item{df}{a dataframe. Output of `calculate_nb()`}
+\item{df}{a dataframe obtained through `calculate_nb()`}
 
 \item{NMB}{logical. Should the (i)NMBs be plotted? Default is TRUE, if FALSE, (i)NHBs are plotted.}
 
@@ -16,7 +16,7 @@ plot_nb(df, NMB = TRUE, comparators = TRUE, incremental = FALSE)
 \item{incremental}{logical. Should the incremental NMB/NHB be plotted? Default is FALSE}
 }
 \value{
-A ggplot graph.
+A ggplot2 graph.
 }
 \description{
 This function plots the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
@@ -27,7 +27,7 @@ The use this function, the dataframe `df` should contain the variables `NMB_int`
 \examples{
 # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
 data("df_pa")
-df_nmb <- calculate_nb(df_pa,
+df_nmb <- calculate_nb(df = df_pa,
              e_int = "t_qaly_d_int",
              e_comp = "t_qaly_d_comp",
              c_int = "t_costs_d_int",
@@ -38,5 +38,4 @@ df_nmb <- calculate_nb(df_pa,
 plot_nmb(df = df_nmb,
          NMB = TRUE,
          comparators = TRUE)
-
 }

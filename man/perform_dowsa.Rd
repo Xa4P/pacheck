@@ -14,7 +14,7 @@ perform_dowsa(df, vars, wtp = 120000)
 \item{wtp}{numeric. The willingness to pay per QALY in euros. Default is 120,000 euros per QALY.}
 }
 \value{
-A dataframe. The ouctome of the deterministic one-way sensitivity analyses is the iNMB by default.
+A dataframe. The outcome of the deterministic one-way sensitivity analyses is the iNMB by default.
 }
 \description{
 This function performs the deterministic one-way sensitivity analyses (DOWSA) using probabilistic inputs and outputs for the health economic model developed to test the package. The outcome of the DOWSA is the incremental net monetary benefit.
