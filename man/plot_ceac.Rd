@@ -4,7 +4,7 @@
 \alias{plot_ceac}
 \title{Plotting the cost-effectiveness acceptability curves.}
 \usage{
-plot_ceac(df, wtp)
+plot_ceac(df, wtp, currency = "euro")
 }
 \arguments{
 \item{df}{a dataframe obtained through the `calculate_ceac()`.}

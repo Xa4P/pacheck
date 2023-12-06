@@ -358,7 +358,7 @@ perform_dowsa <- function(df,
 
 #' Generate probabilistic model inputs for partitioned survival model.
 #' @description This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
-#' @inheritParams generate_ps_inputs
+#' @inheritParams generate_pa_inputs
 #' @return A dataframe. A description of the variables of the returned dataframe is available in the documentation of the \code{\link{df_pa_psm}} dataframe.
 #' @examples
 #' # Generating deterministic model inputs and storing them in an object.

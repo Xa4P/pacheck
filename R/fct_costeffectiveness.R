@@ -156,9 +156,9 @@ plot_ce <- function (df,
 #' Plotting cost-effectiveness plane.
 #' @description This function plots the cost-effectiveness plane for an infinite amount of strategies .
 #' @inheritParams plot_ice
-#' @param outcomes character. Vector of names containing the outcomes to be plotted on the x-axis.
-#' @param costs character. Vector of names containing the costs to be plotted on the y-axis.
-#' @param ellipse logical. Determines whether plot should plot the dots of each iteration (default, ellipse = FALSE), or whether the mean outcomes and costs and their 95% confidence ellipses should be plotted (TRUE).
+#' @param outcomes character. Vector of variable names containing the outcomes to be plotted on the x-axis. The variable names should be structured as follows: 't_qaly_d_' followed by the name of the strategy: e.g. 't_qaly_d_intervention'.
+#' @param costs character. Vector of variable names containing the costs to be plotted on the y-axis. The variable names should be structured as follows: 't_costs_d_' followed by the name of the strategy: e.g. 't_costs_d_intervention'.
+#' @param ellipse logical. Determines whether plot should plot the dots of each iteration (default, ellipse = FALSE), or whether the mean outcomes and costs and their 95procent confidence ellipses should be plotted (TRUE).
 #' @return A ggplot2 graph.
 #' @examples
 #' # Plot cost effectiveness plane as ellipses
@@ -176,20 +176,32 @@ plot_ce <- function (df,
 #' @import dplyr
 #' @import tidyr
 #' @export
-plot_ce_mult <- function (df,
-                          outcomes,
-                          costs,
-                          ellipse = FALSE,
-                          currency = "euro") {
+plot_ce_mult <- function(df,
+                         outcomes,
+                         costs,
+                         ellipse = FALSE,
+                         currency = "euro") {
   # Checks
   assertthat::assert_that(all(outcomes %in% names(df)), msg = glue::glue("At least one variable in vector 'outcomes' is not a valid column name of 'df'."))
   assertthat::assert_that(all(costs %in% names(df)), msg = glue::glue("At least one variable in vector 'costs' is not a valid column name of 'df'."))
+  assertthat::assert_that(length(grep("^t_qaly_d_", outcomes)) == length(outcomes),
+                          msg = "At least one element of 'outcomes' does not start with 't_qaly_d_'")
+  assertthat::assert_that(length(grep("^t_costs_d_", costs)) == length(costs),
+                          msg = "At least one element of 'costs' does not start with 't_costs_d_'")
   assertthat::assert_that(length(costs) == length(outcomes), msg = glue::glue("The length of vector of names 'outcomes' is different than length of vercor of names 'costs'."))
+  assertthat::assert_that(identical(
+    gsub("t_qaly_d_", "", outcomes)[order(gsub("t_qaly_d_", "", outcomes))],
+    gsub("t_costs_d_", "", costs)[order(gsub("t_costs_d_",  "", costs))]
+  ),
+  msg = "The included strategies are different in 'outcomes' and 'costs'. Ensures that the name of the strategies are the same in both argument.")
+
   if(!currency %in% c("none", "euro", "dollar", "yen")) {
     stop("The chosen currency is not valid.")
   }
 
   # Determine formatting plot
+  outcomes <- outcomes[order(gsub("t_qaly_d_", "", outcomes))]
+  costs    <- costs[order(gsub("t_costs_d_",  "", costs))]
   cur <- switch(currency,
                 euro = "\u20ac ",
                 dollar = "\u0024 ",
@@ -300,6 +312,7 @@ summary_ice <- function(df,
 #'    \item WTP_threshold = The willingness-to-pay thresholds at which the probability of cost effectiveness has been calculated for both strategies
 #'    \item Prob_int = The probability that the intervention strategy is cost effective at a given willingness-to-pay threshold
 #'    \item Prob_comp = The probability that the comparator strategy is cost effective at a given willingness-to-pay threshold
+#'    }
 #' @examples
 #' # Calculate probabilities of cost effectiveness using the example dataframe,
 #' # for willlingness-to-pay thresholds of 0 to 50,0000 euros.
@@ -347,6 +360,102 @@ calculate_ceac <- function (df,
   return(df_res)
 }
 
+#' Calculate cost-effectiveness probabilities.
+#' @description This function calculates the probabilities that each strategy is the most cost effective, from an infinite amount of strategies.
+#' @inheritParams plot_ce_mult
+#' @param v_wtp vector of numerical values. Vector of willingness-to-pay threshold for which the probabilities of cost effectiveness have to be defined. Default is 0:100,000 by increments of 1,000.
+#' @return A dataframe with three columns:
+#' \itemize{
+#'    \item WTP_threshold = The willingness-to-pay thresholds at which the probability of cost effectiveness has been calculated for both strategies
+#'    \item Prob_int = The probability that the intervention strategy is cost effective at a given willingness-to-pay threshold
+#'    \item Prob_comp = The probability that the comparator strategy is cost effective at a given willingness-to-pay threshold
+#'    }
+#' @examples
+#' # Calculate probabilities of cost effectiveness using the example dataframe,
+#' # for willlingness-to-pay thresholds of 0 to 50,0000 euros.
+#' data("df_pa")
+#' calculate_ceac(df = df_pa,
+#'                e_int = "t_qaly_d_int",
+#'                e_comp = "t_qaly_d_comp",
+#'                c_int = "t_costs_d_int",
+#'                c_comp = "t_costs_d_comp",
+#'                v_wtp = seq(from = 0, to = 50000, by = 1000))
+#' @import assertthat
+#' @import glue
+#' @import dplyr
+#' @import tidyr
+#' @export
+calculate_ceac_mult <- function (df,
+                                 outcomes,
+                                 costs,
+                                 v_wtp = seq(from = 0, to = 100000, by = 1000)){
+  # Checks
+  assertthat::assert_that(all(outcomes %in% names(df)),
+                          msg = glue::glue("At least one variable in vector 'outcomes' is not a valid column name of 'df'."))
+  assertthat::assert_that(all(costs %in% names(df)),
+                          msg = glue::glue("At least one variable in vector 'costs' is not a valid column name of 'df'."))
+  assertthat::assert_that(length(grep("^t_qaly_d_", outcomes)) == length(outcomes),
+                          msg = "At least one element of 'outcomes' does not start with 't_qaly_d_'")
+  assertthat::assert_that(length(grep("^t_costs_d_", costs)) == length(costs),
+                          msg = "At least one element of 'costs' does not start with 't_costs_d_'")
+  assertthat::assert_that(length(costs) == length(outcomes), msg = glue::glue("The length of vector of names 'outcomes' is different than length of vercor of names 'costs'."))
+  assertthat::assert_that(identical(
+    gsub("t_qaly_d_", "", outcomes)[order(gsub("t_qaly_d_", "", outcomes))],
+    gsub("t_costs_d_", "", costs)[order(gsub("t_costs_d_",  "", costs))]
+    ),
+    msg = "The included strategies are different in 'outcomes' and 'costs'. Ensure that the name of the strategies are the same in both argument.")
+  assertthat::assert_that(is.numeric(v_wtp), msg = ("'v_wtp' does not contain only numeric value(s)"))
+
+  # Modify data for calculations
+  outcomes <- outcomes[order(gsub("t_qaly_d_", "", outcomes))]
+  costs    <- costs[order(gsub("t_costs_d_",  "", costs))]
+  df_ceac <- df |>
+    dplyr::select(c(outcomes,
+                    costs)) |>
+    dplyr::rename_all( ~ gsub("t_qaly_d", "QALY", .)) |>
+    dplyr::rename_all( ~ gsub("t_costs_d", "Costs", .)) |>
+    dplyr::mutate(Iteration = 1:nrow(df)) |>
+    tidyr::pivot_longer(!Iteration,
+                        names_to = c("Outcome", "Strategy"),
+                        names_sep = "_") |>
+    tidyr::pivot_wider(
+      names_from = Outcome ,
+      values_from = value
+    )
+
+  # Initiate matrices
+  m_res <- matrix(NA,
+                  nrow = length(v_wtp),
+                  ncol = length(outcomes) + 1,
+                  dimnames = list(v_wtp,
+                                  c("WTP_threshold", unlist(unique(df_ceac[, "Strategy"]), use.names = FALSE)
+                                    )
+                                  )
+                  )
+  m_tmp <- matrix(NA,
+                  nrow = nrow(df),
+                  ncol = length(outcomes), #temp stores NB for each iteration
+                  dimnames = list(c(1:nrow(df)),
+                                  unlist(unique(df_ceac[, "Strategy"]), use.names = FALSE)
+                                  )
+                  )
+
+  # Loop over willingness to pay threshold to calculate net benefits for both strategies
+  v_n_comp <- 1:length(outcomes)
+  for (i in 1:length(v_wtp)){
+    m_tmp  <- df[, outcomes] * v_wtp[i] - df[, costs] # compute NB for intervention at wtp threshold
+    v_max <- unname(apply(m_tmp, 1, which.max))
+    v_n_max <- sapply(v_n_comp, function(x) length(which(v_max == v_n_comp[x])))
+    v_p  <- v_n_max/nrow(df) #probability each has highest NB than comp
+    m_res[i,] <- c(v_wtp[i], unlist(v_p)) # vector of wtp and probabilities is stored
+  }
+  rownames(m_res) <- NULL
+  df_res <- as.data.frame(m_res)
+
+  # Export
+  return(df_res)
+}
+
 #' Plotting the cost-effectiveness acceptability curves.
 #' @description This function plots cost-effectiveness acceptability curves.
 #' @param df a dataframe obtained through the `calculate_ceac()`.
@@ -366,24 +475,37 @@ calculate_ceac <- function (df,
 #' @import scales
 #' @import assertthat
 #' @import glue
-#' @import reshape2
+#' @import tidyr
 #' @export
 plot_ceac <- function(df,
-                      wtp) {
+                      wtp,
+                      currency = "euro") {
   # Check
   assertthat::assert_that(wtp %in% names(df), msg = glue::glue("{wtp} is not a valid column name of the dataframe."))
+  if(!currency %in% c("none", "euro", "dollar", "yen")) {
+    stop("The chosen currency is not valid.")
+  }
+
+  # Currency formatting
+  cur <- switch(currency,
+                euro = "\u20ac ",
+                dollar = "\u0024 ",
+                yen = "\u00a5 ",
+                none = "")
 
   # Re-organise dataframe
-  df_graph <- reshape2::melt(data = df, id.vars = wtp)
+  df_graph <- df |>
+    tidyr::pivot_longer(!wtp,
+                        names_to = "Strategy",
+                        values_to = "Probability of cost effectiveness")
+
 
   # Plot
-  p_out <- ggplot2::ggplot(data = df_graph, ggplot2::aes_string(x = wtp, y = "value", colour = "variable")) +
+  p_out <- ggplot2::ggplot(data = df_graph, ggplot2::aes_string(x = wtp, y = "`Probability of cost effectiveness`", colour = "Strategy")) +
     ggplot2::geom_line() +
     ggplot2::xlab ("Willingness-to-pay threshold") +
-    ggplot2::ylab("Probability of cost effectiveness") +
-    ggplot2::scale_x_continuous(labels = scales::dollar_format(prefix = "\u20ac ", suffix = "")) +
-    ggplot2::scale_colour_manual(name = "Strategy",
-                        values = c(Prob_int = "grey", Prob_comp = "orange")) +
+    ggplot2::scale_x_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
+    ggplot2::ylim(c(0, 1)) +
     ggplot2::theme_bw()
 
   # Export
@@ -437,6 +559,62 @@ calculate_nb <- function(df,
                        NHB_comp = df[, e_comp] - df[, c_comp] / wtp,
                        iNHB = (df[, e_int] - df[, e_comp]) - (df[, c_int] - df[, c_comp]) / wtp
   )
+
+  # Export
+  return(df_out)
+}
+
+#' Calculate NMB and NHB.
+#' @description This function calculates the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
+#' @inheritParams plot_ce_mult
+#' @param wtp numeric. Willingness-to-pay thresholds to use for NMB and NHB calculations.
+#' @return
+#' A dataframe containing the original data and the following variables containing the NMB and NHB for each strategy.\n
+#' The name of these new variables are structured as 'NMB_strategyname' and 'NHB_strategyname'
+#' @examples
+#' # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects
+#' data("df_pa")
+#' df_pa$t_costs_d_comp2 <- df_pa$t_costs_d_comp * 1.09
+#' df_pa$t_qaly_d_comp2 <- df_pa$t_qaly_d_comp * 1.01
+#' calculate_nb_mult(df = df_pa,
+#'                   outcomes = c("t_qaly_d_comp2", "t_qaly_d_int", "t_qaly_d_comp"),
+#'                   costs = c("t_costs_d_int", "t_costs_d_comp2", "t_costs_d_comp"),
+#'                   wtp = 50000
+#'                   )
+#' @import assertthat
+#' @export
+calculate_nb_mult <- function(df,
+                              outcomes,
+                              costs,
+                              wtp) {
+  # Checks
+  assertthat::assert_that(all(outcomes %in% names(df)), msg = glue::glue("At least one variable in vector 'outcomes' is not a valid column name of 'df'."))
+  assertthat::assert_that(all(costs %in% names(df)), msg = glue::glue("At least one variable in vector 'costs' is not a valid column name of 'df'."))
+  assertthat::assert_that(length(grep("^t_qaly_d_", outcomes)) == length(outcomes),
+                          msg = "At least one element of 'outcomes' does not start with 't_qaly_d_'")
+  assertthat::assert_that(length(grep("^t_costs_d_", costs)) == length(costs),
+                          msg = "At least one element of 'costs' does not start with 't_costs_d_'")
+  assertthat::assert_that(length(costs) == length(outcomes), msg = glue::glue("The length of vector of names 'outcomes' is different than length of vercor of names 'costs'."))
+  assertthat::assert_that(identical(
+    gsub("t_qaly_d_", "", outcomes)[order(gsub("t_qaly_d_", "", outcomes))],
+    gsub("t_costs_d_", "", costs)[order(gsub("t_costs_d_",  "", costs))]
+  ),
+  msg = "The included strategies are different in 'outcomes' and 'costs'. Ensure that the name of the strategies are the same in both argument.")
+
+  # Modify data for calculations
+  outcomes <- outcomes[order(gsub("t_qaly_d_", "", outcomes))]
+  costs    <- costs[order(gsub("t_costs_d_",  "", costs))]
+  v_names_strategies <- gsub("t_qaly_d_", "", outcomes)[order(gsub("t_qaly_d_", "", outcomes))]
+
+  # Calculate outcomes and store them in a dataframe
+  df_NMB <- df[, outcomes] * wtp - df[, costs]
+  df_NHB <- df[, outcomes] - df[, costs] / wtp
+  names(df_NMB) <- paste0("NMB", "_", v_names_strategies)
+  names(df_NHB) <- paste0("NHB", "_", v_names_strategies)
+  df_out <- data.frame(df,
+                       df_NMB,
+                       df_NHB
+                       )
 
   # Export
   return(df_out)

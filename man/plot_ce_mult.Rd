@@ -9,11 +9,11 @@ plot_ce_mult(df, outcomes, costs, ellipse = FALSE, currency = "euro")
 \arguments{
 \item{df}{a dataframe.}
 
-\item{outcomes}{character. Vector of names containing the outcomes to be plotted on the x-axis.}
+\item{outcomes}{character. Vector of variable names containing the outcomes to be plotted on the x-axis. The variable names should be structured as follows: 't_qaly_d_' followed by the name of the strategy: e.g. 't_qaly_d_intervention'.}
 
-\item{costs}{character. Vector of names containing the costs to be plotted on the y-axis.}
+\item{costs}{character. Vector of variable names containing the costs to be plotted on the y-axis. The variable names should be structured as follows: 't_costs_d_' followed by the name of the strategy: e.g. 't_costs_d_intervention'.}
 
-\item{ellipse}{logical. Determines whether plot should plot the dots of each iteration (default, ellipse = FALSE), or whether the mean outcomes and costs and their 95% confidence ellipses should be plotted (TRUE).}
+\item{ellipse}{logical. Determines whether plot should plot the dots of each iteration (default, ellipse = FALSE), or whether the mean outcomes and costs and their 95procent confidence ellipses should be plotted (TRUE).}
 
 \item{currency}{character. Default is "euro". Determines the currency sign to use in the incremental cost effectiveness plane. Currently included signs: "euro", "dollar", "yen", "none".}
 }
