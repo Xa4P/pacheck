@@ -153,6 +153,98 @@ plot_ce <- function (df,
   p_out
 }
 
+#' Plotting cost-effectiveness plane.
+#' @description This function plots the cost-effectiveness plane for an infinite amount of strategies .
+#' @inheritParams plot_ice
+#' @param outcomes character. Vector of names containing the outcomes to be plotted on the x-axis.
+#' @param costs character. Vector of names containing the costs to be plotted on the y-axis.
+#' @param ellipse logical. Determines whether plot should plot the dots of each iteration (default, ellipse = FALSE), or whether the mean outcomes and costs and their 95% confidence ellipses should be plotted (TRUE).
+#' @return A ggplot2 graph.
+#' @examples
+#' # Plot cost effectiveness plane as ellipses
+#' data("df_pa")
+#' df_pa$t_qaly_d_int2 <- df_pa$t_qaly_d_int * 1.5 # creating additional outcome variable
+#' df_pa$t_costs_d_int2 <- df_pa$t_costs_d_int * 1.5 # creating additional costs variable
+#' plot_ce_mult(df = df_pa,
+#'              outcomes = c("t_qaly_d_int", "t_qaly_d_comp", "t_qaly_d_int2"),
+#'              costs = c("t_costs_d_int","t_costs_d_comp", "t_costs_d_int2"),
+#'              ellipse = TRUE)
+#' @import ggplot2
+#' @import scales
+#' @import assertthat
+#' @import glue
+#' @import dplyr
+#' @import tidyr
+#' @export
+plot_ce_mult <- function (df,
+                          outcomes,
+                          costs,
+                          ellipse = FALSE,
+                          currency = "euro") {
+  # Checks
+  assertthat::assert_that(all(outcomes %in% names(df)), msg = glue::glue("At least one variable in vector 'outcomes' is not a valid column name of 'df'."))
+  assertthat::assert_that(all(costs %in% names(df)), msg = glue::glue("At least one variable in vector 'costs' is not a valid column name of 'df'."))
+  assertthat::assert_that(length(costs) == length(outcomes), msg = glue::glue("The length of vector of names 'outcomes' is different than length of vercor of names 'costs'."))
+  if(!currency %in% c("none", "euro", "dollar", "yen")) {
+    stop("The chosen currency is not valid.")
+  }
+
+  # Determine formatting plot
+  cur <- switch(currency,
+                euro = "\u20ac ",
+                dollar = "\u0024 ",
+                yen = "\u00a5 ",
+                none = "")
+
+  # Modify data for plot
+  df_plot <- df |>
+    dplyr::select(c(outcomes,
+                    costs)) |>
+    dplyr::rename_all( ~ gsub("t_qaly_d", "QALY", .)) |>
+    dplyr::rename_all( ~ gsub("t_costs_d", "Costs", .)) |>
+    dplyr::mutate(Iteration = 1:nrow(df)) |>
+    tidyr::pivot_longer(!Iteration,
+                        names_to = c("Outcome", "Strategy"),
+                        names_sep = "_") |>
+    tidyr::pivot_wider(
+      names_from = Outcome ,
+      values_from = value
+    )
+  df_plot_mean <- df_plot |>
+    dplyr::group_by(Strategy) |>
+    dplyr::summarise(QALY = mean(QALY),
+                     Costs = mean(Costs))
+
+  # Plot
+  p_out <- ggplot2::ggplot(data = df_plot, ggplot2::aes(x = QALY, y = Costs, colour = Strategy)) +
+    ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
+    ggplot2::geom_hline(yintercept = 0) +
+    ggplot2::geom_vline(xintercept = 0) +
+    ggplot2::xlab ("Total effects") +
+    ggplot2::ylab("Total costs") +
+    ggplot2::theme_bw()
+
+  if(ellipse == TRUE) {
+    p_out <- p_out+
+      ggplot2::stat_ellipse() +
+      ggplot2::geom_point(data = df_plot_mean, ggplot2::aes(x = QALY, y = Costs, colour = Strategy))
+  } else {
+    p_out <- p_out+
+      ggplot2::geom_point()
+  }
+
+  # p_out <- p_out +
+  #   ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
+  #   ggplot2::geom_hline(yintercept = 0) +
+  #   ggplot2::geom_vline(xintercept = 0) +
+  #   ggplot2::xlab ("Total effects") +
+  #   ggplot2::ylab("Total costs") +
+  #   ggplot2::theme_bw()
+
+  # Export
+  p_out
+}
+
 #' Summary statistics of the incremental cost-effectiveness plane.
 #' @description This function computes the probability that the probabilistic outcome is in each of the quadrants.
 #' @inheritParams plot_ice
