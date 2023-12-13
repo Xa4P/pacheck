@@ -31,7 +31,7 @@ fit_lm_metamodel(
 
 \item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
 
-\item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.}
+\item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.}
 
 \item{validation}{logical. Determine whether R2 should be calculated on the validation set.}
 

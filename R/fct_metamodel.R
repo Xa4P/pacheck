@@ -7,7 +7,7 @@
 #' @param x_vars character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
 #' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
-#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
+#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.
 #' @param validation logical. Determine whether R2 should be calculated on the validation set.
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
