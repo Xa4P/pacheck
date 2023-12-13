@@ -2,13 +2,23 @@
 % Please edit documentation in R/fct_randomforest.R
 \name{fit_rf_metamodel}
 \alias{fit_rf_metamodel}
-\title{Title}
+\title{Fit random forest metamodel}
 \usage{
-fit_rf_metamodel(x, split)
+fit_rf_metamodel(
+  df,
+  y_var = NULL,
+  x_vars = NULL,
+  standardise = FALSE,
+  x_poly_2 = NULL,
+  x_poly_3 = NULL,
+  x_exp = NULL,
+  x_log = NULL,
+  x_inter = NULL
+)
 }
 \arguments{
-\item{split}{}
+\item{x_inter}{}
 }
 \description{
-Title
+Fit random forest metamodel
 }
