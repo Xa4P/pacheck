@@ -9,11 +9,16 @@ fit_rf_metamodel(
   y_var = NULL,
   x_vars = NULL,
   standardise = FALSE,
+  seed_num = 1,
   x_poly_2 = NULL,
   x_poly_3 = NULL,
   x_exp = NULL,
   x_log = NULL,
-  x_inter = NULL
+  x_inter = NULL,
+  tune_graph = FALSE,
+  VIMP = FALSE,
+  pm_plot = NULL,
+  pm_variable = NULL
 )
 }
 \arguments{

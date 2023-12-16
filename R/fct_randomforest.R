@@ -9,6 +9,14 @@
 #' @param x_exp
 #' @param x_log
 #' @param x_inter
+#' @param seed_num
+#' @param tune_graph
+#' @param VIMP
+#' @param pm_plot
+#' @param pm_variable
+#'
+#' @import randomForestSRC
+#' @import interp
 #'
 #' @return
 #' @export
@@ -18,11 +26,16 @@ fit_rf_metamodel <- function(df,
                              y_var = NULL,
                              x_vars = NULL,
                              standardise = FALSE,
+                             seed_num = 1,
                              x_poly_2 = NULL,
                              x_poly_3 = NULL,
                              x_exp = NULL,
                              x_log = NULL,
-                             x_inter = NULL) {
+                             x_inter = NULL,
+                             tune_graph = FALSE,
+                             VIMP = FALSE,
+                             pm_plot = NULL,
+                             pm_variable = NULL) {
   # Flag errors
   if(length(y_var) > 1) {
     stop("Multiple outcomes provided to 'y'.")
@@ -43,12 +56,7 @@ fit_rf_metamodel <- function(df,
     stop("Cannot perform linear regression because there is no value provided for the predictors.")
   }
 
-  # Set up
-  l_out <- list()
-  set.seed(seed_num)
-
-  # Set up
-  l_out <- list()
+  # Set seed
   set.seed(seed_num)
 
   # Standardise inputs
@@ -98,5 +106,69 @@ fit_rf_metamodel <- function(df,
 
   v_x <- paste(unique(c(x_vars, v_poly_2, v_poly_3, v_exp, v_log, v_inter)), collapse = " + ")
   form <- as.formula(paste(y_var, "~", v_x))
+
+  # Tune mtry & nodesize
+  rf_tune <- tune(form,
+                 data = df,
+                 splitrule = "mse",
+                 )
+
+  # Fit random forest model with tuned parameters
+  rf_fit = rfsrc(form,
+                 data = df,
+                 splitrule = "mse",
+                 nodesize = rf_tune$optimal[[1]],
+                 mtry = rf_tune$optimal[[2]],
+                 forest = TRUE,
+                 importance = "permute"
+  )
+
+  # Show plots
+  ## tune plot
+  if (tune_graph == TRUE){
+    plot.tune <- function(o, linear = TRUE){
+      x <- o$results[,1]
+      y <- o$results[,2]
+      z <- o$results[,3]
+      so <- interp(x=x, y=y, z=z, linear = linear)
+      idx <- which.min(z)
+      x0 <- x[idx]
+      y0 <- y[idx]
+      filled.contour(x = so$x,
+                     y = so$y,
+                     z = so$z,
+                     xlim = range(so$x, finite = TRUE) + c(-2, 2),
+                     ylim = range(so$y, finite = TRUE) + c(-2, 2),
+                     color.palette =
+                       colorRampPalette(c("yellow", "red")),
+                     xlab = "nodesize",
+                     ylab = "mtry",
+                     main = "error rate for nodesize and mtry",
+                     key.title = title(main = "OOB error", cex.main = 1),
+                     plot.axes = {axis(1);axis(2);points(x0,y0,pch="x",cex=1,font=2);
+                       points(x,y,pch=16,cex=.25)})
+    }
+    plot.tune(rf_tune)
+  }
+  ## VIMP plot
+  else if (VIMP == TRUE){
+    plot(rf_fit)
+  }
+  ## partial and/or marginal plot
+  else if (pm_plot == "partial") {
+    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
+  }
+  else if (pm_plot == "marginal") {
+    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
+  }
+  else if (pm_plot == "both") {
+    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
+    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
+  }
+
+  # Export
+  l_out = list(tuned_fit = rf_tune,
+               rf_fit = rf_fit,
+               )
 
 }
