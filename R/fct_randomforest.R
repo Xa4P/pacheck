@@ -40,12 +40,6 @@ fit_rf_metamodel <- function(df,
   if(length(y_var) > 1) {
     stop("Multiple outcomes provided to 'y'.")
   }
-  if(partition < 0 || partition > 1) {
-    stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
-  }
-  if(partition == 1 && validation == TRUE) {
-    stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
-  }
   if(is.null(y_var)) {
     stop("Cannot perform linear regression because there is no value provided for 'y_var'.")
   }
