@@ -59,7 +59,7 @@ fit_lm_metamodel <- function(df,
     stop("Cannot perform linear regression because there is no value provided for 'y_var'.")
   }
   if(!is.null(x_inter) && length(x_inter) != 2 * round(length(x_inter) / 2)) {
-    stop("The number of interaction terms is oneven.")
+    stop("The number of interaction terms is uneven.")
   }
   if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
     stop("Cannot perform linear regression because there is no value provided for the predictors.")
