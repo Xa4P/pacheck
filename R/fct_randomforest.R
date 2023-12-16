@@ -1,19 +1,19 @@
 #' Fit random forest metamodel
 #'
-#' @param df
-#' @param y_var
-#' @param x_vars
-#' @param standardise
-#' @param x_poly_2
-#' @param x_poly_3
-#' @param x_exp
-#' @param x_log
-#' @param x_inter
-#' @param seed_num
-#' @param tune_graph
-#' @param VIMP
-#' @param pm_plot
-#' @param pm_variable
+#' @param df a dataframe.
+#' @param y_var character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
+#' @param x_vars character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.
+#' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
+#' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
+#' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
+#' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
+#' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
+#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
+#' @param tune logical. Determine whether nodesize and mtry should be tuned. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.
+#' @param var_importance logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is TRUE (= anti).
+#' @param pm_plot logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".
+#' @param pm_vars character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.
+#'
 #'
 #' @import randomForestSRC
 #' @import interp
@@ -32,23 +32,33 @@ fit_rf_metamodel <- function(df,
                              x_exp = NULL,
                              x_log = NULL,
                              x_inter = NULL,
-                             tune_graph = FALSE,
-                             VIMP = FALSE,
-                             pm_plot = NULL,
-                             pm_variable = NULL) {
+                             tune = FALSE,
+                             var_importance = TRUE, #or permute/random/ TRUE(=anti)/FALSE
+                             pm_plot = FALSE,
+                             pm_vars = x_vars[1]) {
   # Flag errors
   if(length(y_var) > 1) {
     stop("Multiple outcomes provided to 'y'.")
   }
   if(is.null(y_var)) {
-    stop("Cannot perform linear regression because there is no value provided for 'y_var'.")
+    stop("Cannot perform random forest regression because there is no value provided for 'y_var'.")
   }
   if(!is.null(x_inter) && length(x_inter) != 2 * round(length(x_inter) / 2)) {
-    stop("The number of interaction terms is oneven.")
+    stop("The number of interaction terms is uneven.")
   }
   if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
-    stop("Cannot perform linear regression because there is no value provided for the predictors.")
+    stop("Cannot perform random forest regression because there is no value provided for the predictors.")
   }
+  if(length(var_importance)>1 || !all(var_importance %in% c(TRUE,FALSE,"anti","permute","random"))) {
+    stop("'var_importance' should be one of: TRUE, FALSE, 'anti','permute','random'.")
+  }
+  if(length(pm_plot)>1 || !(pm_plot %in% c(TRUE,FALSE,"partial","marginal","both"))) {
+    stop("'pm_plot' should be one of: TRUE, FALSE, 'partial','marginal','both'")
+  }
+  if(!all(pm_vars %in% x_vars)) {
+    stop("Cannot produce the partial/marginal plot because at least one of the 'pm_vars' is not in 'x_vars'.")
+  }
+
 
   # Set seed
   set.seed(seed_num)
@@ -101,25 +111,20 @@ fit_rf_metamodel <- function(df,
   v_x <- paste(unique(c(x_vars, v_poly_2, v_poly_3, v_exp, v_log, v_inter)), collapse = " + ")
   form <- as.formula(paste(y_var, "~", v_x))
 
+  # Set default mtry and nodesize
+  nodesize = NULL
+  mtry = NULL
+
   # Tune mtry & nodesize
-  rf_tune <- tune(form,
-                 data = df,
-                 splitrule = "mse",
-                 )
+  if (tune == TRUE){
+    rf_tune <- tune(form,
+                    data = df,
+                    splitrule = "mse")
 
-  # Fit random forest model with tuned parameters
-  rf_fit = rfsrc(form,
-                 data = df,
-                 splitrule = "mse",
-                 nodesize = rf_tune$optimal[[1]],
-                 mtry = rf_tune$optimal[[2]],
-                 forest = TRUE,
-                 importance = "permute"
-  )
+    nodesize = rf_tune$optimal[[1]]
+    mtry = rf_tune$optimal[[2]]
 
-  # Show plots
-  ## tune plot
-  if (tune_graph == TRUE){
+    ## tune plot
     plot.tune <- function(o, linear = TRUE){
       x <- o$results[,1]
       y <- o$results[,2]
@@ -144,25 +149,46 @@ fit_rf_metamodel <- function(df,
     }
     plot.tune(rf_tune)
   }
-  ## VIMP plot
-  else if (VIMP == TRUE){
+  else {
+    rf_tune = NULL
+  }
+
+
+  # Fit random forest model with tuned parameters
+  rf_fit = rfsrc(form,
+                 data = df,
+                 splitrule = "mse",
+                 nodesize = nodesize,
+                 mtry = mtry,
+                 forest = TRUE,
+                 importance = var_importance
+  )
+
+  # Show plots
+  ## variable importance plot
+  if (var_importance != FALSE){
     plot(rf_fit)
   }
   ## partial and/or marginal plot
-  else if (pm_plot == "partial") {
-    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
-  }
-  else if (pm_plot == "marginal") {
-    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
-  }
-  else if (pm_plot == "both") {
-    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
-    plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
+  if (pm_plot != FALSE){
+    for (pm_variable in pm_vars) {
+      if (pm_plot == "both" || pm_plot == TRUE) {
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
+      }
+      else if (pm_plot == "partial") {
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
+      }
+      else if (pm_plot == "marginal") {
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
+      }
+
+    }
   }
 
   # Export
   l_out = list(tuned_fit = rf_tune,
-               rf_fit = rf_fit,
+               rf_fit = rf_fit
                )
 
 }

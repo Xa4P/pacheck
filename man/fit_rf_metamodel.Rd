@@ -15,14 +15,38 @@ fit_rf_metamodel(
   x_exp = NULL,
   x_log = NULL,
   x_inter = NULL,
-  tune_graph = FALSE,
-  VIMP = FALSE,
-  pm_plot = NULL,
-  pm_variable = NULL
+  tune = FALSE,
+  var_importance = TRUE,
+  pm_plot = FALSE,
+  pm_vars = x_vars[1]
 )
 }
 \arguments{
-\item{x_inter}{}
+\item{df}{a dataframe.}
+
+\item{y_var}{character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.}
+
+\item{x_vars}{character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.}
+
+\item{standardise}{logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.}
+
+\item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.}
+
+\item{x_poly_2}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.}
+
+\item{x_poly_3}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.}
+
+\item{x_exp}{character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.}
+
+\item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
+
+\item{tune}{logical. Determine whether nodesize and mtry should be tuned. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.}
+
+\item{var_importance}{logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is TRUE (= anti).}
+
+\item{pm_plot}{logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".}
+
+\item{pm_vars}{character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.}
 }
 \description{
 Fit random forest metamodel
