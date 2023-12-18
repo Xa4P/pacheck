@@ -49,8 +49,25 @@ fit_rf_metamodel(
 \item{pm_vars}{character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.}
 }
 \value{
-A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results.
+A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results. If specified, variable importance and partial and/or marginal plots are plotted.
 }
 \description{
 Fit random forest metamodel
+}
+\details{
+Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
+where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
+For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
+}
+\examples{
+# Fitting random forest meta model with two variables using the probabilistic data
+data(df_pa)
+fit = fit_rf_metamodel(df = df_pa,
+                       y_var = "inc_qaly",
+                       x_vars = c("p_pfsd","p_pdd"),
+                       tune = TRUE,
+                       var_importance = TRUE,
+                       pm_plot = "both",
+                       pm_vars = c("p_pfsd","p_pdd")
+                       )
 }

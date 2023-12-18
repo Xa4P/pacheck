@@ -48,7 +48,7 @@ fit_lm_metamodel(
 \item{x_inter}{character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.}
 }
 \value{
-A list with containing the fit of the model and validation estimates and plots when selected.
+A list containing the fit of the model and validation estimates and plots when selected.
 }
 \description{
 This function fits and provides summary statistics of a linear regression model fitted on the input and output values of a probabilistic analysis.
