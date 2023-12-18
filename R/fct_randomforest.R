@@ -140,7 +140,6 @@ fit_rf_metamodel <- function(df,
 
     tune_plot = ggplot() + geom_raster(aes(nodesize,mtry,fill=error),df_interp, interpolate = TRUE) +
       scale_fill_gradientn(colours=c("yellow","red"),na.value="white") +
-      #geom_point() +
       geom_point(aes(x=x0,y=y0), colour="black",size=8,pch="x") +
       geom_point(aes(x=x,y=y)) +
       scale_y_continuous(expand = expansion(mult = .5)) +
@@ -156,7 +155,6 @@ fit_rf_metamodel <- function(df,
     tune_plot = NULL
   }
 
-
   # Fit random forest model with tuned parameters
   rf_fit = rfsrc(form,
                  data = df,
@@ -170,23 +168,22 @@ fit_rf_metamodel <- function(df,
   # Show plots
   ## variable importance plot
   if (var_importance != FALSE){
-    plot(rf_fit)
+    plot(rf_fit,verbose=TRUE,plots.one.page=TRUE)
   }
   ## partial and/or marginal plot
   if (pm_plot != FALSE){
-    for (pm_variable in pm_vars) {
-      if (pm_plot == "both" || pm_plot == TRUE) {
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
-      }
-      else if (pm_plot == "partial") {
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = TRUE)
-      }
-      else if (pm_plot == "marginal") {
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_variable,partial = FALSE)
-      }
-
+    if (pm_plot == "both" || pm_plot == TRUE) {
+      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
     }
+    else if (pm_plot == "partial") {
+      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+    }
+    else if (pm_plot == "marginal") {
+      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+    }
+
+
   }
 
   # Export
