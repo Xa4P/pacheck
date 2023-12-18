@@ -50,7 +50,12 @@ fit_rf_metamodel <- function(df,
                              tune = FALSE,
                              var_importance = TRUE, #or permute/random/ TRUE(=anti)/FALSE
                              pm_plot = FALSE,
-                             pm_vars = x_vars[1]) {
+                             pm_vars = x_vars[1],
+                             validation = TRUE, #= TRUE(=cross_validation)/FALSE / train_test_split
+                             folds = 5,
+                             partition = 0.8
+                             ){
+
   # Flag errors
   if(length(y_var) > 1) {
     stop("Multiple outcomes provided to 'y'.")
@@ -72,6 +77,15 @@ fit_rf_metamodel <- function(df,
   }
   if(!all(pm_vars %in% x_vars)) {
     stop("Cannot produce the partial/marginal plot because at least one of the 'pm_vars' is not in 'x_vars'.")
+  }
+  if(partition < 0 || partition > 1) {
+    stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
+  }
+  if(!(validation %in% c(TRUE,FALSE,"cross_validation","train_test_split"))) {
+    stop("Validation must be one of: TRUE, FALSE, 'cross_validation','train_test_split'.")
+  }
+  if(folds < 1 || folds > nrow(df_pa) || !is.integer(folds)){
+    stop("Folds must be an integer, and bigger than 0 and smaller or equal to the number of rows of the dataframe.")
   }
 
   # Set seed
@@ -195,6 +209,17 @@ fit_rf_metamodel <- function(df,
     else if (pm_plot == "marginal") {
       plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
     }
+
+  }
+
+  # Validation
+  if (validation == TRUE || validation == "cross_validation"){
+
+  }
+  else if (validation == "train_test_split"){
+
+  }
+  else {
 
   }
 
