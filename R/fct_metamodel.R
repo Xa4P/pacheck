@@ -16,7 +16,7 @@
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
 #'
-#' @return A list with containing the fit of the model and validation estimates and plots when selected.
+#' @return A list containing the fit of the model and validation estimates and plots when selected.
 #'
 #' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
 #' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
