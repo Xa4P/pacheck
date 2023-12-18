@@ -17,8 +17,9 @@
 #'
 #' @import randomForestSRC
 #' @import interp
+#' @import ggplot2
 #'
-#' @return
+#' @return A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results.
 #' @export
 #'
 #' @examples
@@ -125,32 +126,34 @@ fit_rf_metamodel <- function(df,
     mtry = rf_tune$optimal[[2]]
 
     ## tune plot
-    plot.tune <- function(o, linear = TRUE){
-      x <- o$results[,1]
-      y <- o$results[,2]
-      z <- o$results[,3]
-      so <- interp(x=x, y=y, z=z, linear = linear)
-      idx <- which.min(z)
-      x0 <- x[idx]
-      y0 <- y[idx]
-      filled.contour(x = so$x,
-                     y = so$y,
-                     z = so$z,
-                     xlim = range(so$x, finite = TRUE) + c(-2, 2),
-                     ylim = range(so$y, finite = TRUE) + c(-2, 2),
-                     color.palette =
-                       colorRampPalette(c("yellow", "red")),
-                     xlab = "nodesize",
-                     ylab = "mtry",
-                     main = "error rate for nodesize and mtry",
-                     key.title = title(main = "OOB error", cex.main = 1),
-                     plot.axes = {axis(1);axis(2);points(x0,y0,pch="x",cex=1,font=2);
-                       points(x,y,pch=16,cex=.25)})
-    }
-    plot.tune(rf_tune)
+    x <- rf_tune$results[,1]
+    y <- rf_tune$results[,2]
+    z <- rf_tune$results[,3]
+    so <- interp(x=x, y=y, z=z, linear = linear,output = "grid")
+    idx <- which.min(z)
+    x0 <- x[idx]
+    y0 <- y[idx]
+    so_v = c(so$z)
+    xy_grid = expand.grid(so$x,so$y)
+    df_interp = data.frame(xy_grid,so_v)
+    colnames(df_interp) = c("nodesize","mtry","error")
+
+    tune_plot = ggplot() + geom_raster(aes(nodesize,mtry,fill=error),df_interp, interpolate = TRUE) +
+      scale_fill_gradientn(colours=c("yellow","red"),na.value="white") +
+      #geom_point() +
+      geom_point(aes(x=x0,y=y0), colour="black",size=8,pch="x") +
+      geom_point(aes(x=x,y=y)) +
+      scale_y_continuous(expand = expansion(mult = .5)) +
+      guides(fill = guide_colourbar(title="OOB error")) +
+      xlab("Nodesize") +
+      ylab("Mtry") +
+      ggtitle('Error rate for nodesize and mtry') +
+      theme_bw() +
+      theme(plot.title = element_text(hjust = 0.5))
   }
   else {
     rf_tune = NULL
+    tune_plot = NULL
   }
 
 
@@ -187,8 +190,9 @@ fit_rf_metamodel <- function(df,
   }
 
   # Export
-  l_out = list(tuned_fit = rf_tune,
-               rf_fit = rf_fit
+  l_out = list(rf_fit = rf_fit,
+               tune_fit = rf_tune,
+               tune_plot = tune_plot
                )
 
 }

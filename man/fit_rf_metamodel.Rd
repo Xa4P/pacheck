@@ -48,6 +48,9 @@ fit_rf_metamodel(
 
 \item{pm_vars}{character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.}
 }
+\value{
+A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results.
+}
 \description{
 Fit random forest metamodel
 }
