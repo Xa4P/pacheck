@@ -19,7 +19,7 @@
 #' @import interp
 #' @import ggplot2
 #'
-#' @return A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results.
+#' @return A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results. If specified, variable importance and partial and/or marginal plots are plotted.
 #' @export
 #'
 #' @examples
