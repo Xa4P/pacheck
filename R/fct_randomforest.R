@@ -52,7 +52,7 @@ fit_rf_metamodel <- function(df,
                              pm_plot = FALSE,
                              pm_vars = x_vars[1],
                              validation = TRUE, #= TRUE(=cross_validation)/FALSE / train_test_split
-                             folds = 5,
+                             folds = 5, #if not a whole number is entered it's rounded to nearest integer???
                              partition = 0.8
                              ){
 
@@ -84,12 +84,16 @@ fit_rf_metamodel <- function(df,
   if(!(validation %in% c(TRUE,FALSE,"cross_validation","train_test_split"))) {
     stop("Validation must be one of: TRUE, FALSE, 'cross_validation','train_test_split'.")
   }
-  if(folds < 1 || folds > nrow(df_pa) || !is.integer(folds)){
+  if(folds < 1 || folds > nrow(df_pa)){
     stop("Folds must be an integer, and bigger than 0 and smaller or equal to the number of rows of the dataframe.")
   }
 
-  # Set seed
+  # Set up
   set.seed(seed_num)
+  l_out = list(rf_fit = NULL,
+               tune_fit = NULL,
+               tune_plot = NULL
+  )
 
   # Standardise inputs
   if(standardise == TRUE) {
@@ -176,10 +180,13 @@ fit_rf_metamodel <- function(df,
       ggtitle('Error rate for nodesize and mtry') +
       theme_bw() +
       theme(plot.title = element_text(hjust = 0.5))
+
+    ## return
+    l_out['tune_fit'] = list(rf_tune)
+    l_out['tune_plot'] = list(tune_plot)
   }
   else {
-    rf_tune = NULL
-    tune_plot = NULL
+    l_out[c(2,3)] = NULL
   }
 
   # Fit random forest model with tuned parameters
@@ -191,6 +198,7 @@ fit_rf_metamodel <- function(df,
                  forest = TRUE,
                  importance = var_importance
   )
+  l_out['rf_fit'] = list(rf_fit)
 
   # Show plots
   ## variable importance plot
@@ -224,8 +232,5 @@ fit_rf_metamodel <- function(df,
   }
 
   # Export
-  l_out = list(rf_fit = rf_fit,
-               tune_fit = rf_tune,
-               tune_plot = tune_plot
-               )
+  return(l_out)
 }
