@@ -14,7 +14,6 @@
 #' @param pm_plot logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".
 #' @param pm_vars character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.
 #'
-#'
 #' @import randomForestSRC
 #' @import interp
 #' @import ggplot2
@@ -59,7 +58,6 @@ fit_rf_metamodel <- function(df,
   if(!all(pm_vars %in% x_vars)) {
     stop("Cannot produce the partial/marginal plot because at least one of the 'pm_vars' is not in 'x_vars'.")
   }
-
 
   # Set seed
   set.seed(seed_num)
@@ -183,7 +181,6 @@ fit_rf_metamodel <- function(df,
       plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
     }
 
-
   }
 
   # Export
@@ -191,5 +188,4 @@ fit_rf_metamodel <- function(df,
                tune_fit = rf_tune,
                tune_plot = tune_plot
                )
-
 }
