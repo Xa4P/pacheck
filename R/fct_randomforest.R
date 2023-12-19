@@ -88,6 +88,9 @@ fit_rf_metamodel <- function(df,
     stop("Folds must be an integer, and bigger than 0 and smaller or equal to the number of rows of the dataframe.")
   }
 
+  # Remove any possible NA's
+  df = na.omit(df)
+
   # Set up
   set.seed(seed_num)
   l_out = list(rf_fit = NULL,
