@@ -94,9 +94,11 @@ fit_rf_metamodel <- function(df,
   # Set up
   set.seed(seed_num)
   l_out = list(rf_fit = NULL,
+               stats_validation = NULL,
+               calibration_plot = NULL,
                tune_fit = NULL,
                tune_plot = NULL
-  )
+               )
 
   # Standardise inputs
   if(standardise == TRUE) {
@@ -185,11 +187,11 @@ fit_rf_metamodel <- function(df,
       theme(plot.title = element_text(hjust = 0.5))
 
     ## return
-    l_out['tune_fit'] = list(rf_tune)
-    l_out['tune_plot'] = list(tune_plot)
+    l_out[4] = list(rf_tune)
+    l_out[5] = list(tune_plot)
   }
   else {
-    l_out[c(2,3)] = NULL
+    l_out = l_out[-c(4,5)]
   }
 
   # Fit random forest model with tuned parameters
@@ -201,7 +203,7 @@ fit_rf_metamodel <- function(df,
                  forest = TRUE,
                  importance = var_importance
   )
-  l_out['rf_fit'] = list(rf_fit)
+  l_out[1] = list(rf_fit)
 
   # Show plots
   ## variable importance plot
@@ -228,11 +230,50 @@ fit_rf_metamodel <- function(df,
 
   }
   else if (validation == "train_test_split"){
+    ## Partition data and fit to train data
+    selection = sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
+    df_train = df[selection, ]
+    df_test = df[-selection, ]
+    train_rf_fit = rfsrc(form,
+                         data = df,
+                         splitrule = "mse",
+                         nodesize = nodesize,
+                         mtry = mtry,
+                         forest = TRUE
+    )
+
+    ## Test on test data
+    preds = predict(train_rf_fit, newdata = df_test)$predicted
+    tests = df_test[,y_var]
+
+    r_squared_validation = cor(preds,tests)^2
+    mae_validation = mean(abs(preds-tests))
+    mre_validation = mean(abs(preds-tests)/abs(tests))
+    mse_validation = mean((preds-tests)^2)
+
+    ## Calibration plot: predicted versus observed
+    df_test$y_pred = preds
+    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_test) +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
+      ggplot2::xlab("Predicted values") +
+      ggplot2::ylab("Observed values") +
+      ggplot2::ggtitle(paste("Calibration plot for","Ozone")) +
+      ggplot2::theme_bw() +
+      ggplot2::theme(plot.title = element_text(hjust = 0.5))
+
+    stats_validation = data.frame(
+      Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
+      Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
+    )
+
 
   }
   else {
-
+    l_out = l_out[-c(2,3)]
   }
+  l_out[2] = list(stats_validation)
+  l_out[3] = list(p)
 
   # Export
   return(l_out)
