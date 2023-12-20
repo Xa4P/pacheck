@@ -18,7 +18,7 @@
 #' @import interp
 #' @import ggplot2
 #'
-#' @return A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results. If specified, variable importance and partial and/or marginal plots are plotted.
+#' @return A list containing ......
 #' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
 #' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
 #' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
@@ -52,8 +52,9 @@ fit_rf_metamodel <- function(df,
                              pm_plot = FALSE,
                              pm_vars = x_vars[1],
                              validation = TRUE, #= TRUE(=cross_validation)/FALSE / train_test_split
-                             folds = 5, #if not a whole number is entered it's rounded to nearest integer???
-                             partition = 0.8
+                             folds = 5, #if not a whole number is entered it's rounded DOWN to nearest integer
+                             partition = 0.8,
+                             fit_complete_model = TRUE
                              ){
 
   # Flag errors
@@ -85,7 +86,7 @@ fit_rf_metamodel <- function(df,
     stop("Validation must be one of: TRUE, FALSE, 'cross_validation','train_test_split'.")
   }
   if(folds < 1 || folds > nrow(df_pa)){
-    stop("Folds must be an integer, and bigger than 0 and smaller or equal to the number of rows of the dataframe.")
+    stop("Folds must be bigger than 0 and smaller than or equal to the number of rows of the dataframe.")
   }
 
   # Remove any possible NA's
@@ -93,9 +94,9 @@ fit_rf_metamodel <- function(df,
 
   # Set up
   set.seed(seed_num)
-  l_out = list(rf_fit = NULL,
-               stats_validation = NULL,
+  l_out = list(stats_validation = NULL,
                calibration_plot = NULL,
+               rf_fit = NULL,
                tune_fit = NULL,
                tune_plot = NULL
                )
@@ -152,81 +153,160 @@ fit_rf_metamodel <- function(df,
   nodesize = NULL
   mtry = NULL
 
-  # Tune mtry & nodesize
-  if (tune == TRUE){
-    rf_tune <- tune(form,
-                    data = df,
-                    splitrule = "mse")
+  # Fit final model if specified
+  if (fit_complete_model == TRUE){
+    # Tune mtry & nodesize
+    if (tune == TRUE){
+      rf_tune <- tune(form,
+                      data = df,
+                      splitrule = "mse")
 
-    nodesize = rf_tune$optimal[[1]]
-    mtry = rf_tune$optimal[[2]]
+      nodesize = rf_tune$optimal[[1]]
+      mtry = rf_tune$optimal[[2]]
 
-    ## tune plot
-    x <- rf_tune$results[,1]
-    y <- rf_tune$results[,2]
-    z <- rf_tune$results[,3]
-    so <- interp(x=x, y=y, z=z, linear = linear,output = "grid")
-    idx <- which.min(z)
-    x0 <- x[idx]
-    y0 <- y[idx]
-    so_v = c(so$z)
-    xy_grid = expand.grid(so$x,so$y)
-    df_interp = data.frame(xy_grid,so_v)
-    colnames(df_interp) = c("nodesize","mtry","error")
+      ## Tune plot
+      x <- rf_tune$results[,1]
+      y <- rf_tune$results[,2]
+      z <- rf_tune$results[,3]
 
-    tune_plot = ggplot() + geom_raster(aes(nodesize,mtry,fill=error),df_interp, interpolate = TRUE) +
-      scale_fill_gradientn(colours=c("yellow","red"),na.value="white") +
-      geom_point(aes(x=x0,y=y0), colour="black",size=8,pch="x") +
-      geom_point(aes(x=x,y=y)) +
-      scale_y_continuous(expand = expansion(mult = .5)) +
-      guides(fill = guide_colourbar(title="OOB error")) +
-      xlab("Nodesize") +
-      ylab("Mtry") +
-      ggtitle('Error rate for nodesize and mtry') +
-      theme_bw() +
-      theme(plot.title = element_text(hjust = 0.5))
+      ### If there is only one value tried for 'mtry' (=y) (so no 2D interpolation, but 1D over 'nodesize' (=x))
+      if (length(unique(y))==1){
+        xi=seq(min(x),max(x),0.1)
+        z_interp = interp1(x=unique(x),y=z,method="linear",xi=xi)
 
-    ## return
-    l_out[4] = list(rf_tune)
-    l_out[5] = list(tune_plot)
+        idx <- which.min(z)
+        x0 <- x[idx]
+        z0 = z[idx]
+        df_interp = data.frame(xi,z_interp)
+
+        tune_plot = ggplot() + geom_line(aes(x=xi,y=z_interp,color=z_interp),data=df_interp,linewidth=1) +
+          geom_smooth(aes(color=..y..)) +
+          scale_colour_gradient2(low = "blue", mid = "yellow" , high = "red",
+                                 midpoint=median(df_interp$z_interp),name="OOB error") +
+          guides(fill = guide_colourbar(title="OOB error")) +
+          geom_point(aes(x=x,y=z)) +
+          geom_point(aes(x=x0,y=z0), colour="black",size=8,pch="x") +
+          xlab('Nodesize') +
+          ylab("OOB error") +
+          ggtitle("Error rate for nodesize") +
+          theme_bw() +
+          theme(plot.title = element_text(hjust = 0.5))
+      }
+      else {
+        so <- interp(x=x, y=y, z=z, method = "linear",output = "grid")
+        idx <- which.min(z)
+        x0 <- x[idx]
+        y0 <- y[idx]
+        so_v = c(so$z)
+        xy_grid = expand.grid(so$x,so$y)
+        df_interp = data.frame(xy_grid,so_v)
+        colnames(df_interp) = c("nodesize","mtry","error")
+
+        tune_plot = ggplot() + geom_raster(aes(nodesize,mtry,fill=error),df_interp, interpolate = TRUE) +
+          scale_fill_gradientn(colours=c("yellow","red"),na.value="white") +
+          geom_point(aes(x=x0,y=y0), colour="black",size=8,pch="x") +
+          geom_point(aes(x=x,y=y)) +
+          scale_y_continuous(expand = expansion(mult = .5)) +
+          guides(fill = guide_colourbar(title="OOB error")) +
+          xlab("Nodesize") +
+          ylab("Mtry") +
+          ggtitle('Error rate for nodesize and mtry') +
+          theme_bw() +
+          theme(plot.title = element_text(hjust = 0.5))
+      }
+
+      ## return
+      l_out[4] = list(rf_tune)
+      l_out[5] = list(tune_plot)
+    }
+    else {
+      l_out = l_out[-c(4,5)]
+    }
+
+
+    # Fit random forest model with tuned parameters
+    rf_fit = rfsrc(form,
+                   data = df,
+                   splitrule = "mse",
+                   nodesize = nodesize,
+                   mtry = mtry,
+                   forest = TRUE,
+                   importance = var_importance
+    )
+    l_out[3] = list(rf_fit)
+
+    # Show plots
+    ## variable importance plot
+    if (var_importance != FALSE){
+      plot(rf_fit,verbose=TRUE,plots.one.page=TRUE)
+    }
+    ## partial and/or marginal plot
+    if (pm_plot != FALSE){
+      if (pm_plot == "both" || pm_plot == TRUE) {
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+      }
+      else if (pm_plot == "partial") {
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+      }
+      else if (pm_plot == "marginal") {
+        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+      }
+    }
   }
   else {
-    l_out = l_out[-c(4,5)]
-  }
-
-  # Fit random forest model with tuned parameters
-  rf_fit = rfsrc(form,
-                 data = df,
-                 splitrule = "mse",
-                 nodesize = nodesize,
-                 mtry = mtry,
-                 forest = TRUE,
-                 importance = var_importance
-  )
-  l_out[1] = list(rf_fit)
-
-  # Show plots
-  ## variable importance plot
-  if (var_importance != FALSE){
-    plot(rf_fit,verbose=TRUE,plots.one.page=TRUE)
-  }
-  ## partial and/or marginal plot
-  if (pm_plot != FALSE){
-    if (pm_plot == "both" || pm_plot == TRUE) {
-      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
-      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
-    }
-    else if (pm_plot == "partial") {
-      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
-    }
-    else if (pm_plot == "marginal") {
-      plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
-    }
-
+    l_out = l_out[-3]
   }
 
   # Validation
   if (validation == TRUE || validation == "cross_validation"){
+    ## Re-sample the data and make folds
+    df_validation = df[sample(nrow(df)),]
+    folds_ind = cut(seq(1,nrow(airqdata0)),breaks=folds,labels=FALSE)
+
+    r_squared_validation = rep(NA,folds)
+    mae_validation = rep(NA,folds)
+    mre_validation = rep(NA,folds)
+    mse_validation = rep(NA,folds)
+
+    for (i in 1:folds){
+      test_indices = which(folds_ind==i)
+      df_test = df_validation[test_indices,]
+      df_train = df_validation[-test_indices,]
+
+      ## Tune
+      rf_tune_validation <- tune(form,
+                                 data = df_train,
+                                 splitrule = "mse")
+
+      nodesize_validation = rf_tune_validation$optimal[[1]]
+      mtry_validation = rf_tune_validation$optimal[[2]]
+
+      ## Fit with tuned parameters
+      rf_fit_validation = rfsrc(form,
+                                data = df_train,
+                                splitrule = "mse",
+                                nodesize = nodesize_validation,
+                                mtry = mtry_validation,
+                                forest = TRUE
+      )
+
+      ## Test on test data
+      preds = predict(rf_fit_validation, newdata = df_test)$predicted
+      tests = df_test[,y_var]
+
+      ## Store performance metrics
+      r_squared_validation[i] = cor(preds,tests)^2
+      mae_validation[i] = mean(abs(preds-tests))
+      mre_validation[i] = mean(abs(preds-tests)/abs(tests))
+      mse_validation[i] = mean((preds-tests)^2)
+    }
+    ## Store results
+    stats_validation = data.frame(
+      Statistic = c("R-squared", "Mean absolute error", "Mean relative error","Mean squared error"),
+      Value = round(c(mean(r_squared_validation),mean(mae_validation),mean(mre_validation),mean(mse_validation)),3)
+    )
+    l_out = l_out[-2]
 
   }
   else if (validation == "train_test_split"){
@@ -234,16 +314,26 @@ fit_rf_metamodel <- function(df,
     selection = sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
     df_train = df[selection, ]
     df_test = df[-selection, ]
-    train_rf_fit = rfsrc(form,
-                         data = df,
-                         splitrule = "mse",
-                         nodesize = nodesize,
-                         mtry = mtry,
-                         forest = TRUE
+
+    ## Tune
+    rf_tune_validation <- tune(form,
+                    data = df_train,
+                    splitrule = "mse")
+
+    nodesize_validation = rf_tune_validation$optimal[[1]]
+    mtry_validation = rf_tune_validation$optimal[[2]]
+
+    ## Fit with tuned parameters
+    rf_fit_validation = rfsrc(form,
+                   data = df_train,
+                   splitrule = "mse",
+                   nodesize = nodesize_validation,
+                   mtry = mtry_validation,
+                   forest = TRUE
     )
 
     ## Test on test data
-    preds = predict(train_rf_fit, newdata = df_test)$predicted
+    preds = predict(rf_fit_validation, newdata = df_test)$predicted
     tests = df_test[,y_var]
 
     r_squared_validation = cor(preds,tests)^2
@@ -253,7 +343,7 @@ fit_rf_metamodel <- function(df,
 
     ## Calibration plot: predicted versus observed
     df_test$y_pred = preds
-    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_test) +
+    calibration_plot <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_test) +
       ggplot2::geom_point(shape = 1) +
       ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
       ggplot2::xlab("Predicted values") +
@@ -266,14 +356,12 @@ fit_rf_metamodel <- function(df,
       Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
       Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
     )
-
-
+    l_out[2] = list(calibration_plot)
   }
   else {
-    l_out = l_out[-c(2,3)]
+    l_out = l_out[-c(1,2)]
   }
-  l_out[2] = list(stats_validation)
-  l_out[3] = list(p)
+  l_out[1] = list(stats_validation)
 
   # Export
   return(l_out)

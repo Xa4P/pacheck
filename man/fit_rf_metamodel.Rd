@@ -18,7 +18,11 @@ fit_rf_metamodel(
   tune = FALSE,
   var_importance = TRUE,
   pm_plot = FALSE,
-  pm_vars = x_vars[1]
+  pm_vars = x_vars[1],
+  validation = TRUE,
+  folds = 5,
+  partition = 0.8,
+  fit_complete_model = TRUE
 )
 }
 \arguments{
@@ -49,7 +53,7 @@ fit_rf_metamodel(
 \item{pm_vars}{character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.}
 }
 \value{
-A list containing the fit of the model, the tuning results of nodesize and mtry, and a plot illustrating the tuning results. If specified, variable importance and partial and/or marginal plots are plotted.
+A list containing ......
 }
 \description{
 Fit random forest metamodel
