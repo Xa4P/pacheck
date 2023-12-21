@@ -67,9 +67,6 @@ fit_rf_metamodel <- function(df,
   if(is.null(y_var)) {
     stop("Cannot perform random forest regression because there is no value provided for 'y_var'.")
   }
-  if(!is.null(x_inter) && length(x_inter) != 2 * round(length(x_inter) / 2)) {
-    stop("The number of interaction terms is uneven.")
-  }
   if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
     stop("Cannot perform random forest regression because there is no value provided for the predictors.")
   }
@@ -99,7 +96,7 @@ fit_rf_metamodel <- function(df,
   set.seed(seed_num)
   l_out = list(stats_validation = NULL,
                calibration_plot = NULL,
-               rf_fit = NULL,
+               fit = NULL,
                tune_fit = NULL,
                tune_plot = NULL
                )
@@ -304,6 +301,7 @@ fit_rf_metamodel <- function(df,
       Statistic = c("R-squared", "Mean absolute error", "Mean relative error","Mean squared error"),
       Value = round(c(mean(r_squared_validation),mean(mae_validation),mean(mre_validation),mean(mse_validation)),3)
     )
+    names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: cross-validation)"
     l_out[1] = list(stats_validation)
     l_out = l_out[-2]
 
@@ -361,6 +359,7 @@ fit_rf_metamodel <- function(df,
       Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
       Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
     )
+    names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: train/test split)"
     l_out[1] = list(stats_validation)
     l_out[2] = list(calibration_plot)
   }

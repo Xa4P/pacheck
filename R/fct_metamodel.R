@@ -66,6 +66,12 @@ fit_lm_metamodel <- function(df,
   if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
     stop("Cannot perform linear regression because there is no value provided for the predictors.")
   }
+  if(!(validation %in% c(TRUE,FALSE,"cross_validation","train_test_split"))) {
+    stop("Validation must be one of: TRUE, FALSE, 'cross_validation','train_test_split'.")
+  }
+  if(folds < 1 || folds > nrow(df_pa)){
+    stop("Folds must be bigger than 0 and smaller than or equal to the number of rows of the dataframe.")
+  }
 
   # Set up
   l_out <- list()
@@ -146,11 +152,14 @@ fit_lm_metamodel <- function(df,
     }
 
     ## Output: validation
+    stats_validation = data.frame(
+      Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
+      Value     = round(c(mean(r_squared_validation), mean(mae_validation), mean(mre_validation)), 3)
+    )
+    names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: cross-validation)"
+
     l_out <- list(fit = lm_fit,
-                  stats_validation = data.frame(
-                    Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
-                    Value     = round(c(mean(r_squared_validation), mean(mae_validation), mean(mre_validation)), 3)
-                  )
+                  stats_validation = stats_validation
     )
   }
   else if(validation == "train_test_split") {
@@ -183,13 +192,15 @@ fit_lm_metamodel <- function(df,
     }
 
     ## Output: validation
-    l_out <- list(fit = lm_fit,
-                  stats_validation = data.frame(
-                    Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
-                    Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
-                  ),
-                  calibration_plot = p
+    stats_validation = data.frame(
+      Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
+      Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
     )
+    names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: train/test split)"
+
+    l_out <- list(fit = lm_fit,
+                  stats_validation = stats_validation,
+                  calibration_plot = p)
   }
   else {
     lm_fit <- lm(form, data = df)
@@ -229,7 +240,7 @@ fit_lm_metamodel <- function(df,
 predict_metamodel <- function(metamodel,
                               inputs){
   # Identify coefficient metamodel
-  v_names <- names(metamodel$coefficients[c(2:length(metamodel$coefficients))])
+  v_names <- metamodel$coefficients
 
   # Flag errors
   if(length(inputs) < length(v_names)) {
@@ -243,7 +254,7 @@ predict_metamodel <- function(metamodel,
   newdata <- data.frame(t(inputs))
   names(newdata) <- v_names
 
-  pred <- stats::predict(metamodel, newdata = newdata)
+  pred <- stats::predict(metamodel$fit, newdata = newdata)
   names(pred) <- "prediction"
 
   df_out <- cbind(newdata, t(pred))
