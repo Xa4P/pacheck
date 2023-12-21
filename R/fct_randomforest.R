@@ -51,7 +51,7 @@ fit_rf_metamodel <- function(df,
                              var_importance = TRUE, #or permute/random/ TRUE(=anti)/FALSE
                              pm_plot = FALSE,
                              pm_vars = x_vars[1],
-                             validation = TRUE, #= TRUE(=cross_validation)/FALSE / train_test_split
+                             validation = FALSE, #= TRUE(=cross_validation)/FALSE/train_test_split
                              folds = 5, #if not a whole number is entered it's rounded DOWN to nearest integer
                              partition = 0.8,
                              fit_complete_model = TRUE
@@ -262,7 +262,7 @@ fit_rf_metamodel <- function(df,
   if (validation == TRUE || validation == "cross_validation"){
     ## Re-sample the data and make folds
     df_validation = df[sample(nrow(df)),]
-    folds_ind = cut(seq(1,nrow(airqdata0)),breaks=folds,labels=FALSE)
+    folds_ind = cut(seq(1,nrow(df_validation)),breaks=folds,labels=FALSE)
 
     r_squared_validation = rep(NA,folds)
     mae_validation = rep(NA,folds)
@@ -275,14 +275,20 @@ fit_rf_metamodel <- function(df,
       df_train = df_validation[-test_indices,]
 
       ## Tune
-      rf_tune_validation <- tune(form,
-                                 data = df_train,
-                                 splitrule = "mse")
+      if (tune == TRUE){
+        rf_tune_validation <- tune(form,
+                                   data = df_train,
+                                   splitrule = "mse")
 
-      nodesize_validation = rf_tune_validation$optimal[[1]]
-      mtry_validation = rf_tune_validation$optimal[[2]]
+        nodesize_validation = rf_tune_validation$optimal[[1]]
+        mtry_validation = rf_tune_validation$optimal[[2]]
+      }
+      else {
+        nodesize_validation = NULL
+        mtry_validation = NULL
+      }
 
-      ## Fit with tuned parameters
+      ## Fit with tuned (if specified) or default parameters
       rf_fit_validation = rfsrc(form,
                                 data = df_train,
                                 splitrule = "mse",
@@ -306,6 +312,7 @@ fit_rf_metamodel <- function(df,
       Statistic = c("R-squared", "Mean absolute error", "Mean relative error","Mean squared error"),
       Value = round(c(mean(r_squared_validation),mean(mae_validation),mean(mre_validation),mean(mse_validation)),3)
     )
+    l_out[1] = list(stats_validation)
     l_out = l_out[-2]
 
   }
@@ -316,14 +323,20 @@ fit_rf_metamodel <- function(df,
     df_test = df[-selection, ]
 
     ## Tune
-    rf_tune_validation <- tune(form,
-                    data = df_train,
-                    splitrule = "mse")
+    if (tune == TRUE){
+      rf_tune_validation <- tune(form,
+                                 data = df_train,
+                                 splitrule = "mse")
 
-    nodesize_validation = rf_tune_validation$optimal[[1]]
-    mtry_validation = rf_tune_validation$optimal[[2]]
+      nodesize_validation = rf_tune_validation$optimal[[1]]
+      mtry_validation = rf_tune_validation$optimal[[2]]
+    }
+    else {
+      nodesize_validation = NULL
+      mtry_validation = NULL
+    }
 
-    ## Fit with tuned parameters
+    ## Fit with tuned (if specified) or default parameters
     rf_fit_validation = rfsrc(form,
                    data = df_train,
                    splitrule = "mse",
@@ -356,12 +369,13 @@ fit_rf_metamodel <- function(df,
       Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
       Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
     )
+    l_out[1] = list(stats_validation)
     l_out[2] = list(calibration_plot)
   }
   else {
     l_out = l_out[-c(1,2)]
   }
-  l_out[1] = list(stats_validation)
+
 
   # Export
   return(l_out)
