@@ -13,6 +13,10 @@
 #' @param var_importance logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is TRUE (= anti).
 #' @param pm_plot logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".
 #' @param pm_vars character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.
+#' @param validation logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.
+#' @param folds numeric. Number of folds for the cross-validation. Default is 5.
+#' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
+#' @param fit_complete_model logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).
 #'
 #' @import randomForestSRC
 #' @import interp
@@ -46,7 +50,6 @@ fit_rf_metamodel <- function(df,
                              x_poly_3 = NULL,
                              x_exp = NULL,
                              x_log = NULL,
-                             x_inter = NULL,
                              tune = FALSE,
                              var_importance = TRUE, #or permute/random/ TRUE(=anti)/FALSE
                              pm_plot = FALSE,
@@ -134,19 +137,8 @@ fit_rf_metamodel <- function(df,
   } else {
     v_log <- NULL
   }
-  if(!is.null(x_inter)) {
-    pairs <- length(x_inter)/2
-    pair_seq <- seq(1, pairs, 1)
-    pair_seq <- pair_seq - 1
-    v_inter <- vapply(pair_seq, function(x) {
-      paste0(x_inter[2 * x + 1], ":", x_inter[2 * x + 2])
-    }, character(1))
-    v_inter <- c(v_inter, unique(x_inter))
-  } else {
-    v_inter <- NULL
-  }
 
-  v_x <- paste(unique(c(x_vars, v_poly_2, v_poly_3, v_exp, v_log, v_inter)), collapse = " + ")
+  v_x <- paste(unique(c(x_vars, v_poly_2, v_poly_3, v_exp, v_log)), collapse = " + ")
   form <- as.formula(paste(y_var, "~", v_x))
 
   # Set default mtry and nodesize

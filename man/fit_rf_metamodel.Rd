@@ -14,12 +14,11 @@ fit_rf_metamodel(
   x_poly_3 = NULL,
   x_exp = NULL,
   x_log = NULL,
-  x_inter = NULL,
   tune = FALSE,
   var_importance = TRUE,
   pm_plot = FALSE,
   pm_vars = x_vars[1],
-  validation = TRUE,
+  validation = FALSE,
   folds = 5,
   partition = 0.8,
   fit_complete_model = TRUE
@@ -51,6 +50,14 @@ fit_rf_metamodel(
 \item{pm_plot}{logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".}
 
 \item{pm_vars}{character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.}
+
+\item{validation}{logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.}
+
+\item{folds}{numeric. Number of folds for the cross-validation. Default is 5.}
+
+\item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
+
+\item{fit_complete_model}{logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).}
 }
 \value{
 A list containing ......
