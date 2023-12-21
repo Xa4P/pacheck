@@ -8,13 +8,14 @@
 #' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.
-#' @param validation logical. Determine whether R2 should be calculated on the validation set.
+#' @param validation logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
 #' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
 #' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
+#' @param folds numeric. Number of folds for the cross-validation. Default is 5.
 #'
 #' @return A list containing the fit of the model and validation estimates and plots when selected.
 #'
@@ -39,6 +40,7 @@ fit_lm_metamodel <- function(df,
                              partition = 1,
                              seed_num = 1,
                              validation = FALSE,
+                             folds = 5,
                              show_intercept = FALSE,
                              x_poly_2 = NULL,
                              x_poly_3 = NULL,
@@ -118,7 +120,40 @@ fit_lm_metamodel <- function(df,
   form <- as.formula(paste(y_var, "~", v_x))
 
   # Validation statistics and plots
-  if(validation == TRUE) {
+  if(validation == TRUE || validation == "cross_validation"){
+    df_validation = df[sample(nrow(df)),]
+    folds_ind = cut(seq(1,nrow(df_validation)),breaks=folds,labels=FALSE)
+
+    r_squared_validation = rep(NA,folds)
+    mae_validation = rep(NA,folds)
+    mre_validation = rep(NA,folds)
+    mse_validation = rep(NA,folds)
+
+    for (i in 1:folds){
+      test_indices = which(folds_ind==i)
+      df_test = df_validation[test_indices,]
+      df_train = df_validation[-test_indices,]
+
+      lm_fit <- lm(form, data = df_train)
+
+      ## Fit in validation set
+      v_y_predict          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
+      v_y_valid            <- as.numeric(as.character(df_test[, paste(y_var)]))
+      r_squared_validation[i] <- cor(v_y_predict, v_y_valid) ^ 2
+      mae_validation[i]       <- mean(abs(v_y_predict - v_y_valid))
+      mre_validation[i]       <- mean(abs(v_y_predict - v_y_valid) / abs(v_y_valid))
+      mse_validation[i]     = mean((v_y_predict - v_y_valid)^2)
+    }
+
+    ## Output: validation
+    l_out <- list(fit = lm_fit,
+                  stats_validation = data.frame(
+                    Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
+                    Value     = round(c(mean(r_squared_validation), mean(mae_validation), mean(mre_validation)), 3)
+                  )
+    )
+  }
+  else if(validation == "train_test_split") {
     ## Partition data and fit to train data
     selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
     df_fit    <- df[selection, ]
@@ -145,17 +180,18 @@ fit_lm_metamodel <- function(df,
       p <- p +
         ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y_var)]))) +
         ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y_var)])))
-      }
+    }
 
     ## Output: validation
     l_out <- list(fit = lm_fit,
                   stats_validation = data.frame(
                     Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
                     Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
-                    ),
+                  ),
                   calibration_plot = p
-                  )
-  } else {
+    )
+  }
+  else {
     lm_fit <- lm(form, data = df)
     ## Output: no validation
     l_out <- list(fit = lm_fit)

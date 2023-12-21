@@ -12,6 +12,7 @@ fit_lm_metamodel(
   partition = 1,
   seed_num = 1,
   validation = FALSE,
+  folds = 5,
   show_intercept = FALSE,
   x_poly_2 = NULL,
   x_poly_3 = NULL,
@@ -33,7 +34,9 @@ fit_lm_metamodel(
 
 \item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.}
 
-\item{validation}{logical. Determine whether R2 should be calculated on the validation set.}
+\item{validation}{logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.}
+
+\item{folds}{numeric. Number of folds for the cross-validation. Default is 5.}
 
 \item{show_intercept}{logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.}
 
