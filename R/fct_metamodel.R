@@ -54,7 +54,7 @@ fit_lm_metamodel <- function(df,
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
   }
-  if(partition == 1 && validation == TRUE) {
+  if(partition == 1 && validation == TRUE || partition == 1 && validation == "train_test_split") {
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
   if(is.null(y_var)) {
@@ -153,8 +153,8 @@ fit_lm_metamodel <- function(df,
 
     ## Output: validation
     stats_validation = data.frame(
-      Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
-      Value     = round(c(mean(r_squared_validation), mean(mae_validation), mean(mre_validation)), 3)
+      Statistic = c("R-squared", "Mean absolute error", "Mean relative error", "Mean squared error"),
+      Value     = round(c(mean(r_squared_validation), mean(mae_validation), mean(mre_validation), mean(mse_validation)), 3)
     )
     names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: cross-validation)"
 
@@ -175,26 +175,25 @@ fit_lm_metamodel <- function(df,
     r_squared_validation <- cor(v_y_predict, v_y_valid) ^ 2
     mae_validation       <- mean(abs(v_y_predict - v_y_valid))
     mre_validation       <- mean(abs(v_y_predict - v_y_valid) / abs(v_y_valid))
+    mse_validation       <- mean((v_y_predict - v_y_valid)^2)
 
     ## Calibration plot: predicted versus observed
     df_valid$y_pred <- v_y_predict
     p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_valid) +
       ggplot2::geom_point(shape = 1) +
-      ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
       ggplot2::xlab("Predicted values") +
       ggplot2::ylab("Observed values") +
       ggplot2::theme_bw()
 
     if(show_intercept == TRUE) {
       p <- p +
-        ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y_var)]))) +
-        ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y_var)])))
+        ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange")
     }
 
     ## Output: validation
     stats_validation = data.frame(
-      Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
-      Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
+      Statistic = c("R-squared", "Mean absolute error", "Mean relative error", "Mean squared error"),
+      Value     = round(c(r_squared_validation, mae_validation, mre_validation, mse_validation), 3)
     )
     names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: train/test split)"
 
