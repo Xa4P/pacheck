@@ -9,12 +9,13 @@
 #' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
-#' @param tune logical. Determine whether nodesize and mtry should be tuned. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.
+#' @param tune logical. Determine whether nodesize and mtry should be tuned. Nodesize is the minimum size of terminal nodes, mtry is number of variables to possibly split at each node. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.
 #' @param var_importance logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is TRUE (= anti).
 #' @param pm_plot logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".
 #' @param pm_vars character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.
 #' @param validation logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.
 #' @param folds numeric. Number of folds for the cross-validation. Default is 5.
+#' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param fit_complete_model logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).
 #'
@@ -23,40 +24,26 @@
 #' @import ggplot2
 #'
 #' @return A list containing ......
-#' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
-#' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
-#' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 #'
 #' @examples
 #' # Fitting random forest meta model with two variables using the probabilistic data
 #' data(df_pa)
-#' fit = fit_rf_metamodel(df = df_pa,
-#'                        y_var = "inc_qaly",
-#'                        x_vars = c("p_pfsd","p_pdd"),
-#'                        tune = TRUE,
-#'                        var_importance = TRUE,
-#'                        pm_plot = "both",
-#'                        pm_vars = c("p_pfsd","p_pdd")
-#'                        )
+#' fit = fit_rf_metamodel..................................
 #' @export
 #'
 #' @examples
 fit_rf_metamodel <- function(df,
                              y_var = NULL,
                              x_vars = NULL,
-                             standardise = FALSE,
                              seed_num = 1,
-                             x_poly_2 = NULL,
-                             x_poly_3 = NULL,
-                             x_exp = NULL,
-                             x_log = NULL,
                              tune = FALSE,
-                             var_importance = TRUE, #or permute/random/ TRUE(=anti)/FALSE
+                             var_importance = FALSE, #or permute/random/ TRUE(=anti)/FALSE
                              pm_plot = FALSE,
                              pm_vars = x_vars[1],
                              validation = FALSE, #= TRUE(=cross_validation)/FALSE/train_test_split
                              folds = 5, #if not a whole number is entered it's rounded DOWN to nearest integer
-                             partition = 0.8,
+                             show_intercept = FALSE,
+                             partition = 1,
                              fit_complete_model = TRUE
                              ){
 
@@ -67,7 +54,7 @@ fit_rf_metamodel <- function(df,
   if(is.null(y_var)) {
     stop("Cannot perform random forest regression because there is no value provided for 'y_var'.")
   }
-  if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
+  if(is.null(x_vars)) {
     stop("Cannot perform random forest regression because there is no value provided for the predictors.")
   }
   if(length(var_importance)>1 || !all(var_importance %in% c(TRUE,FALSE,"anti","permute","random"))) {
@@ -82,15 +69,21 @@ fit_rf_metamodel <- function(df,
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
   }
-  if(!(validation %in% c(TRUE,FALSE,"cross_validation","train_test_split"))) {
-    stop("Validation must be one of: TRUE, FALSE, 'cross_validation','train_test_split'.")
+  if(partition == 1 && validation == "train_test_split") {
+    stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
-  if(folds < 1 || folds > nrow(df_pa)){
-    stop("Folds must be bigger than 0 and smaller than or equal to the number of rows of the dataframe.")
+  if(!(validation %in% c(FALSE,"cross_validation","train_test_split"))) {
+    stop("Validation must be one of: FALSE, 'cross_validation','train_test_split'.")
+  }
+  if(folds < 2 || folds > nrow(df_pa)){
+    stop("Folds must be bigger than 1 and smaller than or equal to the number of rows of the dataframe.")
   }
 
   # Remove any possible NA's
   df = na.omit(df)
+
+  v_x <- paste(unique(x_vars), collapse = " + ")
+  form <- as.formula(paste(y_var, "~", v_x))
 
   # Set up
   set.seed(seed_num)
@@ -98,51 +91,19 @@ fit_rf_metamodel <- function(df,
                calibration_plot = NULL,
                fit = NULL,
                tune_fit = NULL,
-               tune_plot = NULL
+               tune_plot = NULL,
+               model_info = list(x_vars = x_vars,
+                                 y_var = y_var,
+                                 form = form,
+                                 data = df,
+                                 type = "rf")
                )
-
-  # Standardise inputs
-  if(standardise == TRUE) {
-    if(length(x_vars) > 1){
-      df[, x_vars] <- lapply(df[, x_vars], function(i) (i - mean(i)) / sd(i))
-    } else {
-      df[, x_vars] <- (df[, x_vars] - mean(df[, x_vars])) / sd(df[, x_vars])
-    }
-  }
-
-  # Transform inputs
-  if(!is.null(x_poly_2)) {
-    v_poly_2 <- paste("poly(", x_poly_2, ", 2)", collapse = " + ")
-  } else {
-    v_poly_2 <- NULL
-  }
-  if(!is.null(x_poly_3)) {
-    v_poly_3 <- paste("poly(", x_poly_3, ", 3)", collapse = " + ")
-    #x <- x[-which(x %in% v_poly_3)]
-  } else {
-    v_poly_3 <- NULL
-  }
-  if(!is.null(x_exp)) {
-    v_exp <- paste("exp(", x_exp, ")", collapse = " + ")
-    #x <- x[-which(x %in% v_exp)]
-  } else {
-    v_exp <- NULL
-  }
-  if(!is.null(x_log)) {
-    v_log <- paste("log(", x_log, ")", collapse = " + ")
-    #x <- x[-which(x %in% v_log)]
-  } else {
-    v_log <- NULL
-  }
-
-  v_x <- paste(unique(c(x_vars, v_poly_2, v_poly_3, v_exp, v_log)), collapse = " + ")
-  form <- as.formula(paste(y_var, "~", v_x))
 
   # Set default mtry and nodesize
   nodesize = NULL
   mtry = NULL
 
-  # Fit final model if specified
+  # Fit rf model if specified
   if (fit_complete_model == TRUE){
     # Tune mtry & nodesize
     if (tune == TRUE){
@@ -248,7 +209,7 @@ fit_rf_metamodel <- function(df,
   }
 
   # Validation
-  if (validation == TRUE || validation == "cross_validation"){
+  if (validation == "cross_validation"){
     ## Re-sample the data and make folds
     df_validation = df[sample(nrow(df)),]
     folds_ind = cut(seq(1,nrow(df_validation)),breaks=folds,labels=FALSE)
@@ -351,9 +312,14 @@ fit_rf_metamodel <- function(df,
       ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
       ggplot2::xlab("Predicted values") +
       ggplot2::ylab("Observed values") +
-      ggplot2::ggtitle(paste("Calibration plot for","Ozone")) +
+      ggplot2::ggtitle(paste("Calibration plot for",y_var)) +
       ggplot2::theme_bw() +
       ggplot2::theme(plot.title = element_text(hjust = 0.5))
+
+    if(show_intercept == TRUE) {
+      calibration_plot <- calibration_plot +
+        ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange")
+    }
 
     stats_validation = data.frame(
       Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
@@ -366,7 +332,6 @@ fit_rf_metamodel <- function(df,
   else {
     l_out = l_out[-c(1,2)]
   }
-
 
   # Export
   return(l_out)

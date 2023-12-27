@@ -7,13 +7,283 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
+#dus een vignette maken waarin je laat zien hoe je de metamodels van de package kunt fitten
+#en dan laat je alle ins en outs zien van de functies, op dezelfde data
+#dan begin je met LM, en dan RF, en uiteindelijk ook nog Lasso doen?
+
+```{r setup, include = FALSE, warning = FALSE}
+library(pacheck)
+data(df_pa)
 ```
 
-```{r setup}
-library(pacheck)
+# Introduction
+This article describes an example workflow for fitting metamodels using the `pacheck` package. The types of metamodel which the package supports are: linear model, random forest model, ... . Every function argument of all these model types will be covered. We will do this by fitting a model in all of the following subsections, and in every subsection we will introduce new arguments. The arguments covered in their respective subsection can be found beneath the subsection title. This vignette is still in development.
+
+We will use the example dataframe `df_pa` which is included in the package.
+
+# Linear Model
+We will use the function `fit_lm_metamodel`.
+
+## Fit standard model
+Arguments: `df`, `y_var`, `x_vars`, `seed_num`.
+
+```{r, warning = FALSE}
+lm_fit <- fit_lm_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       "u_pd",
+                                       "c_pfs",
+                                       "c_pd",
+                                       "c_thx",
+                                       "p_pfspd",
+                                       "p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           seed_num = 10)
+lm_fit$fit
 ```
+We see that this code returns the linear model fit, i.e., the coefficients of the intercept and the chosen x-variables.
+
+## Transform input variables 
+Arguments: `standardise`, `x_poly_2`, `x_poly_3`, `x_exp`, `x_log`, `x_inter`.
+
+In the following model we want to standardise the regression parameters.
+
+```{r, warning = FALSE}
+lm_fit <- fit_lm_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       "u_pd",
+                                       "c_pfs",
+                                       "c_pd",
+                                       "c_thx",
+                                       "p_pfspd",
+                                       "p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           seed_num = 10,
+                           standardise = TRUE
+                           )
+lm_fit$fit
+```
+Here we want to transform several variables: `rr` will be exponentiated by factor 2, `c_pfs` & `c_pd` by factor 3, we take the exponential of `u_pfs` & `u_pd`, and the logarithm of `p_pfsd`.
+
+```{r, warning = FALSE}
+lm_fit <- fit_lm_metamodel(df = df_pa,
+                           x_vars = c("p_pfspd",
+                                       "p_pdd"),
+                           x_poly_2 = "rr",
+                           x_poly_3 = c("c_pfs","c_pd"),
+                           x_exp = c("u_pfs","u_pd"),
+                           x_log = "p_pfsd",
+                           y_var = "inc_qaly",
+                           seed_num = 10
+                           )
+lm_fit$fit
+```
+And lastly we decide to include an interaction term between `p_pfspd` and `p_pdd` as well.
+```{r, warning = FALSE}
+lm_fit <- fit_lm_metamodel(df = df_pa,
+                           x_vars = c("p_pfspd",
+                                       "p_pdd"),
+                           x_poly_2 = "rr",
+                           x_poly_3 = c("c_pfs","c_pd"),
+                           x_exp = c("u_pfs","u_pd"),
+                           x_log = "p_pfsd",
+                           x_inter = c("p_pfspd","p_pdd"),
+                           y_var = "inc_qaly",
+                           seed_num = 10
+                           )
+lm_fit$fit
+```
+## Validation
+Arguments: `partition`,`validation`, `folds`, `show_intercept`.
+
+We can use two validation techniques: a train/test split (also called: validation set approach), and K-fold cross-validation. See paragraph 5.1 of the book 'An Introduction to Statistical Learning, with Application in R' for more information on these methods.
+
+First we use the train/test split. For this we need to specify `partition`, which sets the proportion of the data that will be used for the training data. We also set `show_intercept` to `TRUE` for the calibration plot.
+
+```{r, warning = FALSE}
+lm_fit <- fit_lm_metamodel(df = df_pa,
+                           x_vars = c("p_pfspd",
+                                      "p_pdd"),
+                           x_poly_2 = "rr",
+                           x_poly_3 = c("c_pfs","c_pd"),
+                           x_exp = c("u_pfs","u_pd"),
+                           x_log = "p_pfsd",
+                           x_inter = c("p_pfspd","p_pdd"),
+                           y_var = "inc_qaly",
+                           seed_num = 10,
+                           validation = "train_test_split",
+                           partition = 0.8,
+                           show_intercept = TRUE
+)
+lm_fit$stats_validation
+lm_fit$calibration_plot
+```
+
+The output shows the R-squared, mean absolute error, mean relative error, and the mean squared error of the model applied to the test data.
+
+Now we use cross-validation.
+
+```{r, warning = FALSE}
+lm_fit <- fit_lm_metamodel(df = df_pa,
+                           x_vars = c("p_pfspd",
+                                      "p_pdd"),
+                           x_poly_2 = "rr",
+                           x_poly_3 = c("c_pfs","c_pd"),
+                           x_exp = c("u_pfs","u_pd"),
+                           x_log = "p_pfsd",
+                           x_inter = c("p_pfspd","p_pdd"),
+                           y_var = "inc_qaly",
+                           seed_num = 10,
+                           validation = "cross_validation",
+                           folds = 10
+)
+lm_fit$stats_validation
+```
+
+# Random Forest
+
+## Fit standard model
+Arguments: `df`, `y_var`, `x_vars`, `seed_num`.
+
+```{r, warning = FALSE}
+rf_fit <- fit_rf_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       #"u_pd",
+                                       #"c_pfs",
+                                       #"c_pd",
+                                       #"c_thx",
+                                       #"p_pfspd",
+                                       #"p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           seed_num = 10)
+```
+## Variable importance
+Arguments: `var_importance`.
+```{r, warning = FALSE}
+rf_fit <- fit_rf_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       #"u_pd",
+                                       #"c_pfs",
+                                       #"c_pd",
+                                       #"c_thx",
+                                       #"p_pfspd",
+                                       #"p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           var_importance = TRUE,
+                           seed_num = 10)
+```
+The function now returns a plot which shows the importance of the included x-variables. The bigger the number is, the more important the variable is, meaning that it greatly reduces the out-of-bag (OOB) error rate compared to the other x-variables.
+
+## Tuning nodesize and mtry
+Arguments: `tune`.
+
+Two parameters which can have a significant impact on the model fit are `nodesize` and `mtry`. It is therefore recommended to tune these parameters. The tuning process consists of a grid search.
+
+```{r, warning = FALSE}
+rf_fit <- fit_rf_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       #"u_pd",
+                                       #"c_pfs",
+                                       #"c_pd",
+                                       #"c_thx",
+                                       #"p_pfspd",
+                                       #"p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           var_importance = FALSE,
+                           tune = TRUE,
+                           seed_num = 10)
+rf_fit$tune_fit$optimal
+rf_fit$tune_plot
+```
+
+The optimal nodesize and mtry are found, and the results are shown in the plot. The black dots represent the tried combinations of nodesize and mtry, the colour gradient is obtained through 2-Dimensional interpolation. The black cross marks the optimal combination, i.e., the combination yielding the lowest OOB error.
+
+## Partial & marginal plots
+Arguments: `pm_plot`, `pm_vars`.
+
+We can obtain partial and marginal plots, by setting `pm_plot` equal to 'partial', 'marginal', or 'both'. `pm_vars` specifies for which variables the plot must be constructed.
+
+```{r, warning = FALSE}
+rf_fit <- fit_rf_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       #"u_pd",
+                                       #"c_pfs",
+                                       #"c_pd",
+                                       #"c_thx",
+                                       #"p_pfspd",
+                                       #"p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           var_importance = FALSE,
+                           tune = TRUE,
+                           pm_plot = "both",
+                           pm_vars = c("rr","u_pfs"),
+                           seed_num = 10)
+```
+## Validation
+Arguments: `partition`,`validation`, `folds`.
+
+We can use two validation techniques: a train/test split (also called: validation set approach), and K-fold cross-validation. See paragraph 5.1 of the book 'An Introduction to Statistical Learning, with Application in R' for more information on these methods.
+
+First we use the train/test split. For this we need to specify `partition`, which sets the proportion of the data that will be used for the training data. We also set `show_intercept` to `TRUE` for the calibration plot.
+
+```{r, warning = FALSE}
+rf_fit <- fit_rf_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       #"u_pd",
+                                       #"c_pfs",
+                                       #"c_pd",
+                                       #"c_thx",
+                                       #"p_pfspd",
+                                       #"p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           var_importance = FALSE,
+                           tune = TRUE,
+                           validation = "train_test_split",
+                           partition= 0.8,
+                           show_intercept = TRUE,
+                           seed_num = 10)
+rf_fit$calibration_plot
+rf_fit$stats_validation
+```
+The output shows the R-squared, mean absolute error, mean relative error, and the mean squared error of the model applied to the test data.
+
+Now we use cross-validation.
+
+```{r, warning = FALSE}
+rf_fit <- fit_rf_metamodel(df = df_pa,
+                           x_vars = c("rr",
+                                       "u_pfs",
+                                       #"u_pd",
+                                       #"c_pfs",
+                                       #"c_pd",
+                                       #"c_thx",
+                                       #"p_pfspd",
+                                       #"p_pfsd",
+                                       "p_pdd"),
+                           y_var = "inc_qaly",
+                           var_importance = FALSE,
+                           tune = TRUE,
+                           validation = "cross_validation",
+                           folds = 10,
+                           show_intercept = TRUE,
+                           seed_num = 10)
+rf_fit$stats_validation
+```
+
+### Only validation
+Arguments: `fit_complete_model`.
+
+Lastly, when validation is (for now) the only goal, we can leave out building the complete model by setting `fit_complete_model = FALSE`. This is useful when the model building process takes a long time. Since most of the time the goal *is* to fit the complete model, the default is TRUE.

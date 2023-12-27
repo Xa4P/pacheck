@@ -8,19 +8,15 @@ fit_rf_metamodel(
   df,
   y_var = NULL,
   x_vars = NULL,
-  standardise = FALSE,
   seed_num = 1,
-  x_poly_2 = NULL,
-  x_poly_3 = NULL,
-  x_exp = NULL,
-  x_log = NULL,
   tune = FALSE,
-  var_importance = TRUE,
+  var_importance = FALSE,
   pm_plot = FALSE,
   pm_vars = x_vars[1],
   validation = FALSE,
   folds = 5,
-  partition = 0.8,
+  show_intercept = FALSE,
+  partition = 1,
   fit_complete_model = TRUE
 )
 }
@@ -31,19 +27,9 @@ fit_rf_metamodel(
 
 \item{x_vars}{character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.}
 
-\item{standardise}{logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.}
-
 \item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.}
 
-\item{x_poly_2}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.}
-
-\item{x_poly_3}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.}
-
-\item{x_exp}{character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.}
-
-\item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
-
-\item{tune}{logical. Determine whether nodesize and mtry should be tuned. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.}
+\item{tune}{logical. Determine whether nodesize and mtry should be tuned. Nodesize is the minimum size of terminal nodes, mtry is number of variables to possibly split at each node. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.}
 
 \item{var_importance}{logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is TRUE (= anti).}
 
@@ -55,9 +41,21 @@ fit_rf_metamodel(
 
 \item{folds}{numeric. Number of folds for the cross-validation. Default is 5.}
 
+\item{show_intercept}{logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.}
+
 \item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
 
 \item{fit_complete_model}{logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).}
+
+\item{standardise}{logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.}
+
+\item{x_poly_2}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.}
+
+\item{x_poly_3}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.}
+
+\item{x_exp}{character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.}
+
+\item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
 }
 \value{
 A list containing ......
@@ -65,20 +63,8 @@ A list containing ......
 \description{
 Fit random forest metamodel
 }
-\details{
-Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
-where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
-For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
-}
 \examples{
 # Fitting random forest meta model with two variables using the probabilistic data
 data(df_pa)
-fit = fit_rf_metamodel(df = df_pa,
-                       y_var = "inc_qaly",
-                       x_vars = c("p_pfsd","p_pdd"),
-                       tune = TRUE,
-                       var_importance = TRUE,
-                       pm_plot = "both",
-                       pm_vars = c("p_pfsd","p_pdd")
-                       )
+fit = fit_rf_metamodel..................................
 }

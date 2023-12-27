@@ -54,7 +54,7 @@ fit_lm_metamodel <- function(df,
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
   }
-  if(partition == 1 && validation == TRUE || partition == 1 && validation == "train_test_split") {
+  if(partition == 1 && validation == "train_test_split") {
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
   if(is.null(y_var)) {
@@ -66,8 +66,8 @@ fit_lm_metamodel <- function(df,
   if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
     stop("Cannot perform linear regression because there is no value provided for the predictors.")
   }
-  if(!(validation %in% c(TRUE,FALSE,"cross_validation","train_test_split"))) {
-    stop("Validation must be one of: TRUE, FALSE, 'cross_validation','train_test_split'.")
+  if(!(validation %in% c(FALSE,"cross_validation","train_test_split"))) {
+    stop("Validation must be one of: FALSE, 'cross_validation','train_test_split'.")
   }
   if(folds < 1 || folds > nrow(df_pa)){
     stop("Folds must be bigger than 0 and smaller than or equal to the number of rows of the dataframe.")
@@ -126,7 +126,7 @@ fit_lm_metamodel <- function(df,
   form <- as.formula(paste(y_var, "~", v_x))
 
   # Validation statistics and plots
-  if(validation == TRUE || validation == "cross_validation"){
+  if(validation == "cross_validation"){
     df_validation = df[sample(nrow(df)),]
     folds_ind = cut(seq(1,nrow(df_validation)),breaks=folds,labels=FALSE)
 
@@ -140,6 +140,7 @@ fit_lm_metamodel <- function(df,
       df_test = df_validation[test_indices,]
       df_train = df_validation[-test_indices,]
 
+      # Fit on training data
       lm_fit <- lm(form, data = df_train)
 
       ## Fit in validation set
@@ -159,7 +160,12 @@ fit_lm_metamodel <- function(df,
     names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: cross-validation)"
 
     l_out <- list(fit = lm_fit,
-                  stats_validation = stats_validation
+                  stats_validation = stats_validation,
+                  model_info = list(x_vars = x_vars,
+                                    y_var = y_var,
+                                    form = form,
+                                    data = df,
+                                    type = "lm")
     )
   }
   else if(validation == "train_test_split") {
@@ -182,6 +188,7 @@ fit_lm_metamodel <- function(df,
     p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_valid) +
       ggplot2::geom_point(shape = 1) +
       ggplot2::xlab("Predicted values") +
+      ggplot2::ggtitle(paste("Calibration plot for",y_var)) +
       ggplot2::ylab("Observed values") +
       ggplot2::theme_bw()
 
@@ -199,12 +206,22 @@ fit_lm_metamodel <- function(df,
 
     l_out <- list(fit = lm_fit,
                   stats_validation = stats_validation,
-                  calibration_plot = p)
+                  calibration_plot = p,
+                  model_info = list(x_vars = x_vars,
+                                    y_var = y_var,
+                                    form = form,
+                                    data = df,
+                                    type = "rf"))
   }
   else {
     lm_fit <- lm(form, data = df)
     ## Output: no validation
-    l_out <- list(fit = lm_fit)
+    l_out <- list(fit = lm_fit,
+                  model_info = list(x_vars = x_vars,
+                                    y_var = y_var,
+                                    form = form,
+                                    data = df,
+                                    type = "rf"))
   }
 
   # Export
