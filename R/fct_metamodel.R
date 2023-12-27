@@ -211,7 +211,7 @@ fit_lm_metamodel <- function(df,
                                     y_var = y_var,
                                     form = form,
                                     data = df,
-                                    type = "rf"))
+                                    type = "lm"))
   }
   else {
     lm_fit <- lm(form, data = df)
@@ -221,7 +221,7 @@ fit_lm_metamodel <- function(df,
                                     y_var = y_var,
                                     form = form,
                                     data = df,
-                                    type = "rf"))
+                                    type = "lm"))
   }
 
   # Export

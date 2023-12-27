@@ -1,10 +1,12 @@
 #' Validate metamodels
 #'
-#' @param model a model object built using a function from the PACHECK package.
-#' @param method validation method. Choices are: cross-validation and train-test split. No default.
+#' @param model model object. Built using a function from the PACHECK package.
+#' @param method character, validation method. Choices are: cross-validation ('cross_validation'), train-test split ('train_test_split'), or the user can input a new dataframe which will be used as the test-set ('new_test_set'). No default.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param folds numeric. Number of folds for the cross-validation. Default is 1 (so an error occurs when not specifying this argument when cross-validation is chosen).
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
+#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.
+#' @param validate_df dataframe. The dataframe to be used for validating the model. By default the dataframe used when building the model is used.
 #'
 #' @return .........................
 #' @export
@@ -25,7 +27,18 @@ validate_metamodel = function(model = NULL,
                               method = NULL,
                               partition = 1,
                               folds = 1,
-                              show_intercept = FALSE){
+                              show_intercept = FALSE,
+                              seed_num = 1,
+                              df_test = NULL){
+  # Retrieve model info
+  model_form = model$model_info$form
+  model_type = model$model_info$type
+  x_vars = model$model_info$x_vars
+  y_var = model$model_info$y_var
+  if(is.null(df_test)){
+    df = model$model_info$data
+  }
+
   # Flag errors
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
@@ -42,17 +55,15 @@ validate_metamodel = function(model = NULL,
   if(folds < 2 && method == "cross_validation" || folds > nrow(df_pa) && method == "cross_validation"){
     stop("Folds must be bigger than 1 and smaller than or equal to the number of rows of the dataframe.")
   }
+  if(is.null(df_test) && method == "new_test_set" || !(is.data.frame(df_test)) && method == "new_test_set"){
+    stop("Please supply the test set as a dataframe for the argument 'method'.")
+  }
 
-  # Retrieve model info
-  model_form = model$model_info$form
-  model_type = model$model_info$type
-  x_vars = model$model_info$x_vars
-  y_var = model$model_info$y_var
-  df = model$model_info$data
 
   # Set up
   l_out = list(stats_validation = NULL,
                calibration_plot = NULL)
+  set.seed(seed_num)
 
   # Validation
   if (method == "cross_validation"){
@@ -174,6 +185,61 @@ validate_metamodel = function(model = NULL,
     l_out[1] = list(stats_validation)
     l_out[2] = list(calibration_plot)
   }
+  else if (method == "new_test_set"){
+    ## Get testing data
+    df_test = validate_df
+
+    if(model_type == "rf"){
+      ## Retrieve model nodesize and mtry
+      nodesize_validation = model$fit$nodesize
+      mtry_validation = model$fit$mtry
+
+      rf_fit_validation = model$fit
+
+      ## Test on test data
+      preds = predict(rf_fit_validation, newdata = df_test)$predicted
+      tests = df_test[,y_var]
+    }
+    else if(model_type == "lm"){
+      lm_fit_validation = model$fit
+
+      ## Test on test data
+      preds          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
+      tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
+    }
+
+    r_squared_validation = cor(preds,tests)^2
+    mae_validation = mean(abs(preds-tests))
+    mre_validation = mean(abs(preds-tests)/abs(tests))
+    mse_validation = mean((preds-tests)^2)
+
+    ## Calibration plot: predicted versus observed
+    df_test$y_pred = preds
+    calibration_plot <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_test) +
+      ggplot2::geom_point(shape = 1) +
+      ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
+      ggplot2::xlab("Predicted values") +
+      ggplot2::ylab("Observed values") +
+      ggplot2::ggtitle(paste("Calibration plot for",y_var)) +
+      ggplot2::theme_bw() +
+      ggplot2::theme(plot.title = element_text(hjust = 0.5))
+
+    if(show_intercept == TRUE) {
+      calibration_plot <- calibration_plot +
+        ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange")
+    }
+
+    stats_validation = data.frame(
+      Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
+      Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
+    )
+    names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: new test set)"
+    l_out[1] = list(stats_validation)
+    l_out[2] = list(calibration_plot)
+
+
+    }
+
   return(l_out)
 
 }
