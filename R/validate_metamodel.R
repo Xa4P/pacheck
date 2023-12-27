@@ -18,8 +18,6 @@
 #'                  )
 #'
 #' validate_metamodel(model = lm_fit,
-#'                  y_var = "inc_qaly",
-#'                  x_vars = c("p_pfsd", "p_pdd"),
 #'                  method = "cross_validation",
 #'                  folds = 5
 #'                  )
