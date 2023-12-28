@@ -9,19 +9,25 @@ validate_metamodel(
   method = NULL,
   partition = 1,
   folds = 1,
-  show_intercept = FALSE
+  show_intercept = FALSE,
+  seed_num = 1,
+  df_validate = NULL
 )
 }
 \arguments{
-\item{model}{a model object built using a function from the PACHECK package.}
+\item{model}{model object. Built using a function from the PACHECK package.}
 
-\item{method}{validation method. Choices are: cross-validation and train-test split. No default.}
+\item{method}{character, validation method. Choices are: cross-validation ('cross_validation'), train-test split ('train_test_split'), or the user can input a new dataframe which will be used as the test-set ('new_test_set'). No default.}
 
 \item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
 
 \item{folds}{numeric. Number of folds for the cross-validation. Default is 1 (so an error occurs when not specifying this argument when cross-validation is chosen).}
 
 \item{show_intercept}{logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.}
+
+\item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.}
+
+\item{validate_df}{dataframe. The dataframe to be used for validating the model. By default the dataframe used when building the model is used.}
 }
 \value{
 .........................

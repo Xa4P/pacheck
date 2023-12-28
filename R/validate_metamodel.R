@@ -29,7 +29,7 @@ validate_metamodel = function(model = NULL,
                               folds = 1,
                               show_intercept = FALSE,
                               seed_num = 1,
-                              df_test = NULL){
+                              df_validate = NULL){
   # Flag errors
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
@@ -37,8 +37,8 @@ validate_metamodel = function(model = NULL,
   if(partition == 1 && method == "train_test_split") {
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
-  if(!(method %in% c("cross_validation","train_test_split"))) {
-    stop("Method must be one of: 'cross_validation','train_test_split'.")
+  if(!(method %in% c("cross_validation","train_test_split","new_test_set"))) {
+    stop("Method must be one of: 'cross_validation', 'train_test_split', 'new_test_set'.")
   }
   if(is.null(method)){
     stop("Please choose a validation method: 'cross_validation' or 'train_test_split'.")
@@ -46,22 +46,19 @@ validate_metamodel = function(model = NULL,
   if(folds < 2 && method == "cross_validation" || folds > nrow(df_pa) && method == "cross_validation"){
     stop("Folds must be bigger than 1 and smaller than or equal to the number of rows of the dataframe.")
   }
-  if(is.null(df_test) && method == "new_test_set" || !(is.data.frame(df_test)) && method == "new_test_set"){
+  if(is.null(df_validate) && method == "new_test_set" || !(is.data.frame(df_validate)) && method == "new_test_set"){
     stop("Please supply the test set as a dataframe for the argument 'method'.")
   }
 
   # Retrieve model info
   model_form = model$model_info$form
+  df = model$model_info$data
   model_type = model$model_info$type
-  if(!(model_type %in% c("rf","lm"))){
+  if(!(model_type %in% c("rf","lm","lasso"))){
     stop("Please supply a model which is built using the PACHECK package.")
   }
   x_vars = model$model_info$x_vars
   y_var = model$model_info$y_var
-
-  if(is.null(df_test)){
-    df = model$model_info$data
-  }
 
   # Set up
   l_out = list(stats_validation = NULL,
@@ -108,6 +105,21 @@ validate_metamodel = function(model = NULL,
         ## Test on test data
         preds          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
         tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
+      }
+      else if (model_type == "lasso"){
+        x_train = model.matrix(model_form,df_train)
+        y_train = df_train[,y_var]
+
+        x_test = model.matrix(model_form,df_test)
+        y_test = df_test[,y_var]
+
+        ## Tune lambda and fit the model with best lambda
+        cv_out = glmnet::cv.glmnet(x_train,y_train)
+        bestlam = cv_out$lambda.min
+        lasso_fit = glmnet::glmnet(x_train,y_train,alpha=1,lambda=bestlam)
+
+        preds = predict(lasso_fit,s=bestlam,newx=x_test)
+        tests = y_test
       }
 
       ## Store performance metrics
@@ -158,6 +170,21 @@ validate_metamodel = function(model = NULL,
       preds          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
       tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
     }
+    else if (model_type == "lasso"){
+      x_train = model.matrix(model_form,df_train)
+      y_train = df_train[,y_var]
+
+      x_test = model.matrix(model_form,df_test)
+      y_test = df_test[,y_var]
+
+      ## Tune lambda and fit the model with best lambda
+      cv_out = glmnet::cv.glmnet(x_train,y_train)
+      bestlam = cv_out$lambda.min
+      lasso_fit = glmnet::glmnet(x_train,y_train,alpha=1,lambda=bestlam)
+
+      preds = predict(lasso_fit,s=bestlam,newx=x_test)
+      tests = y_test
+    }
 
     r_squared_validation = cor(preds,tests)^2
     mae_validation = mean(abs(preds-tests))
@@ -189,26 +216,36 @@ validate_metamodel = function(model = NULL,
     l_out[2] = list(calibration_plot)
   }
   else if (method == "new_test_set"){
-    ## Get testing data
-    df_test = validate_df
-
     if(model_type == "rf"){
       ## Retrieve model nodesize and mtry
-      nodesize_validation = model$fit$nodesize
-      mtry_validation = model$fit$mtry
+      #nodesize_validation = model$fit$nodesize
+      #mtry_validation = model$fit$mtry
 
       rf_fit_validation = model$fit
 
       ## Test on test data
-      preds = predict(rf_fit_validation, newdata = df_test)$predicted
-      tests = df_test[,y_var]
+      preds = predict(rf_fit_validation, newdata = df_validate)$predicted
+      tests = df_validate[,y_var]
     }
     else if(model_type == "lm"){
       lm_fit_validation = model$fit
 
       ## Test on test data
-      preds          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
-      tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
+      preds          <- as.numeric(as.character(unlist(predict(lm_fit_validation, newdata = df_validate))))
+      tests            <- as.numeric(as.character(df_validate[, paste(y_var)]))
+    }
+    else if(model_type == "lasso"){
+      ## Retrieve bestlam
+      #bestlam = model$fit$lambda
+
+      lasso_fit_validation = model$fit
+
+      ## Test on test data
+      x_test = model.matrix(model_form,df_validate)
+      y_test = df_validate[,y_var]
+
+      preds = predict(lasso_fit_validation,newx=x_test)
+      tests = y_test
     }
 
     r_squared_validation = cor(preds,tests)^2
@@ -217,8 +254,8 @@ validate_metamodel = function(model = NULL,
     mse_validation = mean((preds-tests)^2)
 
     ## Calibration plot: predicted versus observed
-    df_test$y_pred = preds
-    calibration_plot <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_test) +
+    df_validate$y_pred = preds
+    calibration_plot <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_validate) +
       ggplot2::geom_point(shape = 1) +
       ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
       ggplot2::xlab("Predicted values") +

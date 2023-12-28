@@ -33,7 +33,7 @@ predict_metamodel = function(model = NULL,
   model_fit = model$fit
 
   model_type = model$model_info$type
-  if(!(model_type %in% c("rf","lm"))){
+  if(!(model_type %in% c("rf","lm","lasso"))){
     stop("Please supply a model which is built using the PACHECK package.")
   }
   model_training_data = model$model_info$data
@@ -52,10 +52,6 @@ predict_metamodel = function(model = NULL,
   }
 
 
-
-
-
-
   # Transform input data to dataframe if needed
   if (is.null(inputs)){
     newdata = model_training_data
@@ -64,6 +60,7 @@ predict_metamodel = function(model = NULL,
     arr = array(inputs,dim = c(length(inputs)/length(v_names),length(v_names)))
     newdata = as.data.frame(arr)
     names(newdata) = v_names
+    newdata[,y_var] = rep(NA,length(inputs)/length(v_names))
   }
   else {
     newdata = inputs
@@ -77,7 +74,14 @@ predict_metamodel = function(model = NULL,
   else if(model_type == "lm"){
     preds = array(stats::predict.lm(model_fit,newdata = newdata))
   }
-
+  else if(model_type == "lasso"){
+    model_form = model$model_info$form
+    print('hi')
+    print(model_form)
+    newdata = model.matrix(model_form,newdata)[,-1]
+    print(newdata)
+    preds = array(glmnet::predict.glmnet(model_fit,newx=newdata))
+  }
 
   # Output type
   if(output_type == "dataframe"){
