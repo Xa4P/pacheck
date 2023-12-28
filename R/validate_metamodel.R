@@ -30,15 +30,6 @@ validate_metamodel = function(model = NULL,
                               show_intercept = FALSE,
                               seed_num = 1,
                               df_test = NULL){
-  # Retrieve model info
-  model_form = model$model_info$form
-  model_type = model$model_info$type
-  x_vars = model$model_info$x_vars
-  y_var = model$model_info$y_var
-  if(is.null(df_test)){
-    df = model$model_info$data
-  }
-
   # Flag errors
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
@@ -59,6 +50,18 @@ validate_metamodel = function(model = NULL,
     stop("Please supply the test set as a dataframe for the argument 'method'.")
   }
 
+  # Retrieve model info
+  model_form = model$model_info$form
+  model_type = model$model_info$type
+  if(!(model_type %in% c("rf","lm"))){
+    stop("Please supply a model which is built using the PACHECK package.")
+  }
+  x_vars = model$model_info$x_vars
+  y_var = model$model_info$y_var
+
+  if(is.null(df_test)){
+    df = model$model_info$data
+  }
 
   # Set up
   l_out = list(stats_validation = NULL,
