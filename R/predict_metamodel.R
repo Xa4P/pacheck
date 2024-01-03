@@ -41,8 +41,8 @@ predict_metamodel = function(model = NULL,
   y_var = model$model_info$y_var
 
   if(is.data.frame(inputs)){
-    if(length(inputs[,y_var]) %% length(v_names) != 0){
-      stop("Please supply a vector whose length is a multiple of the number of x-variables.")
+    if(ncol(inputs) != length(v_names)){
+      stop("Please supply a dataframe with as many columns as there are x-variables.")
     }
   }
   else if(is.vector(inputs)){
@@ -50,7 +50,6 @@ predict_metamodel = function(model = NULL,
       stop("Please supply a vector whose length is a multiple of the number of x-variables.")
     }
   }
-
 
   # Transform input data to dataframe if needed
   if (is.null(inputs)){
@@ -60,7 +59,7 @@ predict_metamodel = function(model = NULL,
     arr = array(inputs,dim = c(length(inputs)/length(v_names),length(v_names)))
     newdata = as.data.frame(arr)
     names(newdata) = v_names
-    newdata[,y_var] = rep(0,length(inputs)/length(v_names))
+    #newdata[,y_var] = rep(0,length(inputs)/length(v_names))
   }
   else {
     newdata = inputs
