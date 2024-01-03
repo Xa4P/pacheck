@@ -114,9 +114,7 @@ fit_lasso_metamodel = function(df,
   bestlam = cv_out$lambda.min
 
   lasso_fit = glmnet::glmnet(x_train,y_train,alpha=1,lambda=bestlam)
-  lasso_coefs = lasso_fit$beta
 
-  l_out[1] = list(lasso_fit)
   if(tune_plot == TRUE){
     plot(cv_out)
   }

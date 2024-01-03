@@ -60,7 +60,7 @@ predict_metamodel = function(model = NULL,
     arr = array(inputs,dim = c(length(inputs)/length(v_names),length(v_names)))
     newdata = as.data.frame(arr)
     names(newdata) = v_names
-    newdata[,y_var] = rep(NA,length(inputs)/length(v_names))
+    newdata[,y_var] = rep(0,length(inputs)/length(v_names))
   }
   else {
     newdata = inputs
@@ -76,10 +76,14 @@ predict_metamodel = function(model = NULL,
   }
   else if(model_type == "lasso"){
     model_form = model$model_info$form
+    print("x_vars:")
+    print(model$model_info$x_vars)
     print('hi')
     print(model_form)
-    newdata = model.matrix(model_form,newdata)[,-1]
     print(newdata)
+    newdata = model.matrix(model_form,newdata)[,-1]
+
+
     preds = array(glmnet::predict.glmnet(model_fit,newx=newdata))
   }
 
