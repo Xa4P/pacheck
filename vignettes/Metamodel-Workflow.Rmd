@@ -1,6 +1,6 @@
 ---
 title: "Metamodel-Workflow"
-output: pdf_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Metamodel-Workflow}
   %\VignetteEngine{knitr::rmarkdown}
