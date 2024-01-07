@@ -62,7 +62,7 @@ where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \
 For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 }
 \examples{
-# Fitting meta model with two variables using the probabilistic data
+# Fitting linear meta model with two variables using the probabilistic data
 data(df_pa)
 fit_lm_metamodel(df = df_pa,
                  y_var = "inc_qaly",

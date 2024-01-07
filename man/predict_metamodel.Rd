@@ -20,7 +20,7 @@ predict_metamodel(model = NULL, inputs = NULL, output_type = "vector")
 \value{
 A dataframe with the results of deterministic sensitivity analyses performed using parameter values of the linear metamodel. The dataframe contains the results using the lower and upper bound of the 95% Confidence Interval of the probabilistic parameters.
 
-...................................
+returns a vector or a dataframe containing the predictions.
 }
 \description{
 This function computes a result using a pre-defined metamodel, and user-defined inputs to make the prediction.

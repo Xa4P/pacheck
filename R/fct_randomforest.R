@@ -23,12 +23,16 @@
 #' @import interp
 #' @import ggplot2
 #'
-#' @return A list containing ......
+#' @return
 #'
 #' @examples
 #' # Fitting random forest meta model with two variables using the probabilistic data
 #' data(df_pa)
-#' fit = fit_rf_metamodel..................................
+#' fit_rf_metamodel(df = df_pa,
+#'                  y_var = "inc_qaly",
+#'                  x_vars = c("p_pfsd", "p_pdd"),
+#'                  tune = TRUE
+#'                  )
 #' @export
 #'
 #' @examples
@@ -172,7 +176,6 @@ fit_rf_metamodel <- function(df,
     else {
       l_out = l_out[-c(4,5)]
     }
-
 
     # Fit random forest model with tuned parameters
     rf_fit = rfsrc(form,

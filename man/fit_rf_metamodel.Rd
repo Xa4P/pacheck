@@ -57,14 +57,15 @@ fit_rf_metamodel(
 
 \item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
 }
-\value{
-A list containing ......
-}
 \description{
 Fit random forest metamodel
 }
 \examples{
 # Fitting random forest meta model with two variables using the probabilistic data
 data(df_pa)
-fit = fit_rf_metamodel..................................
+fit_rf_metamodel(df = df_pa,
+                 y_var = "inc_qaly",
+                 x_vars = c("p_pfsd", "p_pdd"),
+                 tune = TRUE
+                 )
 }

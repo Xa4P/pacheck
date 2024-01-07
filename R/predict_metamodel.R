@@ -4,7 +4,7 @@
 #' @param inputs dataframe or vector. When choosing a vector in the case of a three-variable model: the first, second, third, and fourth value represent the input for the first, second, third, and FIRST variable, respectively. Default gives the predictions based on the training data.
 #' @param output character. Choose an output: 'dataframe' or 'vector'.
 #'
-#' @return ...................................
+#' @return returns a vector or a dataframe containing the predictions.
 #' @export
 #'
 #' @examples
@@ -59,7 +59,6 @@ predict_metamodel = function(model = NULL,
     arr = array(inputs,dim = c(length(inputs)/length(v_names),length(v_names)))
     newdata = as.data.frame(arr)
     names(newdata) = v_names
-    #newdata[,y_var] = rep(0,length(inputs)/length(v_names))
   }
   else {
     newdata = inputs
@@ -75,13 +74,7 @@ predict_metamodel = function(model = NULL,
   }
   else if(model_type == "lasso"){
     model_form = model$model_info$form
-    print("x_vars:")
-    print(model$model_info$x_vars)
-    print('hi')
-    print(model_form)
-    print(newdata)
     newdata = model.matrix(model_form,newdata)[,-1]
-
 
     preds = array(glmnet::predict.glmnet(model_fit,newx=newdata))
   }

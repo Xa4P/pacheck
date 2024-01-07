@@ -1,6 +1,6 @@
 ---
 title: "Metamodel-Workflow"
-output: rmarkdown::html_vignette
+output: pdf_document
 vignette: >
   %\VignetteIndexEntry{Metamodel-Workflow}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,7 +17,11 @@ This article describes an example workflow for fitting and validating metamodels
 
 We will use the example dataframe `df_pa` which is included in the package.
 
+*** Note to Xavier: the functions for fitting the linear model and the random forest model both include a 'validation' argument. So it is also possible to validate the model using those functions. However, as we discussed, it is possibly nicer to have a separate function for the validation process. Which I built afterwards. I did not remove the validation argument from the fitting functions in case you changed your mind ***
+
 # Model Fitting & Parameter Information
+Functions: `fit_lm_metamodel`, `fit_rf_metamodel`, `fit_lasso_metamodel`.
+
 For all three models (linear model, random forest model, and lasso model), there is a separate function used to fit the model.
 
 We use a random seed number: 24 is chosen here.
@@ -107,12 +111,12 @@ Arguments: `df`, `y_var`, `x_vars`, `seed_num`.
 rf_fit <- fit_rf_metamodel(df = df_pa,
                            x_vars = c("rr",
                                        "u_pfs",
-                                       #"u_pd",
-                                       #"c_pfs",
-                                       #"c_pd",
-                                       #"c_thx",
-                                       #"p_pfspd",
-                                       #"p_pfsd",
+                                       "u_pd",
+                                       "c_pfs",
+                                       "c_pd",
+                                       "c_thx",
+                                       "p_pfspd",
+                                       "p_pfsd",
                                        "p_pdd"),
                            y_var = "inc_qaly",
                            seed_num = 24)
@@ -123,12 +127,12 @@ Arguments: `var_importance`.
 rf_fit <- fit_rf_metamodel(df = df_pa,
                            x_vars = c("rr",
                                        "u_pfs",
-                                       #"u_pd",
-                                       #"c_pfs",
-                                       #"c_pd",
-                                       #"c_thx",
-                                       #"p_pfspd",
-                                       #"p_pfsd",
+                                       "u_pd",
+                                       "c_pfs",
+                                       "c_pd",
+                                       "c_thx",
+                                       "p_pfspd",
+                                       "p_pfsd",
                                        "p_pdd"),
                            y_var = "inc_qaly",
                            var_importance = TRUE,
@@ -139,18 +143,18 @@ The function now returns a plot which shows the importance of the included x-var
 ### Tuning nodesize and mtry
 Arguments: `tune`.
 
-Two parameters which can have a significant impact on the model fit are `nodesize` and `mtry`. It is therefore recommended to tune these parameters. The tuning process consists of a grid search.
+Two parameters which can have a significant impact on the model fit are `nodesize` and `mtry`. It is therefore recommended to tune these parameters. The tuning process consists of a grid search. If `tune = FALSE`, default values for `nodesize` and `mtry` are used, which are 5 and (nr of x-variables)/3, respectively.
 
 ```{r, warning = FALSE}
 rf_fit <- fit_rf_metamodel(df = df_pa,
                            x_vars = c("rr",
                                        "u_pfs",
-                                       #"u_pd",
-                                       #"c_pfs",
-                                       #"c_pd",
-                                       #"c_thx",
-                                       #"p_pfspd",
-                                       #"p_pfsd",
+                                       "u_pd",
+                                       "c_pfs",
+                                       "c_pd",
+                                       "c_thx",
+                                       "p_pfspd",
+                                       "p_pfsd",
                                        "p_pdd"),
                            y_var = "inc_qaly",
                            var_importance = FALSE,
@@ -160,7 +164,7 @@ rf_fit$tune_fit$optimal
 rf_fit$tune_plot
 ```
 
-The optimal nodesize and mtry are found, and the results are shown in the plot. The black dots represent the tried combinations of nodesize and mtry, the colour gradient is obtained through 2-Dimensional interpolation. The black cross marks the optimal combination, i.e., the combination yielding the lowest OOB error.
+The optimal nodesize and mtry are found, and the results are shown in the plot. The black dots represent the tried combinations of nodesize and mtry, the colour gradient is obtained through 2-dimensional interpolation. The black cross marks the optimal combination, i.e., the combination yielding the lowest OOB error.
 
 ### Partial & marginal plots
 Arguments: `pm_plot`, `pm_vars`.
@@ -171,12 +175,12 @@ We can obtain partial and marginal plots, by setting `pm_plot` equal to 'partial
 rf_fit <- fit_rf_metamodel(df = df_pa,
                            x_vars = c("rr",
                                        "u_pfs",
-                                       #"u_pd",
-                                       #"c_pfs",
-                                       #"c_pd",
-                                       #"c_thx",
-                                       #"p_pfspd",
-                                       #"p_pfsd",
+                                       "u_pd",
+                                       "c_pfs",
+                                       "c_pd",
+                                       "c_thx",
+                                       "p_pfspd",
+                                       "p_pfsd",
                                        "p_pdd"),
                            y_var = "inc_qaly",
                            var_importance = FALSE,
@@ -185,6 +189,8 @@ rf_fit <- fit_rf_metamodel(df = df_pa,
                            pm_vars = c("rr","u_pfs"),
                            seed_num = 24)
 ```
+
+The first two are the partial plots, and the other two are the marginal plots.
 
 ## Lasso Model
 
@@ -210,9 +216,13 @@ The plot shows the tuning results: the error rate for each lambda. The smallest 
 Generally, the lasso procedure yields sparse models, i.e., models that involve only a subset of the set of input variables. In this case however, no coefficients are set to 0, and we have the same results as we obtained from the linear model.
 
 # Model Validation
+Function: `validate_metamodel`.
+
 There is one function which can validate all three types of metamodels: `validate_metamodel`. Three types of validation methods can be used: the train/test split, (K-fold) cross-validation, and using a new dataset. We will discuss each validation method.
 
 ## Train/test split and Linear Model
+Arguments: `method`, `partition`.
+
 First we use the train/test split. For this we need to specify `partition`, which sets the proportion of the data that will be used for the training data. We also set `show_intercept` to `TRUE` for the calibration plot.
 
 ```{r, warning = FALSE}
@@ -224,9 +234,14 @@ lm_validation = validate_metamodel(lm_fit,
 lm_validation$stats_validation
 lm_validation$calibration_plot
 ```
+
 The output shows the validation results: R-squared, mean absolute error, mean relative error, and the mean squared error of the model applied to the test data. We also see the calibration plot.
 
 ## K-fold Cross-Validation and Random Forest Model
+Arguments: `method`, `folds`.
+
+Now we use 2-fold cross-validation. 
+
 ```{r, warning = FALSE}
 rf_validation = validate_metamodel(rf_fit,
                                    method = "cross_validation",
@@ -236,6 +251,7 @@ rf_validation$stats_validation
 ```
 
 ## New Dataset and Lasso Model
+Arguments: `method`, `df_validate`.
 
 It also might happen that a validation dataset is obtained once the model has already been fitted some time ago. The function enables us to use this dataset for the validation process.
 
@@ -268,6 +284,9 @@ rf_validation$stats_validation
 ```
 
 # Making Predictions
+Function: `predict_metamodel`.
+Arguments: `inputs`, `output_type`
+
 There is one function which can be used to make predictions using the fitted metamodels: `predict_metamodel`.
 
 As an example, we will fit a four-variable model for all three metamodel types and with the following inputs:
@@ -313,11 +332,11 @@ rf_fit2 = fit_rf_metamodel(df = df_pa,
 #define the inputs
 ins_vec = c(0.1,0.2,0.08,0.15,0.06,0.25,0.1,0.23) #vector
 
-ins_df = newdata #dataframe (define above)
+ins_df = newdata #dataframe (defined above)
 
 ```
 
-Note that the order of the input vector matters. In the case of a three-variable model: the first, second, third, and fourth value represent the input for the first, second, third, and FIRST variable of the model, respectively 
+Note that the order of the input vector matters. If we have a four-variable model, and we want to make two predictions, the first two values are for the first variable, the next two values are for the second variable, etc. 'First' and 'second' refer to the placement of the variable in the model as defined in the R-code. So in our example, the first and second variable is `p_pfspd` and `p_pfsd`, respectively.
 
 ## 1. Input: vector (Linear Model)
 
@@ -363,7 +382,29 @@ predictions = predict_metamodel(lm_fit2,
 print(predictions)
 ```
 
-# MAKING PREDICTIONS FOR LASSO DOES NOT WORK YET.............
+# MAKING PREDICTIONS FOR LASSO DOES NOT WORK YET.............and I couldn't figure out why...
+## code:
+
+```{r}
+##fit lasso model
+#lasso_fit = fit_lasso_metamodel(df = df_pa,
+#                           x_vars = c("p_pfspd",
+#                                       "p_pfsd",
+#                                       "p_pdd",
+#                                      "rr"),
+#                           y_var = "inc_qaly",
+#                           seed_num = 24)
+
+
+##make predictions using lasso model
+#lasso_preds = predict_metamodel(lasso_fit,
+#                                inputs = ins_vec,
+#                                output_type = "vector")
+
+
+```
+# also: would be nice to include a partial/marginal plot for lm and lasso as well
+
 
 
 

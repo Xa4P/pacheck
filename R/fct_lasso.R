@@ -1,12 +1,16 @@
 #' Fit LASSO metamodel
 #'
-#' @param df
-#' @param y_var
-#' @param x_vars
-#' @param seed_num
-#' @param pm_plot
-#' @param pm_vars
-#' @param fit_complete_model
+#' @param df a dataframe.
+#' @param y_var character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
+#' @param x_vars character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.
+#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
+#' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
+#' @param tune_plot logical. Determine whether the plot of the results of tuning the lambda should be shown.
+#' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
+#' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
+#' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
+#' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
+#' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
 #'
 #' @import glmnet
 #'
@@ -14,6 +18,14 @@
 #' @export
 #'
 #' @examples
+#' #Fit lasso metamodel with two variables using the probabilistic data
+#' data(df_pa)
+#' fit_lasso_metamodel(df = df_pa,
+#'                  y_var = "inc_qaly",
+#'                  x_vars = c("p_pfsd", "p_pdd"),
+#'                  tune_plot = TRUE
+#'                  )
+#'
 fit_lasso_metamodel = function(df,
                                y_var = NULL,
                                x_vars = NULL,
