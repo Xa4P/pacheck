@@ -7,23 +7,24 @@
 #' @param x_vars character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
 #' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
-#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
-#' @param validation logical. Determine whether R2 should be calculated on the validation set.
+#' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.
+#' @param validation logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
 #' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
 #' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
+#' @param folds numeric. Number of folds for the cross-validation. Default is 5.
 #'
-#' @return A list with containing the fit of the model and validation estimates and plots when selected.
+#' @return A list containing the fit of the model and validation estimates and plots when selected.
 #'
 #' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
 #' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
 #' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 #'
 #' @examples
-#' # Fitting meta model with two variables using the probabilistic data
+#' # Fitting linear meta model with two variables using the probabilistic data
 #' data(df_pa)
 #' fit_lm_metamodel(df = df_pa,
 #'                  y_var = "inc_qaly",
@@ -39,6 +40,7 @@ fit_lm_metamodel <- function(df,
                              partition = 1,
                              seed_num = 1,
                              validation = FALSE,
+                             folds = 5,
                              show_intercept = FALSE,
                              x_poly_2 = NULL,
                              x_poly_3 = NULL,
@@ -52,17 +54,23 @@ fit_lm_metamodel <- function(df,
   if(partition < 0 || partition > 1) {
     stop("Proportion selected for training the metamodel should be between 0 (excluded) and 1 (included).")
   }
-  if(partition == 1 && validation == TRUE) {
+  if(partition == 1 && validation == "train_test_split") {
     stop("Cannot perform validation because all observations are included in the training set. Lower `partition` below 1.")
   }
   if(is.null(y_var)) {
     stop("Cannot perform linear regression because there is no value provided for 'y_var'.")
   }
   if(!is.null(x_inter) && length(x_inter) != 2 * round(length(x_inter) / 2)) {
-    stop("The number of interaction terms is oneven.")
+    stop("The number of interaction terms is uneven.")
   }
   if(is.null(x_vars) && is.null(x_poly_2) && is.null(x_poly_3) && is.null(x_exp) && is.null(x_log)) {
     stop("Cannot perform linear regression because there is no value provided for the predictors.")
+  }
+  if(!(validation %in% c(FALSE,"cross_validation","train_test_split"))) {
+    stop("Validation must be one of: FALSE, 'cross_validation','train_test_split'.")
+  }
+  if(folds < 1 || folds > nrow(df_pa)){
+    stop("Folds must be bigger than 0 and smaller than or equal to the number of rows of the dataframe.")
   }
 
   # Set up
@@ -118,7 +126,49 @@ fit_lm_metamodel <- function(df,
   form <- as.formula(paste(y_var, "~", v_x))
 
   # Validation statistics and plots
-  if(validation == TRUE) {
+  if(validation == "cross_validation"){
+    df_validation = df[sample(nrow(df)),]
+    folds_ind = cut(seq(1,nrow(df_validation)),breaks=folds,labels=FALSE)
+
+    r_squared_validation = rep(NA,folds)
+    mae_validation = rep(NA,folds)
+    mre_validation = rep(NA,folds)
+    mse_validation = rep(NA,folds)
+
+    for (i in 1:folds){
+      test_indices = which(folds_ind==i)
+      df_test = df_validation[test_indices,]
+      df_train = df_validation[-test_indices,]
+
+      # Fit on training data
+      lm_fit <- lm(form, data = df_train)
+
+      ## Fit in validation set
+      v_y_predict          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
+      v_y_valid            <- as.numeric(as.character(df_test[, paste(y_var)]))
+      r_squared_validation[i] <- cor(v_y_predict, v_y_valid) ^ 2
+      mae_validation[i]       <- mean(abs(v_y_predict - v_y_valid))
+      mre_validation[i]       <- mean(abs(v_y_predict - v_y_valid) / abs(v_y_valid))
+      mse_validation[i]     = mean((v_y_predict - v_y_valid)^2)
+    }
+
+    ## Output: validation
+    stats_validation = data.frame(
+      Statistic = c("R-squared", "Mean absolute error", "Mean relative error", "Mean squared error"),
+      Value     = round(c(mean(r_squared_validation), mean(mae_validation), mean(mre_validation), mean(mse_validation)), 3)
+    )
+    names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: cross-validation)"
+
+    l_out <- list(fit = lm_fit,
+                  stats_validation = stats_validation,
+                  model_info = list(x_vars = x_vars,
+                                    y_var = y_var,
+                                    form = form,
+                                    data = df,
+                                    type = "lm")
+    )
+  }
+  else if(validation == "train_test_split") {
     ## Partition data and fit to train data
     selection <- sample(1:nrow(df), size = round(nrow(df) * partition), replace = FALSE)
     df_fit    <- df[selection, ]
@@ -131,34 +181,47 @@ fit_lm_metamodel <- function(df,
     r_squared_validation <- cor(v_y_predict, v_y_valid) ^ 2
     mae_validation       <- mean(abs(v_y_predict - v_y_valid))
     mre_validation       <- mean(abs(v_y_predict - v_y_valid) / abs(v_y_valid))
+    mse_validation       <- mean((v_y_predict - v_y_valid)^2)
 
     ## Calibration plot: predicted versus observed
     df_valid$y_pred <- v_y_predict
     p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_valid) +
       ggplot2::geom_point(shape = 1) +
-      ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange") +
       ggplot2::xlab("Predicted values") +
+      ggplot2::ggtitle(paste("Calibration plot for",y_var)) +
       ggplot2::ylab("Observed values") +
       ggplot2::theme_bw()
 
     if(show_intercept == TRUE) {
       p <- p +
-        ggplot2::xlim(c(0, max(df_valid[, c("y_pred", y_var)]))) +
-        ggplot2::ylim(c(0, max(df_valid[, c("y_pred", y_var)])))
-      }
+        ggplot2::geom_abline(intercept = 0, slope = 1, colour = "orange")
+    }
 
     ## Output: validation
+    stats_validation = data.frame(
+      Statistic = c("R-squared", "Mean absolute error", "Mean relative error", "Mean squared error"),
+      Value     = round(c(r_squared_validation, mae_validation, mre_validation, mse_validation), 3)
+    )
+    names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: train/test split)"
+
     l_out <- list(fit = lm_fit,
-                  stats_validation = data.frame(
-                    Statistic = c("R-squared", "Mean absolute error", "Mean relative error"),
-                    Value     = round(c(r_squared_validation, mae_validation, mre_validation), 3)
-                    ),
-                  calibration_plot = p
-                  )
-  } else {
+                  stats_validation = stats_validation,
+                  calibration_plot = p,
+                  model_info = list(x_vars = x_vars,
+                                    y_var = y_var,
+                                    form = form,
+                                    data = df,
+                                    type = "lm"))
+  }
+  else {
     lm_fit <- lm(form, data = df)
     ## Output: no validation
-    l_out <- list(fit = lm_fit)
+    l_out <- list(fit = lm_fit,
+                  model_info = list(x_vars = x_vars,
+                                    y_var = y_var,
+                                    form = form,
+                                    data = df,
+                                    type = "lm"))
   }
 
   # Export
@@ -193,7 +256,7 @@ fit_lm_metamodel <- function(df,
 predict_metamodel <- function(metamodel,
                               inputs){
   # Identify coefficient metamodel
-  v_names <- names(metamodel$coefficients[c(2:length(metamodel$coefficients))])
+  v_names <- metamodel$coefficients
 
   # Flag errors
   if(length(inputs) < length(v_names)) {
@@ -207,7 +270,7 @@ predict_metamodel <- function(metamodel,
   newdata <- data.frame(t(inputs))
   names(newdata) <- v_names
 
-  pred <- stats::predict(metamodel, newdata = newdata)
+  pred <- stats::predict(metamodel$fit, newdata = newdata)
   names(pred) <- "prediction"
 
   df_out <- cbind(newdata, t(pred))

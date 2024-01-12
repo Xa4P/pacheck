@@ -12,6 +12,7 @@ fit_lm_metamodel(
   partition = 1,
   seed_num = 1,
   validation = FALSE,
+  folds = 5,
   show_intercept = FALSE,
   x_poly_2 = NULL,
   x_poly_3 = NULL,
@@ -31,9 +32,11 @@ fit_lm_metamodel(
 
 \item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
 
-\item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.}
+\item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.}
 
-\item{validation}{logical. Determine whether R2 should be calculated on the validation set.}
+\item{validation}{logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.}
+
+\item{folds}{numeric. Number of folds for the cross-validation. Default is 5.}
 
 \item{show_intercept}{logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.}
 
@@ -48,7 +51,7 @@ fit_lm_metamodel(
 \item{x_inter}{character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.}
 }
 \value{
-A list with containing the fit of the model and validation estimates and plots when selected.
+A list containing the fit of the model and validation estimates and plots when selected.
 }
 \description{
 This function fits and provides summary statistics of a linear regression model fitted on the input and output values of a probabilistic analysis.
@@ -59,7 +62,7 @@ where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \
 For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
 }
 \examples{
-# Fitting meta model with two variables using the probabilistic data
+# Fitting linear meta model with two variables using the probabilistic data
 data(df_pa)
 fit_lm_metamodel(df = df_pa,
                  y_var = "inc_qaly",

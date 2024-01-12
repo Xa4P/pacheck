@@ -6,3 +6,4 @@ renv/staging
 .vscode
 .gitignore
 docs
+inst/doc
