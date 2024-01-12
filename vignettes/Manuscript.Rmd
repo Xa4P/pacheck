@@ -1,0 +1,16 @@
+---
+title: "The Probabilistic Analysis CHECK R package"
+author: "X. Pouwels & H. Koffijberg"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introduction
+Health economic models are routinely develop to inform health policy decisions such as including (new) healthcare interventions in insurance packages or restricting their use to specific subgroups **[REF]**. Validating health economic models is an important step within the development of health economic models, as it contributes to increasing the credibility of health economic models **[REF CARO]**.\
+The ISPOR-SMDM Modeling Good Research Practices Task Force distinguishes between the face validity, verification (also called internal validity), cross validity, and external validity of the model structure, inputs, and outputs [https://doi.org/10.1016/j.jval.2012.04.012].The AdviSHE tool provides a **[REF]**
+
+- check wat heemod, heesim, dampack, en darthpack doen aan validatie
