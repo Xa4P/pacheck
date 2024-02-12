@@ -569,7 +569,7 @@ calculate_nb <- function(df,
 #' @inheritParams plot_ce_mult
 #' @param wtp numeric. Willingness-to-pay thresholds to use for NMB and NHB calculations.
 #' @return
-#' A dataframe containing the original data and the following variables containing the NMB and NHB for each strategy.\n
+#' A dataframe containing the original data and the following variables containing the NMB and NHB for each strategy.
 #' The name of these new variables are structured as 'NMB_strategyname' and 'NHB_strategyname'
 #' @examples
 #' # Calculate NB's at a willingness-to-pay threshold of 80000 per unit of effects

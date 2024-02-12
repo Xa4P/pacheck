@@ -23,7 +23,7 @@
 #' @import interp
 #' @import ggplot2
 #'
-#' @return
+#' @return a list
 #'
 #' @examples
 #' # Fitting random forest meta model with two variables using the probabilistic data
@@ -35,7 +35,6 @@
 #'                  )
 #' @export
 #'
-#' @examples
 fit_rf_metamodel <- function(df,
                              y_var = NULL,
                              x_vars = NULL,

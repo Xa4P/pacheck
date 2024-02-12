@@ -41,6 +41,9 @@ fit_lasso_metamodel(
 
 \item{x_inter}{character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.}
 }
+\value{
+a list
+}
 \description{
 Fit LASSO metamodel
 }

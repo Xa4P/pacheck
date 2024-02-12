@@ -16,7 +16,7 @@ calculate_nb_mult(df, outcomes, costs, wtp)
 \item{wtp}{numeric. Willingness-to-pay thresholds to use for NMB and NHB calculations.}
 }
 \value{
-A dataframe containing the original data and the following variables containing the NMB and NHB for each strategy.\n
+A dataframe containing the original data and the following variables containing the NMB and NHB for each strategy.
 The name of these new variables are structured as 'NMB_strategyname' and 'NHB_strategyname'
 }
 \description{

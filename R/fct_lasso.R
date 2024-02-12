@@ -14,7 +14,7 @@
 #'
 #' @import glmnet
 #'
-#' @return
+#' @return a list
 #' @export
 #'
 #' @examples

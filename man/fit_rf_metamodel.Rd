@@ -57,6 +57,9 @@ fit_rf_metamodel(
 
 \item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
 }
+\value{
+a list
+}
 \description{
 Fit random forest metamodel
 }
