@@ -305,7 +305,31 @@ readr::write_excel_csv2(data.frame(cbind(
   ), file = paste(getwd(), "/output/fit_metamodel_validation_set.csv", sep = ""))
 
 # Predicted versus observed & QQ-plot ----
-png(paste(getwd(), "/figs/Prediction_versus_observation.png", sep = ""),
+png(paste(getwd(), "/figs/Prediction_versus_observation_check.png", sep = ""),
+    units = "cm",
+    width = 21,
+    height = 21 / 16 * 9,
+    res = 300)
+par(mfrow = c(1, 2))
+plot(x = df_pa_validation_complete[, "iNMB"],
+     y = v_predictions_validation,
+     xlab = "Observed",
+     ylab = "Predicted",
+     main = "A")
+abline(coef = c(0,1),
+       col = "red")
+
+# QQplot
+qqplot(x = df_pa_validation_complete[, "iNMB"],
+       y = v_predictions_validation,
+       xlab = "Observed",
+       ylab = "Predicted",
+       main = "B")
+abline(coef = c(0,1),
+       col = "red")
+dev.off()
+
+tiff(paste(getwd(), "/figs/Prediction_versus_observation_check.tif", sep = ""),
     units = "cm",
     width = 21,
     height = 21 / 16 * 9,
