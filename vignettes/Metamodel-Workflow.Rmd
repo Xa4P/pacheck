@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE, warning = FALSE}
-library(pacheck)
+# library(pacheck)
 data(df_pa)
 ```
 

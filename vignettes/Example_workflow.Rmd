@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include = FALSE}
-library(pacheck)
+# library(pacheck)
 library(knitr)
 library(ggplot2)
 data(df_pa)
@@ -146,9 +146,6 @@ l_dist[[2]]
 
 ## 3.	Investigate model outputs
 ### a.	Incremental cost-effectiveness plane & summary
-Questions met Karel te bespreken:  
-- Interactive plot where you can click on a dot, or select some dots and see which input parameters combination has led to these outputs --> ook mogelijkheid om een bepaalde 'gebied' te selecteren (invoeren) en te zien welke inputs daarbij behoren.  
-- Combineren van de plot hierbeneden met de histogrammen van de waarden op de x en y as, of als niet overzichtelijk: met ticks op de axes als er een datapunt is.  
 
 ```{r dist_plot_2p, echo = T}
 p_3 <- plot_ice(
@@ -165,9 +162,6 @@ summary_ice(df_pa,
            "inc_qaly",
            "inc_costs")
 ```
-
-
-- Plot hierboven koppelen aan een graphs van 1 en 2 input parameters. Al gedaan in tentative shiny app voor onderwijs: selectie van punten in de 'input graph' wordt gehighlight in andere plot. Voorbeeld, laatste tabs van volgende shiny app: `shiny::runGitHub("Teaching", "Xa4P", subdir = "Basics/shiny_app_cea/", ref = "main")`.  
 
 ### b.	Cost-effectiveness acceptability curve.
 ```{r ceac, echo = T}
@@ -192,7 +186,7 @@ plot_convergence(df = df_pa,
                  )
 ```
 
-### e.	Check whetherthe mean quality of life outcome of each iteration remain between the maximum and minimum utility values of the specific iteration.
+### e.	Check whether the mean quality of life outcome of each iteration remain between the maximum and minimum utility values of the specific iteration.
 ```{r mean_qol, echo = T}
 check_mean_qol(df = df_pa,
                t_ly = "t_ly_comp",
@@ -279,11 +273,3 @@ predict(
   )
 )
 ```
-
-# Other activities/ questions/ to do's
-- Two-way sensitivity analysis based on metamodel.  
-- Include other functional forms of metamodels  
-- Check results of deterministic sensitivity analyses using original model and metamodel.  
-- XP/Karel to do: Add possibility of having multiple scenarios loaded. --> door selectie aan het begin van de app?    
-- Shapley values, zou dat kunnen ? Zou het mogelijk zijn om dat op de originele data set te doen? **KernelExplainer** on this github: https://github.com/slundberg/shap. Of is dit iets? https://github.com/nredell/shapFlex, maar ziet eruit dat je ook een model moet fitten (niet model agnostic)  
-- Check whether violin plot have added value  

@@ -9,7 +9,7 @@ output:
 # library(DiagrammeR)
 # library(DiagrammeRsvg)
 # library(rsvg)
-library(pacheck)
+# library(pacheck)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
