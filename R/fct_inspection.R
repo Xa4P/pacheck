@@ -927,6 +927,102 @@ check_binary <- function(..., df, max_view = 50) {
   return(df_res)
 }
 
+#' Check PSA inputs & outputs
+#' @description This function checks whether the value of variables remain between 0 and 1 for utility and probability inputs, and are strictly positive for costs, hazard ratios, odds ratios, relative risks, and total outcomes of each strategy.
+#' @param l_psa_darth a list of class 'psa' as obtained by the function [dampack::make_psa_obj()]
+#' @param utility characters. String used at the start of the variables identifying utility inputs.
+#' @param costs characters. String used at the start of the variables identifying cost inputs.
+#' @param probs characters. String used at the start of the variables identifying probability inputs.
+#' @param rr characters. String used at the start of the variables identifying relative risk inputs.
+#' @param hr characters. String used at the start of the variables identifying hazard ratio inputs.
+#' @param or characters. String used at the start of the variables identifying odds ratio inputs.
+#' @param exclude vector of strings. Vector containing the name of the input variables not to include in the checks. Default is NULL, hence all variables from the 'parameters' dataframe are included.
+#' @param v_outcome vector of strings. Vector containing the name of the output variables to include in the checks. Default values are 'effectiveness' and 'cost'.
+#' @return A matrix containing the input and output variables that have been checked and the iterations wherein an erroneous value has been identified.
+#' @export
+check_psa_darth <- function(l_psa_darth,
+                            utility = "u_",
+                            costs = "c_",
+                            probs = "p_",
+                            rr = "rr_",
+                            hr = "hr_",
+                            or = "or_",
+                            exclude = NULL,
+                            v_outcome = c("effectiveness", "cost")) {
+  # SET UP ----
+  assertthat::assert_that(is.list(l_psa_darth), msg = "l_psa_darth is not a list")
+  if (length(v_outcome) > 0) {
+    assertthat::assert_that(all(v_outcome %in% names(l_psa_darth)), msg = "not all elements of 'v_outcomes' are included in the 'l_psa_darth' list")
+  }
+  if (length(exclude) > 0) {
+    v_exclude   <- which(names(l_psa_darth$parameters) %in% exclude)
+    l_psa_darth$parameters <- l_psa_darth$parameters[, -v_exclude]
+  }
+  collapse_vector <- function(x) {
+    ifelse(length(x) == 0, paste0("none"), paste(x, collapse = ","))
+  }
+
+  # UTILITIES & PROBABILITIES ----
+  v_zero_one <- c(grep(paste0("^", utility), names(l_psa_darth$parameters)), grep(paste0("^", probs), names(l_psa_darth$parameters)))
+  m_error_zero_one <- matrix(
+    data = NA,
+    nrow = length(v_zero_one),
+    ncol = 2,
+    dimnames = list(NULL, c("Parameter", "Iterations_error"))
+  )
+  m_error_zero_one[, "Parameter"] <- names(l_psa_darth$parameters)[v_zero_one]
+  check_zero_one <- sapply(v_zero_one, function(column) {
+    v_error <- which(l_psa_darth$parameters[, column] < 0 |
+                       l_psa_darth$parameters[, column] > 1)
+    return(v_error)
+  })
+
+  m_error_zero_one[, "Iterations_error"] <- unlist(lapply(check_zero_one, collapse_vector))
+
+  # POSITIVE INPUTS ----
+  v_positive <- c(
+    grep(paste0("^", costs), names(l_psa_darth$parameters)),
+    grep(paste0("^", rr), names(l_psa_darth$parameters)),
+    grep(paste0("^", hr), names(l_psa_darth$parameters)),
+    grep(paste0("^", or), names(l_psa_darth$parameters))
+  )
+  m_error_positive <- matrix(
+    data = NA,
+    nrow = length(v_positive),
+    ncol = 2,
+    dimnames = list(NULL, c("Parameter", "Iterations_error"))
+  )
+  m_error_positive[, "Parameter"] <- names(l_psa_darth$parameters)[v_positive]
+  check_positive <- sapply(v_positive, function(column) {
+    v_error <- which(l_psa_darth$parameters[, column] < 0)
+    return(v_error)
+  })
+  m_error_positive[, "Iterations_error"] <- unlist(lapply(check_positive, collapse_vector))
+
+  # OUTCOMES ----
+  m_error_outcome <- matrix(
+    data = NA,
+    nrow = length(v_outcome) * l_psa_darth$n_strategies,
+    ncol = 2,
+    dimnames = list(NULL, c("Parameter", "Iterations_error"))
+  )
+  m_error_outcome[, "Parameter"] <- paste(rep(v_outcome, each = l_psa_darth$n_strategies),
+                                          l_psa_darth$strategies,
+                                          sep = "_")
+  check_outcome <- sapply(v_outcome, function(outcome) {
+    m_error <- sapply(1:ncol(l_psa_darth[[outcome]]), function(column) {
+      which(l_psa_darth[[outcome]][, column] < 0)
+    })
+    return(m_error)
+  })
+  m_error_outcome[, "Iterations_error"] <- unlist(lapply(check_outcome, collapse_vector))
+
+  # COMBINE & EXPORT ----
+  m_error_all <- rbind(m_error_zero_one, m_error_positive, m_error_outcome)
+  return(m_error_all)
+}
+
+
 #' Check mean quality of life
 #'
 #' @description This function checks whether the mean quality of life outcome of each iteration remain between the maximum and minimum utility values of the specific iteration.
