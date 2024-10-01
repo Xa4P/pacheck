@@ -669,9 +669,9 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
                           msg = "'...' contains names of variables that are not included in 'df'.")
   assertthat::assert_that(check %in% c("lower", "equal"),
                           msg = "'check' argument is invalid. It should be set to 'lower' or 'equal'.")
-  assertthat::assert_that(is.numeric(digits),
-                          msg = "'digit' argument is invalid. It should be a numeric value.")
-
+  if(!is.null(digits)) {
+    assertthat::assert_that(is.numeric(digits), msg = "'digit' argument is invalid. It should be a numeric value.")
+  }
   # Calculate sum
   v_calc <- rowSums(df[, as.character(v_vars)])
 
