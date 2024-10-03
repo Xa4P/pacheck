@@ -60,15 +60,19 @@ generate_sum_stats <- function(df,
 #' @description This function generates the correlation matrix of input and output values of a probabilistic analysis.
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
 #' @param vars a vector of strings. Contains the name of the variables to include in the correlation matrix. Default is NULL meaning all variables will be included.
+#' @param figure logical. Should the correlation matrix be plotted in a figure? Default is FALSE (no figure generated).
 #' @return A table with summary data for selected inputs and outputs.
 #' @examples
 #' # Generating summary data of all inputs using the example dataframe
 #' data(df_pa)
 #' generate_cor(df_pa)
 #' @import assertthat
+#' @import reshape2
+#' @import ggplot2
 #' @export
 generate_cor <- function(df,
-                         vars = NULL){
+                         vars = NULL,
+                         figure = FALSE){
   # Checks
   if(!is.null(vars)) {
     assertthat::assert_that(length(vars) > 1,
@@ -86,8 +90,20 @@ generate_cor <- function(df,
   # Correlation
   df_out <- cor(df)
 
+  # Plot
+  if(figure == TRUE) {
+  df_cor_long <- reshape2::melt(df_out)
+  p_out <- ggplot2::ggplot(data = df_cor_long,
+                           ggplot2::aes(x = Var1, y = Var2, fill = value)) +
+    guides(x =  guide_axis(angle = 45))+
+    geom_tile()
+  }
   # Export
-  return(df_out)
+  if(figure == FALSE) {
+    return(df_out)
+  } else {
+      p_out
+    }
 }
 
 #' Visualise the distribution of a single parameter
