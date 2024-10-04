@@ -157,8 +157,10 @@ p_3 <- plot_ice(
 p_3
 
 summary_ice(df_pa,
-           "inc_qaly",
-           "inc_costs")
+            e_int = "t_qaly_d_int",
+            e_comp = "t_qaly_d_comp",
+            c_int = "t_costs_d_int",
+            c_comp = "t_costs_d_comp")
 ```
 
 ### b.	Cost-effectiveness acceptability curve.
