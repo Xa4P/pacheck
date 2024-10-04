@@ -8,7 +8,7 @@
 #' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.
-#' @param validation logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.
+#' @param validation logical or character. Determine whether to validate the linear model. Choices are "test_train_split" and "cross_validation".
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
 #' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
@@ -184,11 +184,12 @@ fit_lm_metamodel <- function(df,
     mse_validation       <- mean((v_y_predict - v_y_valid)^2)
 
     ## Calibration plot: predicted versus observed
-    df_valid$y_pred <- v_y_predict
-    p <- ggplot2::ggplot(ggplot2::aes_string(x = "y_pred", y = y_var), data = df_valid) +
+    df_plot <- data.frame(cbind(df_valid[, y_var], y_pred = v_y_predict))
+    names(df_plot)[1] <- "y_var"
+    p <- ggplot2::ggplot(ggplot2::aes(x = y_pred, y = y_var), data = df_plot) +
       ggplot2::geom_point(shape = 1) +
       ggplot2::xlab("Predicted values") +
-      ggplot2::ggtitle(paste("Calibration plot for",y_var)) +
+      ggplot2::ggtitle(paste("Calibration plot for", y_var)) +
       ggplot2::ylab("Observed values") +
       ggplot2::theme_bw()
 

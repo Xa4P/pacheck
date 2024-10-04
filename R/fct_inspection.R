@@ -61,7 +61,7 @@ generate_sum_stats <- function(df,
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
 #' @param vars a vector of strings. Contains the name of the variables to include in the correlation matrix. Default is NULL meaning all variables will be included.
 #' @param figure logical. Should the correlation matrix be plotted in a figure? Default is FALSE (no figure generated).
-#' @return A table with summary data for selected inputs and outputs.
+#' @return If figure == TRUE: a table with summary data for selected inputs and outputs. If figure == FALSE: a tile ggplot2 of the correlation matrix.
 #' @examples
 #' # Generating summary data of all inputs using the example dataframe
 #' data(df_pa)
@@ -1040,9 +1040,7 @@ check_psa_darth <- function(l_psa_darth,
 
 
 #' Check mean quality of life
-#'
 #' @description This function checks whether the mean quality of life outcome of each iteration remain between the maximum and minimum utility values of the specific iteration.
-#'
 #' @param df a dataframe.
 #' @param t_ly character. Name of the variable containing the total undiscounted life years.
 #' @param t_qaly character. Name of the variable containing the total undiscounted quality-adjusted life years.

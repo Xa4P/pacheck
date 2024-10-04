@@ -14,7 +14,7 @@ generate_cor(df, vars = NULL, figure = FALSE)
 \item{figure}{logical. Should the correlation matrix be plotted in a figure? Default is FALSE (no figure generated).}
 }
 \value{
-A table with summary data for selected inputs and outputs.
+If figure == TRUE: a table with summary data for selected inputs and outputs. If figure == FALSE: a tile ggplot2 of the correlation matrix.
 }
 \description{
 This function generates the correlation matrix of input and output values of a probabilistic analysis.

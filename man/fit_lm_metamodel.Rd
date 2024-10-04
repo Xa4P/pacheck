@@ -34,7 +34,7 @@ fit_lm_metamodel(
 
 \item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.}
 
-\item{validation}{logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.}
+\item{validation}{logical or character. Determine whether to validate the linear model. Choices are "test_train_split" and "cross_validation".}
 
 \item{folds}{numeric. Number of folds for the cross-validation. Default is 5.}
 
