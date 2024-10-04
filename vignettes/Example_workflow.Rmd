@@ -101,7 +101,7 @@ p_1
 
 paste("Probability to be in user-defined range: ",
       check_range(df_pa,
-                  outcome = "u_pfs",
+                  param = "u_pfs",
                   min_val = 0.77,
                   max_val = 0.80
                   ), "%") # add this to plot? + lines of min/ max on plot?
