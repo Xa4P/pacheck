@@ -182,7 +182,7 @@ df_ceac
 ### d.	Convergence graph of outcomes
 ```{r conv, echo = T}
 plot_convergence(df = df_pa,
-                 outcome = "iNMB"
+                 param = "iNMB"
                  )
 ```
 
