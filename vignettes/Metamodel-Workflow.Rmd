@@ -8,7 +8,7 @@ vignette: >
 ---
 
 ```{r setup, include = FALSE, warning = FALSE}
-# library(pacheck)
+devtools::load_all()
 data(df_pa)
 ```
 
@@ -17,7 +17,7 @@ This article describes an example workflow for fitting and validating metamodels
 
 We will use the example dataframe `df_pa` which is included in the package.
 
-*** Note to Xavier: the functions for fitting the linear model and the random forest model both include a 'validation' argument. So it is also possible to validate the model using those functions. However, as we discussed, it is possibly nicer to have a separate function for the validation process. Which I built afterwards. I did not remove the validation argument from the fitting functions in case you changed your mind ***
+*** Note: the functions for fitting the linear model and the random forest model both include a 'validation' argument. So it is also possible to validate the model using those functions. However, there is also a separate function for the validation process available. ***
 
 # Model Fitting & Parameter Information
 Functions: `fit_lm_metamodel`, `fit_rf_metamodel`, `fit_lasso_metamodel`.
@@ -72,7 +72,7 @@ lm_fit <- fit_lm_metamodel(df = df_pa,
                            )
 lm_fit$fit
 ```
-Here we want to transform several variables: `rr` will be exponentiated by factor 2, `c_pfs` & `c_pd` by factor 3, we take the exponential of `u_pfs` & `u_pd`, and the logarithm of `p_pfsd`.
+Here we transform several variables: `rr` will be exponentiated by factor 2, `c_pfs` & `c_pd` by factor 3, we take the exponential of `u_pfs` & `u_pd`, and the logarithm of `p_pfsd`.
 
 ```{r, warning = FALSE}
 lm_fit <- fit_lm_metamodel(df = df_pa,
@@ -384,30 +384,6 @@ predictions = predict_metamodel(lm_fit2,
 
 print(predictions)
 ```
-
-# MAKING PREDICTIONS FOR LASSO DOES NOT WORK YET.............and I couldn't figure out why...
-## code:
-
-```{r}
-##fit lasso model
-#lasso_fit = fit_lasso_metamodel(df = df_pa,
-#                           x_vars = c("p_pfspd",
-#                                       "p_pfsd",
-#                                       "p_pdd",
-#                                      "rr"),
-#                           y_var = "inc_qaly",
-#                           seed_num = 24)
-
-
-##make predictions using lasso model
-#lasso_preds = predict_metamodel(lasso_fit,
-#                                inputs = ins_vec,
-#                                output_type = "vector")
-
-
-```
-# also: would be nice to include a partial/marginal plot for lm and lasso as well
-
 
 
 

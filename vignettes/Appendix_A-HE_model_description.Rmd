@@ -6,10 +6,10 @@ output:
 ---
 
 ```{r setup, include = FALSE}
+devtools::load_all()
 # library(DiagrammeR)
 # library(DiagrammeRsvg)
 # library(rsvg)
-# library(pacheck)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 

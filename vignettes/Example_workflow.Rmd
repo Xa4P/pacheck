@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include = FALSE}
-# library(pacheck)
+devtools::load_all()
 library(knitr)
 library(ggplot2)
 data(df_pa)
@@ -43,8 +43,6 @@ rm(df)
 ```
 
 ### b.	Correlation matrix inputs (and outputs)
-Question Karel:  
-- Karel: kan dit met kleuren om de sterke van de associatie te onderbouwen?   
 ```{r corr, echo = T}
 generate_cor(df_pa)
 ```
@@ -177,7 +175,7 @@ df_ceac
 ```
 
 ### c.	Histogram and density distribution of total and incremental costs and effects.
-**Can use the function above!  **
+**Can use the function above!**
 
 ### d.	Convergence graph of outcomes
 ```{r conv, echo = T}
