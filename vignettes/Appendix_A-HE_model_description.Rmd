@@ -1,8 +1,7 @@
 ---
 title: "Health Economic Model Description" 
 date: "`r paste(Sys.Date())`"
-output: 
-  pdf_document: default
+output: html_document
 ---
 
 ```{r setup, include = FALSE}
