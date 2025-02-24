@@ -1,0 +1,189 @@
+---
+title: "The Probabilistic Analysis Check R Package"
+author: "X.G.L.V. Pouwels & H. Koffijberg"
+date: "`r Sys.Date()`"
+output: word_document
+bibliography: references.bib
+csl: pharmacoeconomics.csl
+---
+
+```{css, echo=FALSE}
+.box-style {
+  background-color: white;
+  border: 3px solid black;
+  font-weight: bold;
+}
+```
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(class.source = "box-style")
+options(scipen = 999)
+require(cdx2cea)
+data("l_psa", package = "cdx2cea")
+```
+
+Target journal: Pharmacoeconomics Type of paper: Practical application
+
+# Introduction
+
+Health economic (HE) models are routinely developed to inform health policy decisions such as including (new) healthcare interventions in insurance packages or restricting their use to specific subgroups[@drummond2015]. Validating health economic models is an important step within the development of health economic models to increase their credibility, and reduce the risk of suboptimal policy decisions[@caro2014]. However, validation efforts on HE models are not always systematically performed and/or reported.
+
+Validation of HE models is a multifaceted concept. The ISPOR-SMDM Modeling Good Research Practices Task Force defined different aspects of HE model validity: face validity, verification (also called internal validity), cross validity, and external validity of the model structure, inputs, and outputs[@eddy2012], but does not provide an easy-to-use tool to report validation efforts for each of these aspects. Following this initial definition of HE model validation, multiple generic tools have been developed to structure the (reporting of) the validation efforts performed on HE models. These tools are, among other, the AdviSHE tool, the TECH-VER checklist, and the CADTH’s Model Validation Tool to assist in the Conduct of Economic Evaluations[@vemer2016; @büyükkaramikli2019; @coyle2024]. Both AdviSHE and CADTH’s tool can be used to assess multiple aspects of validity, such as face validity and technical verification while TECH-VER solely focuses on the latter.
+
+Besides the availability of these validation tools, the (increasing) use of script-based software, such as ‘R’ [`version$version.string`], to develop HE models[@jalal2017] facilitates the automated execution of systematic and generic validation tests and may be key to improve HE modelling validation practices . For instance, the hesim package[@hesim], *an R package for health economic simulation modeling and decision analysis*, contains a function to easily check the summary statistics of the parameter distributions used for the probabilistic analysis (PA). Similarly, the darthpack package, *an R package that showcases the Decision Analysis in R for Technologies in Health (DARTH) coding framework*, contains functions to assess the validity of the transition matrices and arrays used to populate health state transition models developed according to this framework[@darthpack]. These examples show the feasibility of integrating simple validation tests during the development of script-based health economic models. Even though the nature of these validation tests is generic, their current implementation within coding frameworks for HE models may limit their usefulness beyond HE models developed outside these coding frameworks.
+
+Hence, generic (R) software tools to easily and systematically validate HE models are required to improve HE model validation practices. Such tools may be particularly useful for developers who are new to script-based HE model development. Examples of such tools are the assertHE R package and the probabilistic check analysis dashboard (PACBOARD) [@smith2024; @pouwels2024]. assertHE depicts the network of functions defined and used within a HE model developed in R [@assertHE]. This package is useful for HE model developers and reviewers since one gets an overview of the backbone of the HE model. This package may further improve the communication of the workings of a developed HE models to a less technically-oriented audience. PACBOARD is a web-based dashboard which allows to systematically validate HE model input parameter and output values and allows to explore the relation between HE model input and outputs values. This dashboard is partly powered by the pacheck R package, which offers a suite of functions aiming at validating HE models and exploring their workings using metamodelling techniques. Metamodels are statistical models, such as a linear regression model, fitted to the (probabilistic) inputs and outputs of a HE models. These metamodels allow to rapidly estimate the output of a HE models without requiring access to the source code, but also allow to assess the direction and magnitude of the relationships between inputs and outputs.
+
+The current paper describes the functionalities of the pacheck R package using the probabilistic inputs and outputs of published open-source HE models[@alarid-escudero2022; @incerti2019]. The validation tests included in pacheck are based on a pragmatic literature review described in @pouwels2024 . Most of the validation tests included in pacheck were identified in the TECH-VER checklist, emphasising their relevance for HE models. In comparison with other R package dedicated to HE model development and validation, pacheck may be applied to inputs and outputs of HE models developed with other software package than R once the probabilistic inputs and outputs are loaded within the R session of interest. This increases the accessibility of these validation tests to HE models developed in other software packages than R and potentially to non-R-users. The aim of the current paper is to provide a tutorial for the use of the pacheck R package, including example codes, for novice R users.
+
+# Illustrations of functionalities
+
+## Case studies
+
+The functionalities of pacheck are illustrated using the `cdx2cea` R package [@cdx2cea; @alarid-escudero2022] and the `iviRA` R package[@iviRA; @incerti2019]. The `cdx2cea`package has been developed to perform a *"cost-effectiveness analysis (CEA) of testing average-risk Stage II colon cancer patients for the absence of CDX2 biomarker expression followed by adjuvant chemotherap which contains"* [@alarid-escudero2022]. The CEA of this package is performed using a cohort-based health state transition model. It compares two strategies: No CDX2 testing and CDX2 testing. The PA datasets contains `r l_psa$n_sim` iterations of the HE models. The HE model contains `r length(l_psa$parnames)` input parameters and provides discounted quality-adjusted life years and discounted costs for both strategies and are stored in the `l_psa.RData` object of the `cdx2cea` R package. This case study is to demonstrate that the functionalities of `pacheck` can be used on a HE model developed according to the DARTH coding framework.
+
+The `iviRA` package is an open-source individual-level health state transition model developed to assess the costs and health effects, such as quality-ajusted life years (QALYs) of different treatment sequences for rheumatoid arthritis. Thousand probabilistic inputs and outputs were generated for 100 simulated individuals using the functions of the `iviRA` package. The (scripts used to generate these) inputs and outputs are available in the github repository of the `pacheck` package <!--# OF archiven op ZENODO -->.
+
+All analyses were performed using `version$version.string` .
+
+## Validating health economic model inputs and outputs
+
+Functionalities of `pacheck` to assess the validity of the model input parameters concern the plausibility of the range in which model input parameters vary. For instance, `pacheck` contains simple validity assessments such as assessing whether utility values and probabilities remain between 0 and 1, and whether there are no occurrence of negative costs or other strictly positive parameters in each probabilistic iteration. `pacheck` also contains a function to assess and visualise whether two survival curves cross (`check_surv_mod` and `plot_surv_mod`). This assessment of plausibility is especially relevant when developing partitioned survival model where a progression-free survival (PFS) curve should always result in lower probabilities than an overall survival curve (OS). Concerning the validation of model outputs, users are able to check whether total costs and effects are positive, whether discounted results are lower than undiscounted results, and whether the mean quality of life of both strategies is within the mean utility values used for the different health states of the model. All validation efforts are also performed for each iteration of the probabilistic analysis and the `pacheck` functions mention in which iteration an erroneous input or output has been identified. `pacheck` can be used to visually assess the convergence of HE model outputs [[@hatswell2018]]. Finally, `pacheck` contains a function to assess the plausibility of probabilistic model inputs and outputs by, for instance, testing whether resource use and costs inputs are strictly positive, utility values between 0 and 1. Box 1 illustrates how to perform these validation efforts using different functions of `pacheck`.\
+
+*Box 1: example R code of using `pacheck` to validate the health economic model inputs and outputs*
+
+```{r valid_inputs_outputs, warning=FALSE, eval = FALSE}
+# Install and load packages
+# install.packages("devtools")
+# devtools::install_github("feralaes/cdx2cea")
+# devtools::install_github("DARTH-git/dampack")
+# devtools::install_github("Xa4P/pacheck")
+# install.packages("foreach")
+require(cdx2cea)
+require(dampack)
+require(pacheck)
+require(iviRA)
+
+# Load & prepare dataframes for validation tests
+data("l_psa", package = "cdx2cea")
+data("l_pa_param", package = "pacheck")
+df_iviRA_out_all <- readRDS("data/df_iviRA_out_all.rds")
+l_iviRA_out_summ_1 <- readRDS("data/l_iviRA_out_summ_1.rds")
+l_iviRA_out_summ_2 <- readRDS("data/l_iviRA_out_summ_2.rds")
+
+df_iviRA_resource_cost <- data.frame(
+  hosp.days = l_iviRA_pa_params$hosp.cost$hosp.days,
+  cost.pday = l_iviRA_pa_params$hosp.cost$cost.pday,
+  si.cost   = l_iviRA_pa_params$si.cost,
+  prod.loss = l_iviRA_pa_params$prod.loss
+)
+df_means_thx1 <- l_iviRA_out_summ_1$means
+df_means_thx2 <- l_iviRA_out_summ_2$means
+df_comparison <- data.frame(
+  t_qaly_thx1 = df_means_thx1$dqalys,
+  t_cost_thx1 = df_means_thx1$dtot_cost,
+  t_qaly_thx2 = df_means_thx2$dqalys,
+  t_cost_thx2 = df_means_thx2$dtot_cost
+  )
+df_comparison$inc_cost <- df_comparison$t_cost_thx1 - df_comparison$t_cost_thx2
+df_comparison$inc_qaly <- df_comparison$t_qaly_thx1 - df_comparison$t_qaly_thx2
+# Inspect parameter values resource use - limited to first 5 for the sake of brievety 
+pacheck::generate_sum_stats(df_iviRA_resource_cost[, 1:5])
+
+# Test whether utility values are within the 0-1 
+pacheck::check_binary(c("u_Stg2", "u_Stg2Chemo", "u_Mets"), 
+                      df = l_psa$parameters)
+
+# Introduce utility values below 0 and above 1 to illustrate how pacheck identifies it
+df_inputs_error <- l_psa$parameters
+df_inputs_error[c(4, 444, 754), "u_Stg2"] <- -1
+df_inputs_error[c(3, 333, 681), "u_Stg2Chemo"] <- 99
+df_inputs_error[c(5, 554, 153), "u_Mets"] <- -1
+df_inputs_error[c(6, 146, 538), "u_Mets"] <- 99
+pacheck::check_binary(c("u_Stg2", "u_Stg2Chemo", "u_Mets"), 
+                      df = df_inputs_error) # pacheck identified all erroneous utility values
+
+# Test whether resource use and costs are positive
+pacheck::check_positive(
+  names(df_iviRA_resource_cost), 
+  df = df_iviRA_resource_cost) # No negative values within these parameters
+
+# Perform multiple plausibility tests on a psa object constructed using the darth coding framework - also on 'effectiveness' and 'cost' outcomes
+data.frame(pacheck::check_psa_darth(l_psa))
+
+# Test whether discounted outcomes are lower than non-discounted outcomes
+pacheck::do_discount_check(
+  df = df_means_thx1,
+  v_outcomes = c("lys", "qalys", "tx_cost"),
+  v_outcomes_d = c("dlys", "dqalys", "dtx_cost")
+)
+
+# Check convergence of a model output
+## Plot moving average incremental effectiveness - per 100 iterations
+pacheck::plot_convergence(df_comparison$inc_qaly, param = "Incremental_effectiveness", block_size = 100) # Incremental difference varies within 0.002 QALYs over blocks of 100 iterations
+```
+
+## Investigating the relationships between inputs and outputs
+
+The `pacheck` package also contains diverse functions to investigate the relation between HE model inputs and outputs. For instance, the correlation matrix or plot between inputs and outputs can be calculated using the `generate_cor` function. Using the probabilistic inputs and outputs of the `cdx2cea`, one can see that cancer mortality rate, `r_DieMets`, is negatively correlated with the total costs of the intervention. This result seems logical since a higher probability of death would lead to shorter survival and thus lower costs. Linear regression metamodelling is also available through `pacheck` (using the `lm` function for the linear regression modelling). When estimating the incremental difference in QALYs between the intervention and the comparator, we can see that an increase in utility values of stage II cancer with and without chemotherapy, `u_Stg2` and `u_Stg2Chemo`, leads to higher incremental QALYs while an increase in the utility value of the metastatic recurrent state leads to lower incremental QALYs. Most of the paramaters included in the linear regression metamodel are not statistically significant (`lm_metamod`). This metamodel can be validated and, if deemed valid, used to perform sensitivity analysis. This is especially useful for computationally intensive HE models. As mentioned by Jalal et al. metamodel's parameters may be subject to scale effects and suggest to normalise HE model inputs before metamodelling, which facilitates their interpretation in relation to each other**[REF]**. Normalisation of inputs has been implemented in `pacheck` within the `lm_metamod`. One can validate the fitted metamodel using the user-defined train-test split proportions or cross-validation using a user-defined number of folds. In Box 2, we show how to validate the linear regression metamodel using the test-train split method. The high R^2^ value (0.97) and the position of the prediction versus observation dots in the calibration dots near the 45 degree line show that the metamodel may be deemed valid to estimate the incremental QALYs. Finally, this metamodel can be used to predict these incremental QALYs using an alternative set of parameters, as in during sensitivity analyses. In Box 2, we show that increasing the utility value for the metastatic state, `u_Mets`, to 0.5 (mean value in the probabilistic set was 0.25) increase the incremental QALYs by 0.01, from 0.035 in the basecase to 0.036. Box 2 illustrates how to use the functions of `pacheck` to investigate the relationships between HE model inputs and outputs.
+
+*Box 2: Example R code of how to use the `pacheck` package to assess the relationships between inputs and outputs.*
+
+```{r input_output, warning = FALSE, eval = FALSE}
+# Generate correlation matrix between inputs and outputs
+## Transform l_psa parameters and outcomes in one dataframe
+df_psa_cdx2cea <- cbind(l_psa$parameters, 
+                        l_psa$effectiveness, 
+                        l_psa$cost)
+tbl_cor <- pacheck::generate_cor(df_psa_cdx2cea[, c(1:5, ncol(df_psa_cdx2cea))]) # only 5 first parameters and costs of the intervention
+tbl_cor[, "CDX2 testing and FOLFOX if CDX2-negative"] # only correlation with outcome
+p_cor <- pacheck::generate_cor(df_psa_cdx2cea,
+                               figure = T) # correlation matrix using 'tile' plot from ggplot2
+
+# Fit linear metamodel to predict the difference in QALYs between strategies using all parameters, except costs
+v_x_vars <- l_psa$parnames[grep("^c_", l_psa$parnames, invert = T)]
+y_var <- names(l_psa$effectiveness)[3]
+lm_metamod <- pacheck::fit_lm_metamodel(y_var = y_var,  
+                                        x_vars = v_x_vars, # altenatively, the names of the parameters can be used
+                                        df = df_psa_cdx2cea, 
+                                        seed_num = 123 # seed number for reproducibility
+                                        )
+summary(lm_metamod$fit) # provides an overview of estimated linear metamodel parameters
+
+# Normalise the inputs
+lm_metamod_standardised <- pacheck::fit_lm_metamodel(y_var = y_var,  
+                                                     x_vars = v_x_vars,
+                                                     df = df_psa_cdx2cea,
+                                                     seed_num = 123,
+                                                     standardise = TRUE)
+summary(lm_metamod_standardised$fit) # provides an overview of estimated linear metamodel parameters
+
+# Validation metamodel using the train-test approach
+lm_metamod_valid <- pacheck::fit_lm_metamodel(y_var = y_var,  
+                                              x_vars = v_x_vars,
+                                              df = df_psa_cdx2cea,
+                                              seed_num = 123,
+                                              validation = "train_test_split",
+                                              partition = 0.75) # in combination with the "train_test_split" approach, the proportion of observation used to fit the metamodel (`partition`) should be provided. The remainder is used as validation check
+lm_metamod_valid$stats_validation
+lm_metamod_valid$calibration_plot
+
+# Prediction metamodel
+df_params <- data.frame(t(colMeans(df_psa_cdx2cea[, v_x_vars]))) # calculate mean values of each parameter
+df_params$u_Mets <- 0.5 # increase the utility value of the metastatic state
+v_pred <- predict_metamodel(model = lm_metamod_valid,
+                            inputs = df_params) # inputs has to be a dataframe
+v_pred # 0.036 QALYs, basecase incremental QALYs was 0.035, hence 
+```
+
+# Discussion
+
+The current paper presents functionalities of the `pacheck` R package and illustrates the practical use of these functionalities, with detailed R code, in two case studies <!--# OF MEER, te checken -->.\
+By no means we aimed to provide a complete list of validation tests. To our opinion, `pacheck` is a package that requires regular updates and addition of validation tests over time to ensure it remains relevant for HE model developers and reviewers.\
+From a technical point of view, `pacheck` is most likely not coded in the most efficient way. This is a choice we made to ensure transparency of the implemented validation tests and to encourage external contributors to review the code base and to contribute to the further development of the package. The source code of `pacheck` is openly available on GitHub: [https://github.com/Xa4P/pacheck](#0){.uri}. External contributors can raise "Issues" concerning the package and propose new validation tests via "Issues" and "Pull requests".\
+Finally, `pacheck` focuses on the technical verification of HE model which is only a single aspect of validity. Hence, passing the validation tests included in `pacheck` should not create a feeling of false certainty concerning the validity of HE models. HE model developers and reviewers are therefore encourage to use other validation tools such as AdviSHE and the CADTH's tool to report and review other aspects of validation[@vemer2016, @coyle2024] .
+
+# Conclusion
+
+The current paper presents the R package `pacheck`, which aims at validating probabilistic HE model inputs and outputs and at investigating their relationships using metamodelling. We provide sample R code to encourage novice R users to use this package to systematically validate their HE models.
