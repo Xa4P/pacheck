@@ -18,7 +18,7 @@ plot_convergence(
 
 \item{param}{character string. Name of variable of the dataframe for which to plot the moving average.}
 
-\item{block_size}{numeric. Define the number of iterations at which the mean param has to be defined and plotted.}
+\item{block_size}{numeric. Define the size of the blocks at which the mean of the variable (`param`) has to be defined and plotted. Default is 500 iterations.}
 
 \item{conv_limit}{numeric. Define the convergence limit, under which the relative change between block of iterations should lie.}
 

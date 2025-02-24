@@ -2,11 +2,11 @@
 % Please edit documentation in R/fct_inspection.R
 \name{do_check}
 \alias{do_check}
-\title{Check range}
+\title{Perform a check}
 \usage{
 do_check(
   df,
-  vars,
+  v_vars,
   check,
   label_check,
   template_ok = "all variables are {label_check}",
@@ -14,31 +14,32 @@ do_check(
 )
 }
 \arguments{
-\item{df}{Data}
+\item{df}{a dataframe.}
 
-\item{vars}{Character vector of variables to check}
+\item{v_vars}{character vector of variables on which to apply the test.}
 
-\item{min}{Minimum allowed value (default: 0)}
+\item{check}{a function to apply to the `vars`.}
 
-\item{max}{Maximum allowed value (default: 1)}
+\item{label_check}{character string. Text describing the test to pass.}
+
+\item{template_ok}{character string. Text to display when a test is passed by a variable.}
+
+\item{template_fail}{character string. Text to display when a test is not passed by a variable.}
 }
 \value{
 List containing the results of the check (checks), and a tibble
 of status and message for each test (messages).
-}
-\description{
-Checks whether variables always fall within a given range.
-}
-\details{
-Note that both the minimum and maximum are _inclusive_, that is,
-the range is given as [min, max]. For _exclusive_ checks, e.g. (0,1], or
-greater than 0, lesser than or equal to 1, the user will have to manually
-give a minimum value with a certain error applied (e.g., 1e-6).
-
 The list of messages in the result contains a single line if the test passed,
 or if a test failed for one or more variables, a line for each failure.
 }
+\description{
+Checks whether variables fulfill a specific test.
+}
 \examples{
 data(df_pa)
-check_range(df_pa, c("u_pfs", "p_pfspd"))
+do_check(df = df_pa,
+         v_vars = c("u_pfs", "u_pd"),
+         check = ~ .x >= 0,
+         label_check = "positive"
+         )
 }

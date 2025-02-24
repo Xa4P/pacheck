@@ -4,12 +4,14 @@
 \alias{plot_ceac}
 \title{Plotting the cost-effectiveness acceptability curves.}
 \usage{
-plot_ceac(df, wtp, currency = "euro")
+plot_ceac(df, name_wtp, currency = "euro")
 }
 \arguments{
-\item{df}{a dataframe obtained through the `calculate_ceac()`.}
+\item{df}{a dataframe obtained through the `calculate_ceac()` or `calculate_ceac_mult()`.}
 
-\item{wtp}{character. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.}
+\item{name_wtp}{character. Name of variable of the dataframe containing the willingness-to-pay thresholds at which the probability of cost effectiveness have been defined.}
+
+\item{currency}{character. Default is "euro". Determines the currency sign to use in the incremental cost effectiveness plane. Currently included signs: "euro", "dollar", "yen", "none".}
 }
 \value{
 A ggplot2 graph.
@@ -26,5 +28,5 @@ df_ceac_p <- calculate_ceac(df = df_pa,
                             c_int = "t_costs_d_int",
                             c_comp = "t_costs_d_comp")
 plot_ceac(df = df_ceac_p,
-          wtp = "WTP_threshold")
+          name_wtp = "WTP_threshold")
 }

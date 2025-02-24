@@ -9,7 +9,10 @@ generate_sum_stats(df, vars = NULL)
 \arguments{
 \item{df}{a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.}
 
-\item{vars}{a vector of strings. Contains the name of the variables to include in the summary statistics table. Default is NULL meaning all variables will be included.#' @return A dataframe with summary data for the selected variables. The returned summary statistics are:
+\item{vars}{a vector of strings. Contains the name of the variables to include in the summary statistics table. Default is NULL meaning all variables will be included.}
+}
+\value{
+A dataframe with summary statistics for the selected variables. The returned summary statistics are:
 \itemize{
   \item Mean
   \item Standard deviation
@@ -20,13 +23,13 @@ generate_sum_stats(df, vars = NULL)
   \item Median
   \item Skewness
   \item Kurtosis
-}}
+}
 }
 \description{
 This function generates summary statistics of input and output values of a probabilistic analysis.
 }
 \examples{
-# Generating summary data of all inputs using the example dataframe
+# Generating summary data of all inputs
 data(df_pa)
 df_summary <- generate_sum_stats(df_pa)
 }

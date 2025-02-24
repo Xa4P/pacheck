@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_costeffectiveness.R
 \name{calculate_ceac}
 \alias{calculate_ceac}
-\title{Calculate cost-effectiveness probabilities.}
+\title{Calculate cost-effectiveness probabilities for two strategies.}
 \usage{
 calculate_ceac(
   df,
@@ -10,7 +10,7 @@ calculate_ceac(
   e_comp,
   c_int,
   c_comp,
-  v_wtp = seq(from = 0, to = 100000, by = 1000)
+  v_wtp = seq(from = 0, to = 1e+05, by = 1000)
 )
 }
 \arguments{
@@ -35,7 +35,7 @@ A dataframe with three columns:
    }
 }
 \description{
-This function calculates the probabilities that each strategy is the most cost effective.
+This function calculates the probabilities that each strategy is the cost effective at different willingness to pay thresholds.
 }
 \examples{
 # Calculate probabilities of cost effectiveness using the example dataframe,

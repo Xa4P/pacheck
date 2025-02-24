@@ -1,7 +1,8 @@
 #' Generate summary statistics
 #' @description This function generates summary statistics of input and output values of a probabilistic analysis.
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
-#' @param vars a vector of strings. Contains the name of the variables to include in the summary statistics table. Default is NULL meaning all variables will be included.#' @return A dataframe with summary data for the selected variables. The returned summary statistics are:
+#' @param vars a vector of strings. Contains the name of the variables to include in the summary statistics table. Default is NULL meaning all variables will be included.
+#' @return A dataframe with summary statistics for the selected variables. The returned summary statistics are:
 #' \itemize{
 #'   \item Mean
 #'   \item Standard deviation
@@ -14,7 +15,7 @@
 #'   \item Kurtosis
 #' }
 #' @examples
-#' # Generating summary data of all inputs using the example dataframe
+#' # Generating summary data of all inputs
 #' data(df_pa)
 #' df_summary <- generate_sum_stats(df_pa)
 #' @import assertthat
@@ -61,7 +62,7 @@ generate_sum_stats <- function(df,
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
 #' @param vars a vector of strings. Contains the name of the variables to include in the correlation matrix. Default is NULL meaning all variables will be included.
 #' @param figure logical. Should the correlation matrix be plotted in a figure? Default is FALSE (no figure generated).
-#' @return If figure == TRUE: a table with summary data for selected inputs and outputs. If figure == FALSE: a tile ggplot2 of the correlation matrix.
+#' @return If figure == FALSE: a matrix with summary statistics for the selected inputs and outputs. If figure == TRUE: a tile ggplot2 of the correlation matrix.
 #' @examples
 #' # Generating summary data of all inputs using the example dataframe
 #' data(df_pa)
@@ -69,6 +70,7 @@ generate_sum_stats <- function(df,
 #' @import assertthat
 #' @import reshape2
 #' @import ggplot2
+#' @import dplyr
 #' @export
 generate_cor <- function(df,
                          vars = NULL,
@@ -92,11 +94,12 @@ generate_cor <- function(df,
 
   # Plot
   if(figure == TRUE) {
-  df_cor_long <- reshape2::melt(df_out)
+  df_cor_long <- reshape2::melt(df_out) |>
+    dplyr::rename(Correlation = value)
   p_out <- ggplot2::ggplot(data = df_cor_long,
                            ggplot2::aes(x = Var1, y = Var2, fill = value)) +
-    guides(x =  guide_axis(angle = 45))+
-    geom_tile()
+    ggplot2::guides(x = ggplot2::guide_axis(angle = 45))+
+    ggplot2::geom_tile()
   }
   # Export
   if(figure == FALSE) {
@@ -138,7 +141,7 @@ vis_1_param <- function(df,
                         user_mean = NULL) {
   # Checks
   assertthat::assert_that(length(param) == 1,
-                          msg = "Multiple variables provided for 'param' argument. Please provide only one variable.")
+                          msg = "Multiple variables provided to the 'param' argument. Please provide only one variable.")
   if(!is.null(binwidth)){
     assertthat::assert_that(length(binwidth) == 1,
                             msg = "Multiple values provided for 'binwidth' argument. Please provide only one value.")
@@ -311,7 +314,7 @@ vis_1_param <- function(df,
 }
 
 #' Check range
-#' @description This function checks the probability that an input or output falls within a user-defined range.
+#' @description This function tests whether an input or output value falls within a user-defined range and return the proportion of iteration in which this is not the case.
 #' @param df a dataframe.
 #' @param param character string. Name of variable of the dataframe for which to check the range.
 #' @param min_val numeric. Define the minimum value of the range.
@@ -393,7 +396,7 @@ check_range <- function(df,
 #' @param param_2 character. Name of variable of the dataframe to be plotted on the y-axis.
 #' @param slope numeric. Default is NULL. If different than 0, plots a linear line with a user-defined intercept and the defined slope.
 #' @param intercept numeric. Default is 0. Intercept of the user-defined slope.
-#' @param check character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.
+#' @param check character. Default is NULL. When set to "param_2 > param_1". The dots fulfilling the condition are coloured in red.
 #' @param fit character. Designate the type of smooth model to fit to the relation of `param_1` (x) and `param_2` (y). It can take the values "lm, "glm", "gam", and "loess". A model will be fitted according to the methods described in \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}.
 #' @return A ggplot graph.
 #' @examples
@@ -428,6 +431,10 @@ vis_2_params <- function(df,
                             msg = "'check' argument is not a character.")
     assertthat::assert_that(check == "param_2 > param_1",
                             msg = "'check' argument is not valid. It should be set to 'param_2 > param_1'.")
+  }
+  if(!is.null(slope)){
+    assertthat::assert_that(is.numeric(slope),
+                            msg = "'slope' argument is not valid. It should be a numeric value.")
   }
   if(!is.null(fit)){
     assertthat::assert_that(fit %in% c("lm", "glm", "gam", "loess"),
@@ -472,12 +479,16 @@ vis_2_params <- function(df,
 }
 
 #' Fit distribution to parameter
-#' @description This function fits statistical distributions to a parameter.
+#' @description This function fits statistical distributions to a user-defined parameter.
 #' @param df a dataframe.
 #' @param param character. Name of variable of the dataframe on which to fit the distributions.
 #' @param dist character or vector of character. Determine which distribution to fit on the density plot.
-#' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). The arguments of the lists are "AIC" which contains the Akaike Information Criteria for each fitted distribution and "Dist_parameters" which contains the parameters of the fitted distributions.
-#' @return A list with two objects #TODO: add what for objects!
+#' @details The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). The arguments of the lists are "AIC" which contains the Akaike Information Criteria for each fitted distribution and "Dist_parameters" which contains the parameters of the fitted distributions. The distributions are fitted using the \code{\link[fitdistrplus:fitdist]{fitdistrplus::fitdist()}}
+#' @return A list with two objects:
+#'  \itemize{
+#'   \item Statistical_fit: a dataframe containing the statistical fit criteria of the fitted distributions.
+#'   \item Dist_parameters: a dataframe containing the parameter value of the fitted distributions.
+#'   }
 #' @examples
 #' # Fitting normal and beta distribution to the "u_pfs" variable of the example dataframe.
 #' data(df_pa)
@@ -553,7 +564,7 @@ fit_dist <- function(df,
 #' @description This function plots the moving average of a user-defined variable.
 #' @param df a dataframe.
 #' @param param character string. Name of variable of the dataframe for which to plot the moving average.
-#' @param block_size numeric. Define the number of iterations at which the mean param has to be defined and plotted.
+#' @param block_size numeric. Define the size of the blocks at which the mean of the variable (`param`) has to be defined and plotted. Default is 500 iterations.
 #' @param conv_limit numeric. Define the convergence limit, under which the relative change between block of iterations should lie.
 #' @param breaks numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `param` is used.
 #' @param variance logical. Determine whether the variance of the vector should be plotted instead of the mean. Default is FALSE.
@@ -660,13 +671,13 @@ plot_convergence <- function(df,
 }
 
 #' Check sum probabilities
-#' @description This function checks whether the sum of user-defined probabilities is below or equal to 1
+#' @description This function checks whether the sum of user-defined variables representing probabilities is below or equal to 1 for each iteration of the probabilistic inputs.
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
-#' @param digits numeric. Define the number of digits at which the sum of probabilities is rounded
-#' @param check logical. Define which check to perform."lower" checks whether the sum of the selected variables is lower than or equal to 1 for each iteration. "equal" checks whether the sum of the selected variables is equal to 1 for each iteration. Default is "lower".
-#' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 100.
-#' @return A text.
+#' @param digits numeric. Define the number of digits at which the sum of probabilities should be rounded.
+#' @param check logical. Define which test to perform."lower" tests whether the sum of the selected variables is lower than or equal to 1 for each iteration. "equal" tests whether the sum of the selected variables is equal to 1 for each iteration. Default is "lower".
+#' @param max_view numeric. Determines the number of iterations to display which do not fulfill the test Default is 100.
+#' @return A text indicating whether the sum of the probabilities is belor and/or eual to one or indicating in which iteration that is not the case.
 #' @examples
 #' # Checking whether the sum of the two probabilities is lower than or equal to 1
 #' check_sum_probs("p_pfspd", "p_pfsd", df = df_pa, check = "lower")
@@ -688,6 +699,7 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
   if(!is.null(digits)) {
     assertthat::assert_that(is.numeric(digits), msg = "'digit' argument is invalid. It should be a numeric value.")
   }
+
   # Calculate sum
   v_calc <- rowSums(df[, as.character(v_vars)])
 
@@ -714,12 +726,11 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 
 }
 
-
 #' Check whether variables are strictly positive
-#' @description This function checks whether variables are strictly positive (for instance for costs and relative risks inputs)
+#' @description This function tests whether variables are strictly positive (for instance for costs and relative risks inputs)
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
-#' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 50.
+#' @param max_view numeric. Determines the number of iterations to display which do not fulfill the check. Default is 50.
 #' @return A dataframe.
 #' @examples
 #' # Checking whether a variable is strictly positive
@@ -735,6 +746,8 @@ check_positive <- function(..., df, max_view = 50){
   # Gather inputs and checks
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
   assertthat::assert_that(all(v_vars %in% names(df)),
                           msg = "'...' contains names of variables that are not included in 'df'.")
   assertthat::assert_that(is.numeric(max_view),
@@ -774,31 +787,34 @@ check_positive <- function(..., df, max_view = 50){
 }
 
 #' Check sum variables
-#'
-#' @description This function checks whether the sum of selected variables are equal to another.
-#'
+#' @description This function tests whether the sum of selected variables are equal to another.
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
 #' @param outcome character string. Name of variable of the dataframe which should equal the sum of variables mentioned in `...`.
-#' @param digits Define the number of digits at which the sum and the `outcome` variables are rounded.
-#'
+#' @param digits Define the number of digits at which the sum and the `outcome` variables are rounded. Default is 3 digits.
 #' @return A string.
-#'
 #' @examples
 #' # Checking whether health state and adverse event costs equal the total discounted costs
 #' check_sum_vars("t_costs_pfs_d_int", "t_costs_pd_d_int", "t_costs_ae_int",
 #'                df = head(df_pa),
 #'                outcome = "t_costs_d_int",
 #'                digits = 0)
-#'
 #' @export
-#'
 check_sum_vars <- function(...,
                            df,
                            outcome,
                            digits = 3) {
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
+  assertthat::assert_that(all(v_vars %in% names(df)),
+                          msg = "'...' contains names of variables that are not included in 'df'.")
+  assertthat::assert_that(outcome %in% names(df),
+                          msg = "'outcome' is not included in 'df'.")
+  assertthat::assert_that(is.numeric(digits),
+                          msg = "'digits' is not a numeric value.")
+
   v_calc <- as.numeric(as.character(rowSums(df[, as.character(v_vars)])))
   v_outcome <- as.numeric(as.character(df[, outcome]))
 
@@ -817,71 +833,76 @@ check_sum_vars <- function(...,
   return(res)
 }
 
-
-#' Check range
-#'
-#' @description Checks whether variables always fall within a given range.
-#' @param df Data
-#' @param vars Character vector of variables to check
-#' @param min Minimum allowed value (default: 0)
-#' @param max Maximum allowed value (default: 1)
+#' Perform a check
+#' @description Checks whether variables fulfill a specific test.
+#' @param df a dataframe.
+#' @param v_vars character vector of variables on which to apply the test.
+#' @param check a function to apply to the `vars`.
+#' @param label_check character string. Text describing the test to pass.
+#' @param template_ok character string. Text to display when a test is passed by a variable.
+#' @param template_fail character string. Text to display when a test is not passed by a variable.
 #' @return List containing the results of the check (checks), and a tibble
 #' of status and message for each test (messages).
-#' @details Note that both the minimum and maximum are _inclusive_, that is,
-#' the range is given as [min, max]. For _exclusive_ checks, e.g. (0,1], or
-#' greater than 0, lesser than or equal to 1, the user will have to manually
-#' give a minimum value with a certain error applied (e.g., 1e-6).
-#'
 #' The list of messages in the result contains a single line if the test passed,
 #' or if a test failed for one or more variables, a line for each failure.
-#' @import glue
+#' @import assertthat
 #' @import dplyr
+#' @import glue
+#' @import tibble
 #' @examples
 #' data(df_pa)
-#' check_range(df_pa, c("u_pfs", "p_pfspd"))
+#' do_check(df = df_pa,
+#'          v_vars = c("u_pfs", "u_pd"),
+#'          check = ~ .x >= 0,
+#'          label_check = "positive"
+#'          )
 #' @export
-# check_range <- function(df, vars, min = 0, max = 1){
-#   gte_min <- do_check(df, vars, ~all(.x >= min), glue::glue("greater than or equal to {min}"))
-#   lte_max <- do_check(df, vars, ~all(.x <= max), glue::glue("less than or equal to {max}"))
-#
-#   return(list(checks = tibble(vars, min = gte_min$check, max = lte_max$check), messages = dplyr::bind_rows(gte_min$messages, lte_max$messages)))
-# } #@KAREL: DIT ZORGT VOOR CONFLICTEN MET `check_range()` HIERBOVEN
+do_check <- function(df, v_vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
+  # Checks arguments
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
+  assertthat::assert_that(all(v_vars %in% names(df)),
+                          msg = "'v_vars' argument contains names of variables that are not included in 'df'.")
+  assertthat::assert_that(is.character(label_check),
+                          msg = "'label_check' argument is not a character.")
 
-do_check <- function(df, vars, check, label_check, template_ok = "all variables are {label_check}", template_fail = "{var} is not {label_check}") {
-  pass <- summarise(df, across(!!vars, check)) %>% summarise(across(everything(), all))
-
+  # Perform checks
+  pass <- reframe(df, across(!!v_vars, check)) %>%
+    reframe(across(everything(), all))
   if (all(pass == TRUE)){
     messages <- tibble::tibble(ok = TRUE, message = glue::glue(template_ok))
   } else {
-    messages <- tibble::tibble(ok = FALSE, message = glue::glue(template_fail, var = vars[!pass]))
+    messages <- tibble::tibble(ok = FALSE, message = glue::glue(template_fail, var = v_vars[!pass]))
   }
   return(list(check = unlist(pass), messages = messages))
 }
 
 #' Check binary
-#'
-#' @description This function checks whether the value of variables remain between 0 and 1 (for instance for utility and probability inputs)
-#'
+#' @description This function tests whether the value of variables remain between 0 and 1 (for instance for utility and probability inputs)
 #' @param ... character vector. This character vector contains the name of the variables of which the sum will be checked.
 #' @param df a dataframe.
-#' @param max_view numeric. Determines the number of iterations to display which do not fulfil the check. Default is 50.
-#'
+#' @param max_view numeric. Determines the number of iterations to display which do not fulfill the check. Default is 50.
 #' @return A dataframe.
-#'
 #' @examples
 #' # Checking whether a variable is strictly positive
 #' check_binary("u_pfs", df = df_pa)
-#'
 #' # Checking whether two variables are strictly positive
 #' # Descreasing the number of iterations to display to 20.
 #' check_binary("u_pfs", "p_pfspd", df = df_pa)
+#' @import assertthat
 #' @import stringi
 #' @export
-#'
 check_binary <- function(..., df, max_view = 50) {
-
+  # Gather inputs & checks
   l_vars <- list(...)
   v_vars <- unlist(l_vars, use.names = FALSE)
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
+  assertthat::assert_that(all(v_vars %in% names(df)),
+                          msg = "'...' contains names of variables that are not included in 'df'.")
+  assertthat::assert_that(is.numeric(max_view),
+                          msg = "'max_view' argument is invalid. It should be a numeric value.")
+
 
   # Create list of negative values per input, or a single list when only 1 input is selected
   list_neg <- if(length(v_vars) > 1){
@@ -1061,6 +1082,8 @@ check_mean_qol <- function(df,
                            t_ly,
                            u_values,
                            max_view = 100){
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
   n_sim <- nrow(df)
   m_res <- matrix(NA,
                   ncol = 2,
@@ -1108,9 +1131,7 @@ check_mean_qol <- function(df,
 }
 
 #' Perform quick checks of inputs and outputs
-#'
 #' @description This function performs multiple checks on user-defined columns.
-#'
 #' @param df a dataframe.
 #' @param v_probs (a vector of) character. Name of variables containing probabilities.
 #' @param v_utilities (a vector of) character. Name of the variables containing utility values.
@@ -1128,10 +1149,8 @@ check_mean_qol <- function(df,
 #'                v_utilities = c("u_pfs", "u_pd"),
 #'                v_costs = c("c_pfs", "c_pd", "c_thx")
 #'                )
-#'
 #' @import testthat
 #' @export
-#'
 do_quick_check <- function(df,
                            v_probs = NULL,
                            v_utilities = NULL,
@@ -1141,9 +1160,11 @@ do_quick_check <- function(df,
                            v_r = NULL,
                            v_outcomes = NULL
 ) {
-
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
   if(!is.null(v_probs)) {
-
+    assertthat::assert_that(all(v_probs %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_probs' is (are) not variable(s) from 'df'.")
     res_probs_1 <- testthat::test_that("All probabilities are positive", {
       for (i in v_probs) {
         for (j in 1:nrow(df)) {
@@ -1157,7 +1178,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_probs)) {
-
+    assertthat::assert_that(all(v_probs %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_probs' is (are) not variable(s) from 'df'.")
     res_probs_2 <- testthat::test_that("All probabilities are lower or equal to 1", {
       for (i in v_probs) {
         for (j in 1:nrow(df)) {
@@ -1171,7 +1193,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_utilities)) {
-
+    assertthat::assert_that(all(v_utilities %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_utilities' is (are) not variable(s) from 'df'.")
     res_utilities_1 <- testthat::test_that("All utility values are positive", {
       for (i in v_utilities) {
         for (j in 1:nrow(df)) {
@@ -1185,7 +1208,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_utilities)) {
-
+    assertthat::assert_that(all(v_utilities %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_utilities' is (are) not variable(s) from 'df'.")
     res_utilities_2 <- testthat::test_that("All utility values are lower or equal to 1", {
       for (i in v_utilities) {
         for (j in 1:nrow(df)) {
@@ -1199,7 +1223,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_costs)) {
-
+    assertthat::assert_that(all(v_costs %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_costs' is (are) not variable(s) from 'df'.")
     res_costs <- testthat::test_that("All costs parameters are positive", {
       for (i in v_costs) {
         for (j in 1:nrow(df)) {
@@ -1213,7 +1238,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_hr)) {
-
+    assertthat::assert_that(all(v_hr %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_hr' is (are) not variable(s) from 'df'.")
     res_hr <- testthat::test_that("All hazard ratios are positive", {
       for (i in v_hr) {
         for (j in 1:nrow(df)) {
@@ -1227,7 +1253,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_rr)) {
-
+    assertthat::assert_that(all(v_rr %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_rr' is (are) not variable(s) from 'df'.")
     res_rr <- testthat::test_that("All relative risks are positive", {
       for (i in v_rr) {
         for (j in 1:nrow(df)) {
@@ -1241,7 +1268,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_r)) {
-
+    assertthat::assert_that(all(v_r %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_r' is (are) not variable(s) from 'df'.")
     res_r <- testthat::test_that("All rates are positive", {
       for (i in v_r) {
         for (j in 1:nrow(df)) {
@@ -1255,7 +1283,8 @@ do_quick_check <- function(df,
   }
 
   if(!is.null(v_outcomes)) {
-
+    assertthat::assert_that(all(v_outcomes %in% names(df)),
+                            msg = "One (or more) variable(s) mentioned in 'v_outcomes' is (are) not variable(s) from 'df'.")
     res_outcomes <- testthat::test_that("All outcomes are positive", {
       for (i in v_outcomes) {
         for (j in 1:nrow(df)) {
@@ -1292,17 +1321,12 @@ do_quick_check <- function(df,
 }
 
 #' Perform discounted and undiscounted results check
-#'
 #' @description This function performs multiple checks on user-defined columns.
-#'
 #' @param df a dataframe.
 #' @param v_outcomes (a vector of) character. Name of the variables containing undiscounted outcomes of the model.
 #' @param v_outcomes_d (a vector of) character. Name of the variables containing discounted outcomes of the model.
-#'
 #' @details The variables contained in `v_outcomes` and `v_outcomes_d` should be in the same order.
-#'
 #' @return A matrix.
-#'
 #' @examples
 #' # Checking whether discounted QALYs are lower than undiscounted QALYs using the example data
 #' do_discount_check(df = df_pa,
@@ -1315,33 +1339,36 @@ do_discount_check <- function(df,
                               v_outcomes = NULL,
                               v_outcomes_d = NULL
 ) {
+  # Arguments' checks
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
+  assertthat::assert_that(all(v_outcomes %in% names(df)),
+                          msg = "'v_outcomes' contains names of variables that are not included in 'df'.")
+  assertthat::assert_that(all(v_outcomes_d %in% names(df)),
+                          msg = "'v_outcomes_d' contains names of variables that are not included in 'df'.")
 
   if(length(v_outcomes) != length(v_outcomes_d)){
     stop("Number of variables with discounted and undiscounted outcomes is different.")
   }
 
+  # Performing checks on data
   res <- testthat::test_that("All discounted outcomes are lower than undiscounted outcomes", {
-
     for (i in c(1:length(v_outcomes))) {
-      for (j in 1:length(df)) {
+      for (j in 1:nrow(df)) {
         testthat::expect_lt(df[j, v_outcomes_d[i]], df[j, v_outcomes[i]])
       }
     }
   }
   )
-
   df_res <- data.frame(
     Test = "All discounted outcomes are lower than undiscounted outcomes",
     Result = res
   )
-
   return(df_res)
 }
 
 #' Check parametric survival models
-#'
-#' @description This function checks whether the first of two parametric survival model is lower than a second parametric survival model.
-#'
+#' @description This function tests whether the first of two parametric survival model is lower than a second parametric survival model.
 #' @param df a dataframe.
 #' @param surv_mod_1 character. Name of the parametric model to use for the first survival model.
 #' @param surv_mod_2 character. Name of the parametric model to use for the second survival model.
@@ -1351,11 +1378,8 @@ do_discount_check <- function(df,
 #' @param label_surv_1 character vector. The label to provide to the first survival curve (relevant for export).
 #' @param label_surv_2 character vector. The label to provide to the second survival curve (relevant for export).
 #' @param n_view integer. Number of iterations to mention in which the curves are crossing. Default is 10.
-#'
 #' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
-#'
 #' @return A list. The first element is a message, the second element contains the number of the iterations in which the the first curve is higher than the second curve.
-#'
 #' @import glue
 #' @export
 check_surv_mod <- function(df,
@@ -1368,7 +1392,29 @@ check_surv_mod <- function(df,
                            label_surv_2 = "second survival",
                            n_view = 10
 ) {
+  # Check arguments
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
+  assertthat::assert_that(surv_mod_1 %in% c("exp", "weibull", "gamma", "logis", "lnorm"),
+                          msg = "'surv_mod_1' is not a valid type of survival model. Please use one of the following: 'exp', 'weibull', 'gamma', 'logis', 'lnorm'.")
+  assertthat::assert_that(surv_mod_2 %in% c("exp", "weibull", "gamma", "logis", "lnorm"),
+                          msg = "'surv_mod_2' is not a valid type of survival model. Please use one of the following: 'exp', 'weibull', 'gamma', 'logis', 'lnorm'.")
+  assertthat::assert_that(all(v_names_param_mod_1 %in% names(df)),
+                          msg = "'v_names_param_mod_1' are not all variable names of 'df'.")
+  assertthat::assert_that(all(v_names_param_mod_2 %in% names(df)),
+                          msg = "'v_names_param_mod_2' are not all variable names of 'df'.")
+  assertthat::assert_that(is.vector(time),
+                          msg = "'time' argument is invalid. It should be a vector.")
+  assertthat::assert_that(is.numeric(time),
+                          msg = "'time' argument is invalid. It should contain only numeric values.")
+  assertthat::assert_that(is.character(label_surv_1),
+                          msg = "'label_surv_1' argument is invalid. It should be a character string.")
+  assertthat::assert_that(is.character(label_surv_2),
+                          msg = "'label_surv_2' argument is invalid. It should be a character string.")
+  assertthat::assert_that(is.numeric(n_view),
+                          msg = "'n_view' argument is invalid. It should be a numeric value.")
 
+  # Check survival curves
   l_out <- list()
 
   v_check_cross <- vapply(1:nrow(df), function (x) {
@@ -1396,9 +1442,7 @@ check_surv_mod <- function(df,
 }
 
 #' Plot parametric survival models
-#'
 #' @description This function plots two parametric survival models based on he functional form of the model and their parameters.
-#'
 #' @param df a dataframe.
 #' @param surv_mod_1 character. Name of the parametric model to use for the first survival model.
 #' @param surv_mod_2 character. Name of the parametric model to use for the second survival model.
@@ -1408,11 +1452,8 @@ check_surv_mod <- function(df,
 #' @param label_surv_2 character vector. The label to provide to the second survival curve (relevant for export).
 #' @param iteration integer. The row number of the iterations for which the parametric survival models have to be plotted.
 #' @param time a numerical vector. Determine at which time points survival probabilities have to be estimated for both survival models. For each of these time points, it will be checked whether the first survival model results in higher survival probabilities than the second survival model.
-#'
 #' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
-#'
 #' @return A ggplot object.
-#'
 #' @import glue
 #' @export
 plot_surv_mod <- function(df,
@@ -1420,12 +1461,34 @@ plot_surv_mod <- function(df,
                           surv_mod_2,
                           v_names_param_mod_1,
                           v_names_param_mod_2,
-                          label_surv_1 = "surv_mod_1",
-                          label_surv_2 = "surv_mod_2",
+                          label_surv_1 = "first survival",
+                          label_surv_2 = "second survival",
                           iteration,
                           time = seq(0, 5, 1)
 ){
+  # Check arguments
+  assertthat::assert_that(is.data.frame(df),
+                          msg = "'df' argument is not a dataframe")
+  assertthat::assert_that(surv_mod_1 %in% c("exp", "weibull", "gamma", "logis", "lnorm"),
+                          msg = "'surv_mod_1' is not a valid type of survival model. Please use one of the following: 'exp', 'weibull', 'gamma', 'logis', 'lnorm'.")
+  assertthat::assert_that(surv_mod_2 %in% c("exp", "weibull", "gamma", "logis", "lnorm"),
+                          msg = "'surv_mod_2' is not a valid type of survival model. Please use one of the following: 'exp', 'weibull', 'gamma', 'logis', 'lnorm'.")
+  assertthat::assert_that(all(v_names_param_mod_1 %in% names(df)),
+                          msg = "'v_names_param_mod_1' are not all variable names of 'df'.")
+  assertthat::assert_that(all(v_names_param_mod_2 %in% names(df)),
+                          msg = "'v_names_param_mod_2' are not all variable names of 'df'.")
+  assertthat::assert_that(is.vector(time),
+                          msg = "'time' argument is invalid. It should be a vector.")
+  assertthat::assert_that(is.numeric(time),
+                          msg = "'time' argument is invalid. It should contain only numeric values.")
+  assertthat::assert_that(is.character(label_surv_1),
+                          msg = "'label_surv_1' argument is invalid. It should be a character string.")
+  assertthat::assert_that(is.character(label_surv_2),
+                          msg = "'label_surv_2' argument is invalid. It should be a character string.")
+  assertthat::assert_that(is.numeric(iteration),
+                          msg = "'iteration' argument is invalid. It should be a numeric value.")
 
+  # Make plot
   df_plot <- data.frame(
     Time = rep(time, 2),
     Label = c(rep(label_surv_1, length(time)),rep(label_surv_2, length(time))),

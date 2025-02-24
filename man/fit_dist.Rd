@@ -14,13 +14,17 @@ fit_dist(df, param, dist = c("norm", "beta", "gamma", "lnorm"))
 \item{dist}{character or vector of character. Determine which distribution to fit on the density plot.}
 }
 \value{
-A list with two objects #TODO: add what for objects!
+A list with two objects:
+ \itemize{
+  \item Statistical_fit: a dataframe containing the statistical fit criteria of the fitted distributions.
+  \item Dist_parameters: a dataframe containing the parameter value of the fitted distributions.
+  }
 }
 \description{
-This function fits statistical distributions to a parameter.
+This function fits statistical distributions to a user-defined parameter.
 }
 \details{
-The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). The arguments of the lists are "AIC" which contains the Akaike Information Criteria for each fitted distribution and "Dist_parameters" which contains the parameters of the fitted distributions.
+The available distributions are: "norm" (normal), "beta", "gamma", "lnorm" (lognormal). The arguments of the lists are "AIC" which contains the Akaike Information Criteria for each fitted distribution and "Dist_parameters" which contains the parameters of the fitted distributions. The distributions are fitted using the \code{\link[fitdistrplus:fitdist]{fitdistrplus::fitdist()}}
 }
 \examples{
 # Fitting normal and beta distribution to the "u_pfs" variable of the example dataframe.

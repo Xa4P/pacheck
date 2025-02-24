@@ -25,7 +25,7 @@ vis_2_params(
 
 \item{intercept}{numeric. Default is 0. Intercept of the user-defined slope.}
 
-\item{check}{character. Default is NULL. When set to "param_2 > param_1", plots dot fulfilling the condition in red.}
+\item{check}{character. Default is NULL. When set to "param_2 > param_1". The dots fulfilling the condition are coloured in red.}
 
 \item{fit}{character. Designate the type of smooth model to fit to the relation of `param_1` (x) and `param_2` (y). It can take the values "lm, "glm", "gam", and "loess". A model will be fitted according to the methods described in \code{\link[ggplot2:geom_smooth]{ggplot2::geom_smooth()}}.}
 }

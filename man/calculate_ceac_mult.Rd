@@ -8,7 +8,7 @@ calculate_ceac_mult(
   df,
   outcomes,
   costs,
-  v_wtp = seq(from = 0, to = 100000, by = 1000)
+  v_wtp = seq(from = 0, to = 1e+05, by = 1000)
 )
 }
 \arguments{
@@ -29,16 +29,15 @@ A dataframe with three columns:
    }
 }
 \description{
-This function calculates the probabilities that each strategy is the most cost effective, from an infinite amount of strategies.
+This function calculates the probabilities that each strategy is the cost effective at different willingness to pay thresholds, for an infinite amount of strategies.
 }
 \examples{
 # Calculate probabilities of cost effectiveness using the example dataframe,
-# for willlingness-to-pay thresholds of 0 to 50,0000 euros.
 data("df_pa")
-calculate_ceac(df = df_pa,
-               e_int = "t_qaly_d_int",
-               e_comp = "t_qaly_d_comp",
-               c_int = "t_costs_d_int",
-               c_comp = "t_costs_d_comp",
-               v_wtp = seq(from = 0, to = 50000, by = 1000))
+df_pa$t_qaly_d_int2 <- df_pa$t_qaly_d_int * 1.5 # creating additional outcome variable
+df_pa$t_costs_d_int2 <- df_pa$t_costs_d_int * 1.5 # creating additional cost variable
+calculate_ceac_mult(df = df_pa,
+             outcomes = c("t_qaly_d_int", "t_qaly_d_comp", "t_qaly_d_int2"),
+             costs = c("t_costs_d_int","t_costs_d_comp", "t_costs_d_int2")
+             )
 }

@@ -11,13 +11,13 @@ check_positive(..., df, max_view = 50)
 
 \item{df}{a dataframe.}
 
-\item{max_view}{numeric. Determines the number of iterations to display which do not fulfil the check. Default is 50.}
+\item{max_view}{numeric. Determines the number of iterations to display which do not fulfill the check. Default is 50.}
 }
 \value{
 A dataframe.
 }
 \description{
-This function checks whether variables are strictly positive (for instance for costs and relative risks inputs)
+This function tests whether variables are strictly positive (for instance for costs and relative risks inputs)
 }
 \examples{
 # Checking whether a variable is strictly positive

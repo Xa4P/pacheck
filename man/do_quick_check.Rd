@@ -44,5 +44,4 @@ do_quick_check(df = df_pa,
                v_utilities = c("u_pfs", "u_pd"),
                v_costs = c("c_pfs", "c_pd", "c_thx")
                )
-
 }

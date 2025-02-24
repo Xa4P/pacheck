@@ -19,7 +19,7 @@ check_range(df, param, min_val = NULL, max_val = NULL)
 A numeric.
 }
 \description{
-This function checks the probability that an input or output falls within a user-defined range.
+This function tests whether an input or output value falls within a user-defined range and return the proportion of iteration in which this is not the case.
 }
 \details{
 If only `min_val` is specified, the proportion of iteration above this value will be computed.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_costeffectiveness.R
 \name{plot_ce}
 \alias{plot_ce}
-\title{Plotting cost-effectiveness plane.}
+\title{Plotting cost-effectiveness plane for two strategies.}
 \usage{
 plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro")
 }
@@ -23,7 +23,7 @@ plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro")
 A ggplot2 graph.
 }
 \description{
-This function plots the cost-effectiveness plane.
+This function plots the cost-effectiveness plane for two strategies.
 }
 \examples{
 # Plot cost effectiveness plane

@@ -19,17 +19,15 @@ plot_ce_mult(df, outcomes, costs, ellipse = FALSE, currency = "euro")
 }
 \value{
 A ggplot2 graph.
-}
-\description{
-This function plots the cost-effectiveness plane for an infinite amount of strategies .
-}
-\examples{
 # Plot cost effectiveness plane as ellipses
 data("df_pa")
 df_pa$t_qaly_d_int2 <- df_pa$t_qaly_d_int * 1.5 # creating additional outcome variable
-df_pa$t_costs_d_int2 <- df_pa$t_costs_d_int * 1.5 # creating additional costs variable
+df_pa$t_costs_d_int2 <- df_pa$t_costs_d_int * 1.5 # creating additional cost variable
 plot_ce_mult(df = df_pa,
              outcomes = c("t_qaly_d_int", "t_qaly_d_comp", "t_qaly_d_int2"),
              costs = c("t_costs_d_int","t_costs_d_comp", "t_costs_d_int2"),
              ellipse = TRUE)
+}
+\description{
+This function plots the cost-effectiveness plane for an infinite amount of strategies .
 }

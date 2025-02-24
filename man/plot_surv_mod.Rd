@@ -10,8 +10,8 @@ plot_surv_mod(
   surv_mod_2,
   v_names_param_mod_1,
   v_names_param_mod_2,
-  label_surv_1 = "surv_mod_1",
-  label_surv_2 = "surv_mod_2",
+  label_surv_1 = "first survival",
+  label_surv_2 = "second survival",
   iteration,
   time = seq(0, 5, 1)
 )

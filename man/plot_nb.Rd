@@ -19,7 +19,7 @@ plot_nb(df, NMB = TRUE, comparators = TRUE, incremental = FALSE)
 A ggplot2 graph.
 }
 \description{
-This function plots the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB.
+This function plots the Net Monetary Benefits (NMB) and Net Health Benefits (NHB) for each strategy and the incremental NMB and NHB (only pairwise comparison).
 }
 \details{
 The use this function, the dataframe `df` should contain the variables `NMB_int`, `NMB_comp`, `iNMB`, `NHB_int`, `NHB_comp`, and `iNHB`. For instance, use the \code{\link{calculate_nb}} function to calculate these outcomes.
@@ -35,7 +35,7 @@ df_nmb <- calculate_nb(df = df_pa,
              wtp = 80000)
 
 # Plot NMB's for each comparator
-plot_nmb(df = df_nmb,
-         NMB = TRUE,
-         comparators = TRUE)
+plot_nb(df = df_nmb,
+        NMB = TRUE,
+        comparators = TRUE)
 }

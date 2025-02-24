@@ -39,7 +39,7 @@ plot_ice(
 A ggplot2 graph.
 }
 \description{
-This function plots the incremental cost-effectiveness plane.
+This function plots the incremental cost-effectiveness plane for two strategies.
 }
 \examples{
 # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.

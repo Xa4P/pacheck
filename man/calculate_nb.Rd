@@ -2,7 +2,7 @@
 % Please edit documentation in R/fct_costeffectiveness.R
 \name{calculate_nb}
 \alias{calculate_nb}
-\title{Calculate NMB and NHB.}
+\title{Calculate NMB and NHB for two strategies.}
 \usage{
 calculate_nb(df, e_int, e_comp, c_int, c_comp, wtp)
 }

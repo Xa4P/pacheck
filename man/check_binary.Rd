@@ -11,18 +11,17 @@ check_binary(..., df, max_view = 50)
 
 \item{df}{a dataframe.}
 
-\item{max_view}{numeric. Determines the number of iterations to display which do not fulfil the check. Default is 50.}
+\item{max_view}{numeric. Determines the number of iterations to display which do not fulfill the check. Default is 50.}
 }
 \value{
 A dataframe.
 }
 \description{
-This function checks whether the value of variables remain between 0 and 1 (for instance for utility and probability inputs)
+This function tests whether the value of variables remain between 0 and 1 (for instance for utility and probability inputs)
 }
 \examples{
 # Checking whether a variable is strictly positive
 check_binary("u_pfs", df = df_pa)
-
 # Checking whether two variables are strictly positive
 # Descreasing the number of iterations to display to 20.
 check_binary("u_pfs", "p_pfspd", df = df_pa)
