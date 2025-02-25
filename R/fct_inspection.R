@@ -759,29 +759,21 @@ check_positive <- function(..., df, max_view = 50){
   } else {
     list(which(df[, v_vars] < 0))
   }
-
-  m_neg <- stringi::stri_list2matrix(list_neg, byrow = TRUE)
-  n_col <- ifelse(ncol(m_neg) < max_view, ncol(m_neg), max_view)
-  m_neg <- if(n_col == 0) {
-    "None"} else {
-      m_neg[, c(1:n_col)]
+  l_neg_v <- lapply(list_neg, function(l) {
+    if(length(l) == 0) {
+      res = "None"
+    } else if(length(l) == 1 ) {
+      res = l
+    } else if(length(l) > 1) {
+      res = paste(l[1:max_view], collapse = ",")
     }
-
-  v_neg <- if(length(v_vars) > 1 & n_col > 0){
-    apply(m_neg, 1, function(x) paste(x, collapse = ","))
-  } else if(length(v_vars) == 1 & n_col > 0){
-    paste(m_neg, collapse = ",")
-  } else {
-    rep("None", length(v_vars))
-  }
-
-  v_neg <- gsub(",NA", "", v_neg)
-  v_neg <- gsub("NA", "None", v_neg)
-  v_neg <- gsub(",", ", ", v_neg)
+    return(res)
+  })
+  m_res <- do.call(rbind, l_neg_v)
 
   df_res <- data.frame(
-    Input = v_vars,
-    Negative_values = v_neg
+    Input = rownames(m_res),
+    Negative_values = m_res[, 1]
   )
   return(df_res)
 }
@@ -910,25 +902,17 @@ check_binary <- function(..., df, max_view = 50) {
   } else {
     list(which(df[, v_vars] < 0))
   }
-
-  m_neg <- stringi::stri_list2matrix(list_neg, byrow = TRUE)
-  n_col <- ifelse(ncol(m_neg) < max_view, ncol(m_neg), max_view)
-  m_neg <- if(n_col == 0) {
-    "None"} else {
-      m_neg[, c(1:n_col)]
+  l_neg_v <- lapply(list_neg, function(l) {
+    if(length(l) == 0) {
+      res = "None"
+    } else if(length(l) == 1 ) {
+      res = l
+    } else if(length(l) > 1) {
+      res = paste(l[1:max_view], collapse = ",")
     }
-
-  v_neg <- if(length(v_vars) > 1 & n_col > 0){
-    apply(m_neg, 1, function(x) paste(x, collapse = ","))
-  } else if(length(v_vars) == 1 & n_col > 0){
-    paste(m_neg, collapse = ",")
-  } else {
-    rep("None", length(v_vars))
-  }
-
-  v_neg <- gsub(",NA", "", v_neg)
-  v_neg <- gsub("NA", "None", v_neg)
-  v_neg <- gsub(",", ", ", v_neg)
+    return(res)
+  })
+  m_res_neg <- do.call(rbind, l_neg_v)
 
   # Create list of negative values per input, or a single list when only 1 input is selected
   list_high <- if(length(v_vars) > 1){
@@ -936,30 +920,22 @@ check_binary <- function(..., df, max_view = 50) {
   } else {
     list(which(df[, v_vars] > 1))
   }
-
-  m_high <- stringi::stri_list2matrix(list_high, byrow = TRUE)
-  n_col  <- ifelse(ncol(m_high) < max_view, ncol(m_high), max_view)
-  m_high <- if(n_col == 0) {
-    "None"} else {
-      m_high[, c(1:n_col)]
+  l_high_v <- lapply(list_high, function(l) {
+    if(length(l) == 0) {
+      res = "None"
+    } else if(length(l) == 1 ) {
+      res = l
+    } else if(length(l) > 1) {
+      res = paste(l[1:max_view], collapse = ",")
     }
-
-  v_high <- if(length(v_vars) > 1 & n_col > 0){
-    apply(m_high, 1, function(x) paste(x, collapse = ","))
-  } else if(length(v_vars) == 1 & n_col > 0){
-    paste(m_high, collapse = ",")
-  } else {
-    rep("None", length(v_vars))
-  }
-
-  v_high <- gsub(",NA", "", v_high)
-  v_high <- gsub("NA", "None", v_high)
-  v_high <- gsub(",", ", ", v_high)
+    return(res)
+  })
+  m_res_high <- do.call(rbind, l_high_v)
 
   df_res <- data.frame(
-    Input = v_vars,
-    Negative_values = v_neg,
-    Values_above_1 = v_high
+    Input = rownames(m_res_neg),
+    Negative_values = m_res_neg[, 1],
+    Values_above_1 = m_res_high[, 1]
   )
   return(df_res)
 }
