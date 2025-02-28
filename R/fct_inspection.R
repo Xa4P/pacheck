@@ -775,6 +775,7 @@ check_positive <- function(..., df, max_view = 50){
     Input = rownames(m_res),
     Negative_values = m_res[, 1]
   )
+  rownames(df_res) <- NULL
   return(df_res)
 }
 
@@ -937,6 +938,7 @@ check_binary <- function(..., df, max_view = 50) {
     Negative_values = m_res_neg[, 1],
     Values_above_1 = m_res_high[, 1]
   )
+  rownames(df_res) <- NULL
   return(df_res)
 }
 
