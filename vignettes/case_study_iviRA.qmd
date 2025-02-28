@@ -1,0 +1,119 @@
+---
+title: "Case study - iviRA model"
+author: "Xavier G.L.V. Pouwels"
+format: pdf
+editor: visual
+---
+
+# Introduction
+
+This vignette shows how to use the functionalities of `pacheck` on the `iviRA` health economic model.
+
+# Loading packages and data
+
+```{r}
+#library(pacheck)
+devtools::load_all()
+data("l_iviRA_pa_params")
+data("l_iviRA_out_summ_1")
+data("l_iviRA_out_summ_2")
+```
+
+# Generating the probabilistic inputs and outputs
+
+The source code to generate the model inputs and outputs of the `iviRA` cost-effectiveness model is available in the source code of the `pacheck` package on github (<https://github.com/Xa4P/pacheck/blob/master/analysis/03-iviRA_data_generation.R>).
+
+# Preparing dataset for use in `pacheck`
+
+The following code chunk prepares the inputs and outputs list of the `iviRA` package to use the `pacheck` tests. In this example, only a subset of all inputs is used for convenience.
+
+```{r}
+df_iviRA_pa <- data.frame(
+  p_discount = l_iviRA_pa_params$tx.cost$discount,
+  p_rebound = l_iviRA_pa_params$rebound,
+  or_mort = exp(l_iviRA_pa_params$mort.logor),
+  r_haq_prog = l_iviRA_pa_params$haq.lprog.tx,
+  n_hosp_days = l_iviRA_pa_params$hosp.cost$hosp.days,
+  c_hosp_pday = l_iviRA_pa_params$hosp.cost$cost.pday,
+  c_si   = l_iviRA_pa_params$si.cost,
+  c_prod_loss = l_iviRA_pa_params$prod.loss,
+  u_model_wailoo = l_iviRA_pa_params$utility.wailoo,
+  t_qaly_thx1 = l_iviRA_out_summ_1$means$qalys,
+  t_qaly_d_thx1 = l_iviRA_out_summ_1$means$dqalys,
+  t_cost_d_thx1 = l_iviRA_out_summ_1$means$dtot_cost,
+  t_qaly_thx2 = l_iviRA_out_summ_2$means$qalys,
+  t_qaly_d_thx2 = l_iviRA_out_summ_2$means$dqalys,
+  t_cost_d_thx2 = l_iviRA_out_summ_2$means$dtot_cost
+  )
+df_iviRA_pa$inc_qaly <- df_iviRA_pa$t_qaly_d_thx1 - df_iviRA_pa$t_qaly_d_thx2
+df_iviRA_pa$inc_cost <- df_iviRA_pa$t_cost_d_thx1 - df_iviRA_pa$t_cost_d_thx2
+```
+
+# Testing plausibility of model inputs and outputs
+
+One way to test the plausibility of model inputs and outputs is simply to inspect the summary statistics of each variable. This can be done with the `pacheck` package using the `generate_sum_stats` function
+
+```{r}
+# Summary stats
+generate_sum_stats(df = df_iviRA_pa)
+
+# Specific checks
+## Proportions & probabilities between 0 and 1
+v_vars_discount <- grep("p_discount", names(df_iviRA_pa), value = TRUE) # returns variable names containing p_discount
+check_binary(c(v_vars_discount, "p_rebound"), df = df_iviRA_pa)
+
+## Costs, counts, OR positive
+v_vars_n <- grep("n_", names(df_iviRA_pa), value = TRUE)
+v_vars_c <- grep("c_", names(df_iviRA_pa), value = TRUE)
+v_vars_c <- v_vars_c[-grep("inc_", v_vars_c)]
+check_positive(c(v_vars_n, v_vars_c, "or_mort"), df = df_iviRA_pa)
+do_check(df = df_iviRA_pa,
+         v_vars = c(v_vars_n, v_vars_c, "or_mort"),
+         check = ~ .x >= 0,
+         label_check = "positive") # alternative
+
+## Discounted results lower than undiscounted results
+do_discount_check(df = df_iviRA_pa,
+                  v_outcomes = c("t_qaly_thx1", "t_qaly_thx2"),
+                  v_outcomes_d = c("t_qaly_d_thx1", "t_qaly_d_thx2"))
+```
+
+# Drawing health economic figures
+
+`pacheck` also contains figures to draw standard figures for health economic evaluations, such as the cost-effectiveness plane (`plot_ce` function), the incremental cost-effectiveness plane (`plot_ice` function), the cost-effectiveness acceptability curves (`plot_ceac` function), and net benefit curves (`plot_nb` function). Both the `plot_ceac` and `plot_nb` functions require data frames containing specific variable names, which can respectively be obtained with the accompanying functions `calculate_ceac` and `calculate_nb`.
+
+```{r}
+plot_ce(df = df_iviRA_pa,
+        e_int = "t_qaly_d_thx1",
+        e_comp = "t_qaly_d_thx2",
+        c_int = "t_cost_d_thx1",
+        c_comp = "t_cost_d_thx2")
+
+plot_ice(df = df_iviRA_pa,
+        e_int = "t_qaly_d_thx1",
+        e_comp = "t_qaly_d_thx2",
+        c_int = "t_cost_d_thx1",
+        c_comp = "t_cost_d_thx2")
+
+df_ceac <- calculate_ceac(df = df_iviRA_pa,
+        e_int = "t_qaly_d_thx1",
+        e_comp = "t_qaly_d_thx2",
+        c_int = "t_cost_d_thx1",
+        c_comp = "t_cost_d_thx2")
+plot_ceac(df = df_ceac,
+          name_wtp = "WTP_threshold")
+
+df_nb <- calculate_nb(df = df_iviRA_pa,
+        e_int = "t_qaly_d_thx1",
+        e_comp = "t_qaly_d_thx2",
+        c_int = "t_cost_d_thx1",
+        c_comp = "t_cost_d_thx2",
+        wtp = 80000)
+plot_nb(df = df_nb)
+```
+
+# Metamodelling
+
+```{r}
+
+```
