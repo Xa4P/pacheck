@@ -68,9 +68,6 @@ require(iviRA)
 # Load & prepare dataframes for validation tests
 data("l_psa", package = "cdx2cea")
 data("l_pa_param", package = "pacheck")
-df_iviRA_out_all <- readRDS("data/df_iviRA_out_all.rds")
-l_iviRA_out_summ_1 <- readRDS("data/l_iviRA_out_summ_1.rds")
-l_iviRA_out_summ_2 <- readRDS("data/l_iviRA_out_summ_2.rds")
 
 df_iviRA_resource_cost <- data.frame(
   hosp.days = l_iviRA_pa_params$hosp.cost$hosp.days,
