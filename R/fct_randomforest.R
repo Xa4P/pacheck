@@ -205,14 +205,14 @@ fit_rf_metamodel <- function(df,
     ## partial and/or marginal plot
     if (pm_plot != FALSE){
       if (pm_plot == "both" || pm_plot == TRUE) {
-        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = TRUE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
-        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = FALSE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = TRUE, show.plots = TRUE, sort = TRUE, plots.per.page = 1, main = "Partial dependence plot", ylab = rf_fit$fit$yvar.names)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = FALSE, show.plots = TRUE, sort = TRUE, plots.per.page = 1, main = "Marginal dependence plot", ylab = rf_fit$fit$yvar.names)
       }
       else if (pm_plot == "partial") {
-        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = TRUE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = TRUE, show.plots = TRUE, sort = TRUE, plots.per.page = 1, main = "Partial dependence plot", ylab = rf_fit$fit$yvar.names)
       }
       else if (pm_plot == "marginal") {
-        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = FALSE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = FALSE, show.plots = TRUE, sort = TRUE, plots.per.page = 1, main = "Marginal dependence plot", ylab = rf_fit$fit$yvar.names)
       }
     }
   }
