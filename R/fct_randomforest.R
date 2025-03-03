@@ -1,16 +1,15 @@
 #' Fit random forest metamodel
-#'
+#' @description This function fits a random forest metamodel using the \code{\link[randomForestSRC]{randomForestSRC}} package.
 #' @param df a dataframe.
 #' @param y_var character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
 #' @param x_vars character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.
-#' @param standardise logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.
 #' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
 #' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
 #' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
 #' @param tune logical. Determine whether nodesize and mtry should be tuned. Nodesize is the minimum size of terminal nodes, mtry is number of variables to possibly split at each node. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.
-#' @param var_importance logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is TRUE (= anti).
+#' @param var_importance logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is FALSE. TRUE corresponds to "anti".
 #' @param pm_plot logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".
 #' @param pm_vars character. Name of the input variable(s) for the partial/marginal plot. Default is the first variable from the x_vars.
 #' @param validation logical or character. Determine whether to validate the RF model. Choices are "test_train_split" and "cross-validation". TRUE corresponds to "cross-validation", default is FALSE.
@@ -18,23 +17,34 @@
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param fit_complete_model logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).
-#'
-#' @import randomForestSRC
-#' @import interp
-#' @import ggplot2
-#'
-#' @return a list
-#'
+#' @return A list containing the following elements:
+#'  \itemize{
+#'   \item fit: a list, see \code{\link[randomForestSRC:rfsrc]{randomForestSRC::rfsrc()}} for a description of the outputs contained in this list.
+#'   \item model_info: a list containing the following elements:
+#'    \itemize{
+#'      \item x_vars: vector of names of parameters included in the metamodel;
+#'      \item y_var: name outcome variable;
+#'      \item form: formula of the metamodel based on `x_vars` and `y_var`;
+#'      \item data: dataframe containing the inputs and output values used to fit (and fit) the metamodel;
+#'      \item type: "rf" for "random forest".}
+#'  \item (if `tune` = TRUE) tune_fit: a list containing the results of the tuning process, see \code{\link[randomForestSRC:tune]{randomForestSRC::tune()}} for a description of the elements containd in this list.
+#'  \item (if `tune` = TRUE) tune_plot: plot showing the out-of-bag error for each tested combination of 'mtry' and 'nodesize'.
+#'  \item (if validation != FALSE) stats_validation: data frame containing the R-squared, Mean absolute error, Mean relative error, Mean squared error in the test validation set.
+#'  \item (if validation = "test_train_split") calibration_plot: plot showing the rf-predicted versus observed output values in the test validation set.}
+#' If `var_importance` is set to TRUE, the variance importance plot is printed in the console.
+#' If `pm_plot`is used, the marginal/ partial importance plot(s) - drawn using \code{\link[randomForestSRC:plot.variable.rfsrc]{randomForestSRC::plot.variable.rfsrc()}} - is (are) printed in the console.
 #' @examples
-#' # Fitting random forest meta model with two variables using the probabilistic data
+#' # Fitting and tuning a random forest meta model with two variables using the example data
 #' data(df_pa)
 #' fit_rf_metamodel(df = df_pa,
 #'                  y_var = "inc_qaly",
 #'                  x_vars = c("p_pfsd", "p_pdd"),
 #'                  tune = TRUE
 #'                  )
+#' @import interp
+#' @import ggplot2
+#' @import randomForestSRC
 #' @export
-#'
 fit_rf_metamodel <- function(df,
                              y_var = NULL,
                              x_vars = NULL,
@@ -60,11 +70,11 @@ fit_rf_metamodel <- function(df,
   if(is.null(x_vars)) {
     stop("Cannot perform random forest regression because there is no value provided for the predictors.")
   }
-  if(length(var_importance)>1 || !all(var_importance %in% c(TRUE,FALSE,"anti","permute","random"))) {
+  if(length(var_importance)>1 || !all(var_importance %in% c(TRUE, FALSE, "anti", "permute", "random"))) {
     stop("'var_importance' should be one of: TRUE, FALSE, 'anti','permute','random'.")
   }
-  if(length(pm_plot)>1 || !(pm_plot %in% c(TRUE,FALSE,"partial","marginal","both"))) {
-    stop("'pm_plot' should be one of: TRUE, FALSE, 'partial','marginal','both'")
+  if(length(pm_plot)>1 || !(pm_plot %in% c(TRUE, FALSE, "partial", "marginal", "both"))) {
+    stop("'pm_plot' should be one of: TRUE, FALSE, 'partial','marginal','both'.")
   }
   if(!all(pm_vars %in% x_vars)) {
     stop("Cannot produce the partial/marginal plot because at least one of the 'pm_vars' is not in 'x_vars'.")
@@ -78,8 +88,8 @@ fit_rf_metamodel <- function(df,
   if(!(validation %in% c(FALSE,"cross_validation","train_test_split"))) {
     stop("Validation must be one of: FALSE, 'cross_validation','train_test_split'.")
   }
-  if(folds < 2 || folds > nrow(df_pa)){
-    stop("Folds must be bigger than 1 and smaller than or equal to the number of rows of the dataframe.")
+  if(folds < 2 || folds > nrow(df)){
+    stop("Folds must be larger than 1 and smaller than or equal to the number of rows of the dataframe.")
   }
 
   # Remove any possible NA's
@@ -190,19 +200,19 @@ fit_rf_metamodel <- function(df,
     # Show plots
     ## variable importance plot
     if (var_importance != FALSE){
-      plot(rf_fit,verbose=TRUE,plots.one.page=TRUE)
+      plot(rf_fit, verbose = TRUE, plots.one.page = TRUE)
     }
     ## partial and/or marginal plot
     if (pm_plot != FALSE){
       if (pm_plot == "both" || pm_plot == TRUE) {
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = TRUE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = FALSE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
       }
       else if (pm_plot == "partial") {
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = TRUE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = TRUE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
       }
       else if (pm_plot == "marginal") {
-        plot.variable.rfsrc(rf_fit,xvar.names=pm_vars,partial = FALSE,show.plots=TRUE,sort=TRUE,plots.per.page = 1)
+        plot.variable.rfsrc(rf_fit, xvar.names = pm_vars, partial = FALSE, show.plots = TRUE, sort = TRUE, plots.per.page = 1)
       }
     }
   }
@@ -222,7 +232,7 @@ fit_rf_metamodel <- function(df,
     mse_validation = rep(NA,folds)
 
     for (i in 1:folds){
-      test_indices = which(folds_ind==i)
+      test_indices = which(folds_ind == i)
       df_test = df_validation[test_indices,]
       df_train = df_validation[-test_indices,]
 
@@ -251,13 +261,13 @@ fit_rf_metamodel <- function(df,
 
       ## Test on test data
       preds = predict(rf_fit_validation, newdata = df_test)$predicted
-      tests = df_test[,y_var]
+      tests = df_test[, y_var]
 
       ## Store performance metrics
-      r_squared_validation[i] = cor(preds,tests)^2
-      mae_validation[i] = mean(abs(preds-tests))
-      mre_validation[i] = mean(abs(preds-tests)/abs(tests))
-      mse_validation[i] = mean((preds-tests)^2)
+      r_squared_validation[i] = cor(preds, tests) ^ 2
+      mae_validation[i] = mean(abs(preds - tests))
+      mre_validation[i] = mean(abs(preds - tests)/abs(tests))
+      mse_validation[i] = mean((preds - tests) ^ 2)
     }
     ## Store results
     stats_validation = data.frame(

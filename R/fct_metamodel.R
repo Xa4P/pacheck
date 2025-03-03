@@ -1,7 +1,5 @@
 #' Fit linear metamodel
-#'
 #' @description This function fits and provides summary statistics of a linear regression model fitted on the input and output values of a probabilistic analysis.
-#'
 #' @param df a dataframe.
 #' @param y_var character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
 #' @param x_vars character or a vector for characters. Name of the input variable in the dataframe. This will be the independent variable of the metamodel.
@@ -16,9 +14,7 @@
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
 #' @param folds numeric. Number of folds for the cross-validation. Default is 5.
-#'
 #' @return A list containing the fit of the model and validation estimates and plots when selected.
-#'
 #' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
 #' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
 #' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.

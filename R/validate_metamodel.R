@@ -55,7 +55,7 @@ validate_metamodel = function(model = NULL,
   df = model$model_info$data
   model_type = model$model_info$type
   if(!(model_type %in% c("rf","lm","lasso"))){
-    stop("Please supply a model which is built using the PACHECK package.")
+    stop("Please supply a model which is fitted using the `pacheck` package.")
   }
   x_vars = model$model_info$x_vars
   y_var = model$model_info$y_var

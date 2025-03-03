@@ -31,7 +31,7 @@ fit_rf_metamodel(
 
 \item{tune}{logical. Determine whether nodesize and mtry should be tuned. Nodesize is the minimum size of terminal nodes, mtry is number of variables to possibly split at each node. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.}
 
-\item{var_importance}{logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is TRUE (= anti).}
+\item{var_importance}{logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is FALSE. TRUE corresponds to "anti".}
 
 \item{pm_plot}{logical or character. Determine whether to plot the partial ("partial") or marginal ("marginal") effect or both ("both") of an x-variable (which is denoted by pm_vars). Default is FALSE. TRUE corresponds to "both".}
 
@@ -47,8 +47,6 @@ fit_rf_metamodel(
 
 \item{fit_complete_model}{logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).}
 
-\item{standardise}{logical. Determine whether the parameter of the linear regression should be standardised. Default is FALSE.}
-
 \item{x_poly_2}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.}
 
 \item{x_poly_3}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.}
@@ -58,13 +56,28 @@ fit_rf_metamodel(
 \item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
 }
 \value{
-a list
+A list containing the following elements:
+ \itemize{
+  \item fit: a list, see \code{\link[randomForestSRC:rfsrc]{randomForestSRC::rfsrc()}} for a description of the outputs contained in this list.
+  \item model_info: a list containing the following elements:
+   \itemize{
+     \item x_vars: vector of names of parameters included in the metamodel;
+     \item y_var: name outcome variable;
+     \item form: formula of the metamodel based on `x_vars` and `y_var`;
+     \item data: dataframe containing the inputs and output values used to fit (and fit) the metamodel;
+     \item type: "rf" for "random forest".}
+ \item (if `tune` = TRUE) tune_fit: a list containing the results of the tuning process, see \code{\link[randomForestSRC:tune]{randomForestSRC::tune()}} for a description of the elements containd in this list.
+ \item (if `tune` = TRUE) tune_plot: plot showing the out-of-bag error for each tested combination of 'mtry' and 'nodesize'.
+ \item (if validation != FALSE) stats_validation: data frame containing the R-squared, Mean absolute error, Mean relative error, Mean squared error in the test validation set.
+ \item (if validation = "test_train_split") calibration_plot: plot showing the rf-predicted versus observed output values in the test validation set.}
+If `var_importance` is set to TRUE, the variance importance plot is printed in the console.
+If `pm_plot`is used, the marginal/ partial importance plot(s) - drawn using \code{\link[randomForestSRC:plot.variable.rfsrc]{randomForestSRC::plot.variable.rfsrc()}} - is (are) printed in the console.
 }
 \description{
-Fit random forest metamodel
+This function fits a random forest metamodel using the \code{\link[randomForestSRC]{randomForestSRC}} package.
 }
 \examples{
-# Fitting random forest meta model with two variables using the probabilistic data
+# Fitting and tuning a random forest meta model with two variables using the example data
 data(df_pa)
 fit_rf_metamodel(df = df_pa,
                  y_var = "inc_qaly",
