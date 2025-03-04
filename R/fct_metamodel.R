@@ -225,66 +225,12 @@ fit_lm_metamodel <- function(df,
   return(l_out)
 }
 
-#' Predict using a fitted metamodel
-#'
-#' @description This function computes a result using a pre-defined metamodel, and user-defined inputs to make the prediction.
-#'
-#' @param lm_metamodel a lm object. This object should use variables defined in `df`.
-#' @param inputs a numeric value or vector of numeric values. These inputs value will be used for the prediction using the metamodel.
-#'
-#' @return A dataframe with the results of deterministic sensitivity analyses performed using parameter values of the linear metamodel. The dataframe contains the results using the lower and upper bound of the 95% Confidence Interval of the probabilistic parameters.
-#'
-#' @details The number of element of `inputs` should equal the number of predictors included in `lm_metamodel`.
-#'
-#' @examples
-#' # Fitting meta modelwith two variables using the summary data
-#' data(df_pa)
-#' lm_res <- fit_lm_metamodel(df = df_pa,
-#'                  y = "Inc_QALY",
-#'                  x = c("p_pfsd", "p_pdd")
-#'                  )
-#'
-#' # Predicting using this metamodel
-#' predict_metamodel(lm_metamodel = lm_res,
-#'                      inputs = c(0.75, 0.2)
-#'                      )
-#' @import stats
-#' @export
-predict_metamodel <- function(metamodel,
-                              inputs){
-  # Identify coefficient metamodel
-  v_names <- metamodel$coefficients
-
-  # Flag errors
-  if(length(inputs) < length(v_names)) {
-    stop("Number of inputs is lower than number of coefficients of the metamodel.")
-  }
-
-  if(length(inputs) > length(v_names)) {
-    stop("Number of inputs is higher than number of coefficients of the metamodel.")
-  }
-
-  newdata <- data.frame(t(inputs))
-  names(newdata) <- v_names
-
-  pred <- stats::predict(metamodel$fit, newdata = newdata)
-  names(pred) <- "prediction"
-
-  df_out <- cbind(newdata, t(pred))
-  return(df_out)
-}
-
 #' Perform DSA using linear metamodel
-#'
-#' @description This function performs deterministic sensitivity analyses (DSA) using the results of a linear metamodel.
-#'
+#' @description This function performs deterministic sensitivity analyses (DSA) using the results of a linear metamodel. (STILL IN DEVELOPMENT)
 #' @param df a dataframe. This dataframe should contain both the dependent and independent variables of `lm_metamodel`.
 #' @param lm_metamodel a lm object. This object should use variables defined in `df`.
-#'
 #' @details The details of the methods used in for these DSA are described in XXX.
-#'
 #' @return A dataframe with the results of deterministic sensitivity analyses performed using parameter values of the linear metamodel. The dataframe contains the results using the lower and upper bound of the 95% Confidence Interval of the probabilistic parameters.
-#'
 #' @examples
 #' # Fitting meta model with two variables using the summary data
 #' data(df_pa)
@@ -297,7 +243,6 @@ predict_metamodel <- function(metamodel,
 #'                  lm_metamodel = lm_res_2)
 #'
 #' @export
-#'
 dsa_lm_metamodel <- function(df,
                              lm_metamodel){
 
@@ -352,18 +297,13 @@ dsa_lm_metamodel <- function(df,
 
 
 #' Plot results of DSA in a Tornado diagram
-#'
-#' @description This function plots the results of the deterministic sensitivity analyses (DSA) in a Tornado diagram.
-#'
+#' @description This function plots the results of the deterministic sensitivity analyses (DSA) in a Tornado diagram. (STILL IN DEVELOPMENT)
 #' @param df a dataframe. This dataframe should contain the results of the function \code{\link{dsa_lm_metamodel}}.
 #' @param df_basecase a dataframe. This object should contain the original probabilistic analysis inputs and outputs, and the variable defined in `outcome`.
 #' @param outcome character. Name of the output variable of the DSA.
-#'
 #' @details The code to draw the Tornado diagram was obtained from \url{https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given}{Stakoverflow}.
 #' The `df` object should contain the following variables; "Parameters" (the parameters to include in the Tornado diagram), "Lower_Bound" (the model outcomes when using the lower bound of the parameter value), "Upper_Bound" (the model outcomes when using the upper bound of the parameter value).
-#'
 #' @return A ggplot graph.
-#'
 #' @examples
 #' # Fitting meta model with two variables using the summary data
 #' data(df_pa)
@@ -380,7 +320,6 @@ dsa_lm_metamodel <- function(df,
 #' plot_tornado(df = df_res_dsa,
 #'              df_basecase = df_pa,
 #'              outcome = "Inc_QALY")
-#'
 #' @import ggplot2
 #' @import scales
 #' @import magrittr
@@ -446,19 +385,14 @@ plot_tornado <- function(df,
 }
 
 #' Estimate decision sensitivy DSA using linear metamodel
-#'
-#' @description This function performs a logistic regression analysis and determines the decision sensitivity to parameter value using the logistic regression.
-#'
+#' @description This function performs a logistic regression analysis and determines the decision sensitivity to parameter value using the logistic regression. (STILL IN DEVELOPMENT)
 #' @param df a dataframe. This dataframe should contain both dependent and independent variables.
 #' @param y character. Name of the output variable in the dataframe. This will be the dependent variable of the logistic regression model.
 #' @param x character or a vector for characters. Name of the input variable in the dataframe. This(these) will be the independent variable(s) of the logistic regression model.
 #' @param y_binomial logical. Is `y` already a binomial outcome? Default is `FALSE.` If `TRUE`, the `y` variable will be used as such, otherwise, the `y` variable will be converted to a binomial variable using the `limit` argument.
 #' @param limit numeric. Determines the limit when outcomes from `y` are categorised as 'success' (1) or not (0).
-#'
 #' @details The method for these analyses is described in [Merz et al. 1992](https://doi.org/10.1177%2F0272989X9201200304).
-#'
 #' @return A dataframe with the parameter values of the fitted logistic regression and the decision sensitivity associated with each parameter included in the logistic regression model.
-#'
 #' @examples
 #' # Determining decision sensitivity using a non-binomial outcome
 #' data(df_pa)
