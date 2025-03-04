@@ -13,23 +13,21 @@ data(df_pa)
 ```
 
 # Introduction
-This article describes an example workflow for fitting and validating metamodels, and making predictions using these metamodels, using the `pacheck` package. The types of metamodel which the package supports are: linear model, random forest model, and lasso model. All three metamodels are covered. This vignette is still in development.
 
+This article describes an example workflow for fitting and validating metamodels, and making predictions using these metamodels, using the `pacheck` package. The types of metamodel which the package supports are: linear model, random forest model, and lasso model. All three metamodels are covered. **Note**: This vignette is still in development.\
 We will use the example dataframe `df_pa` which is included in the package.
 
-*** Note: the functions for fitting the linear model and the random forest model both include a 'validation' argument. So it is also possible to validate the model using those functions. However, there is also a separate function for the validation process available. ***
+\*\*\* Note: the functions for fitting the linear model and the random forest model both include a 'validation' argument. So it is also possible to validate the model using those functions. However, there is also a separate function for the validation process available. \*\*\*
 
 # Model Fitting & Parameter Information
-Functions: `fit_lm_metamodel`, `fit_rf_metamodel`, `fit_lasso_metamodel`.
 
-For all three models (linear model, random forest model, and lasso model), there is a separate function used to fit the model.
-
-We use a random seed number: 24 is chosen here.
+Functions: `fit_lm_metamodel`, `fit_rf_metamodel`, `fit_lasso_metamodel`.\
+For all three models (linear model, random forest model, and lasso model), there is a separate function used to fit the model.\
+The random seed number chosen for these examples is 24.
 
 ## Linear Model
 
-Arguments: `df`, `y_var`, `x_vars`, `seed_num`.
-
+Arguments: `df`, `y_var`, `x_vars`, `seed_num`.\
 We fit the linear model, and obtain the coefficients.
 
 ```{r, warning = FALSE}
@@ -48,12 +46,12 @@ lm_fit <- fit_lm_metamodel(df = df_pa,
                            show_intercept = TRUE)
 lm_fit$fit
 ```
+
 ### Variable Transformation
-Arguments: `standardise`, `x_poly_2`, `x_poly_3`, `x_exp`, `x_log`, `x_inter`.
 
-The function also allows for the transformation of input variables.
-
-In the following model we want to standardise the regression parameters.
+Arguments: `standardise`, `x_poly_2`, `x_poly_3`, `x_exp`, `x_log`, `x_inter`.\
+The function also allows for the transformation of input variables.\
+In the following model we standardise the regression parameters by setting the `standardise` argument to TRUE. Standardisation is performed as follows: $\frac{x_j - \overline{x_j}}{\sigma_j}$ where $x_j$ is the value of parameter $j$, $\overline{x_j}$ the mean value of parameter $j$, and ${\sigma_j}$ its standard deviation.
 
 ```{r, warning = FALSE}
 lm_fit <- fit_lm_metamodel(df = df_pa,
@@ -72,6 +70,7 @@ lm_fit <- fit_lm_metamodel(df = df_pa,
                            )
 lm_fit$fit
 ```
+
 Here we transform several variables: `rr` will be exponentiated by factor 2, `c_pfs` & `c_pd` by factor 3, we take the exponential of `u_pfs` & `u_pd`, and the logarithm of `p_pfsd`.
 
 ```{r, warning = FALSE}
@@ -87,7 +86,9 @@ lm_fit <- fit_lm_metamodel(df = df_pa,
                            )
 lm_fit$fit
 ```
+
 And lastly, we can also include an interaction term between `p_pfspd` and `p_pdd`.
+
 ```{r, warning = FALSE}
 lm_fit <- fit_lm_metamodel(df = df_pa,
                            x_vars = c("p_pfspd",
@@ -103,12 +104,11 @@ lm_fit <- fit_lm_metamodel(df = df_pa,
 lm_fit$fit
 ```
 
-We will continue with the initial (simpler) model, i.e., the one without any transformation of input variables.
-
 ## Random Forest Model
-Arguments: `df`, `y_var`, `x_vars`, `seed_num`.
 
-**note that for the RF model several variables are omitted to reduce computation time**
+The random forest metamodel are fitted using the [randomForestSRC](https://cran.r-project.org/package=randomForestSRC) R package. Arguments: `df`, `y_var`, `x_vars`, `seed_num`.
+
+**Note that for the RF model several variables are omitted to reduce computation time**
 
 ```{r, warning = FALSE}
 rf_fit <- fit_rf_metamodel(df = df_pa,
@@ -124,8 +124,11 @@ rf_fit <- fit_rf_metamodel(df = df_pa,
                            y_var = "inc_qaly",
                            seed_num = 24)
 ```
+
 ### Variable importance
-Arguments: `var_importance`.
+
+Setting the `var_importance` argument to TRUE returns a plot which shows the importance of the included x-variables. The larger the number is, the more important the variable is, meaning that it greatly reduces the out-of-bag (OOB) error rate compared to the other x-variables.
+
 ```{r, warning = FALSE}
 rf_fit <- fit_rf_metamodel(df = df_pa,
                            x_vars = c("rr",
@@ -141,12 +144,10 @@ rf_fit <- fit_rf_metamodel(df = df_pa,
                            var_importance = TRUE,
                            seed_num = 24)
 ```
-The function now returns a plot which shows the importance of the included x-variables. The bigger the number is, the more important the variable is, meaning that it greatly reduces the out-of-bag (OOB) error rate compared to the other x-variables.
 
 ### Tuning nodesize and mtry
-Arguments: `tune`.
 
-Two parameters which can have a significant impact on the model fit are `nodesize` and `mtry`. It is therefore recommended to tune these parameters. The tuning process consists of a grid search. If `tune = FALSE`, default values for `nodesize` and `mtry` are used, which are 5 and (nr of x-variables)/3, respectively.
+By using the `tune` argument , two parameters which can have a significant impact on the model fit are `nodesize` (the minimal size of the terminal node) and `mtry` (the number of variables to possibly split at each node) are optimised to improve model fit. The tuning process consists of a grid search. If `tune = FALSE`, default values for `nodesize` and `mtry` are used, which are 5 and (nr of x-variables)/3, respectively.
 
 ```{r, warning = FALSE}
 rf_fit <- fit_rf_metamodel(df = df_pa,
@@ -167,10 +168,9 @@ rf_fit$tune_fit$optimal
 rf_fit$tune_plot
 ```
 
-The optimal nodesize and mtry are found, and the results are shown in the plot. The black dots represent the tried combinations of nodesize and mtry, the colour gradient is obtained through 2-dimensional interpolation. The black cross marks the optimal combination, i.e., the combination yielding the lowest OOB error.
+The optimal `nodesize` and `mtry` can be found in the `rf_fit$tune_fit$optimal` element of the list, and the results are shown in the plot (in this case `rf_fit$tune_plot`). On this plot, the black dots represent the combinations of `nodesize` and `mtry` that have been tried, the colour gradient is obtained through 2-dimensional interpolation. The black cross marks the optimal combination, i.e., the combination yielding the lowest OOB error.
 
 ### Partial & marginal plots
-Arguments: `pm_plot`, `pm_vars`.
 
 We can obtain partial and marginal plots, by setting `pm_plot` equal to 'partial', 'marginal', or 'both'. `pm_vars` specifies for which variables the plot must be constructed.
 
@@ -193,11 +193,10 @@ rf_fit <- fit_rf_metamodel(df = df_pa,
                            seed_num = 24)
 ```
 
-The first two are the partial plots, and the other two are the marginal plots.
-
 ## Lasso Model
 
-We fit the lasso model and obtain the coefficients.
+We fit the lasso model and obtain the coefficients using all parameter values from all iterations.
+
 ```{r, warning = FALSE}
 lasso_fit <- fit_lasso_metamodel(df = df_pa,
                                  x_vars = c("rr",
@@ -214,16 +213,19 @@ lasso_fit <- fit_lasso_metamodel(df = df_pa,
                                  seed_num = 24)
 lm_fit$fit
 ```
+
 The plot shows the tuning results: the error rate for each lambda. The smallest lambda is chosen for the full model.
 
 Generally, the lasso procedure yields sparse models, i.e., models that involve only a subset of the set of input variables. In this case however, no coefficients are set to 0, and we have the same results as we obtained from the linear model.
 
 # Model Validation
-Function: `validate_metamodel`.
 
-There is one function which can validate all three types of metamodels: `validate_metamodel`. Three types of validation methods can be used: the train/test split, (K-fold) cross-validation, and using a new dataset. We will discuss each validation method.
+Validating the metamodels can be performed using the `validation` arguments of the metamodel functions, or by using the `validate_metamodel` function.
+
+Through the `validate_metamodel` function, three types of validation methods can be used: the train/test split, (K-fold) cross-validation, and using a new dataset. We will discuss each validation method.
 
 ## Train/test split and Linear Model
+
 Arguments: `method`, `partition`.
 
 First we use the train/test split. For this we need to specify `partition`, which sets the proportion of the data that will be used for the training data. We also set `show_intercept` to `TRUE` for the calibration plot.
@@ -238,12 +240,13 @@ lm_validation$stats_validation
 lm_validation$calibration_plot
 ```
 
-The output shows the validation results: R-squared, mean absolute error, mean relative error, and the mean squared error of the model applied to the test data. We also see the calibration plot.
+The output shows the validation results: R-squared, mean absolute error, mean relative error, and the mean squared error of the model applied to the test data. By using `lm_validation$calibration_plot`, we can display the calibration plot.
 
 ## K-fold Cross-Validation and Random Forest Model
+
 Arguments: `method`, `folds`.
 
-Now we use 2-fold cross-validation. 
+To use k-fold cross-validation, onw needs to specify `method = "cross_validation"`. In the example, two folds are used by specifying `fold = 2`.
 
 ```{r, warning = FALSE}
 rf_validation = validate_metamodel(rf_fit,
@@ -254,6 +257,7 @@ rf_validation$stats_validation
 ```
 
 ## New Dataset and Lasso Model
+
 Arguments: `method`, `df_validate`.
 
 It also might happen that a validation dataset is obtained once the model has already been fitted some time ago. The function enables us to use this dataset for the validation process.
@@ -287,8 +291,8 @@ rf_validation$stats_validation
 ```
 
 # Making Predictions
-Function: `predict_metamodel`.
-Arguments: `inputs`, `output_type`
+
+Function: `predict_metamodel`. Arguments: `inputs`, `output_type`
 
 There is one function which can be used to make predictions using the fitted metamodels: `predict_metamodel`.
 
@@ -306,11 +310,12 @@ newdata = data.frame(p_pfspd,p_pfsd,p_pdd,rr)
 
 kable(newdata, caption="Example inputs for metamodels")
 ```
+
 Thus we will obtain two predictions.
 
 There are two ways to enter the inputs for the metamodel: as a vector or as a dataframe. The same holds for the output of the function: a vector or a dataframe. We will cover all four scenarios.
 
-First we fit the models and define the inputs.
+First we fit the models and define the inputs. Note that we do not validate the model first (which is not according to best practices) and use all available data to fit the models.
 
 ```{r, warning=FALSE}
 #fit the models
@@ -332,6 +337,14 @@ rf_fit2 = fit_rf_metamodel(df = df_pa,
                            seed_num = 24
                            )
 
+lasso_fit3 <- fit_lasso_metamodel(df = df_pa,
+                                 x_vars = c("p_pfspd",
+                                       "p_pfsd",
+                                       "p_pdd",
+                                      "rr"),
+                                 y_var = "inc_qaly",
+                                 tune_plot = FALSE,
+                                 seed_num = 24)
 #define the inputs
 ins_vec = c(0.1,0.2,0.08,0.15,0.06,0.25,0.1,0.23) #vector
 
@@ -351,17 +364,15 @@ predictions = predict_metamodel(lm_fit2,
 print(predictions)
 ```
 
-
-## 2. Input: dataframe (Random Forest Model)
+## 2. Input: dataframe (Lasso Model)
 
 ```{r, warning=FALSE}
-predictions = predict_metamodel(rf_fit2,
+predictions = predict_metamodel(lasso_fit3,
                                 inputs = ins_df,
                                 output_type = "vector")
 
 print(predictions)
 ```
-
 
 ## 3. Output: vector (Random Forest Model)
 
@@ -373,8 +384,6 @@ predictions = predict_metamodel(rf_fit2,
 print(predictions)
 ```
 
-
-
 ## 4. Output: dataframe (Linear Model)
 
 ```{r, warning=FALSE}
@@ -384,9 +393,3 @@ predictions = predict_metamodel(lm_fit2,
 
 print(predictions)
 ```
-
-
-
-
-
-
