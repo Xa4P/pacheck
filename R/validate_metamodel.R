@@ -1,5 +1,4 @@
 #' Validate metamodels
-#'
 #' @param model model object. Built using a function from the PACHECK package.
 #' @param method character, validation method. Choices are: cross-validation ('cross_validation'), train-test split ('train_test_split'), or the user can input a new dataframe which will be used as the test-set ('new_test_set'). No default.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
@@ -7,10 +6,7 @@
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.
 #' @param validate_df dataframe. The dataframe to be used for validating the model. By default the dataframe used when building the model is used.
-#'
 #' @return .........................
-#' @export
-#'
 #' @examples
 #' #Validating meta model with two variables using the probabilistic data, using cross-validation.
 #' data(df_pa)
@@ -23,6 +19,9 @@
 #'                  method = "cross_validation",
 #'                  folds = 5
 #'                  )
+#' @import randomForestSRC
+#' @import glmnet
+#' @export
 validate_metamodel = function(model = NULL,
                               method = NULL,
                               partition = 1,
@@ -55,7 +54,7 @@ validate_metamodel = function(model = NULL,
   df = model$model_info$data
   model_type = model$model_info$type
   if(!(model_type %in% c("rf","lm","lasso"))){
-    stop("Please supply a model which is fitted using the `pacheck` package.")
+    stop("Please supply a model which is built using the PACHECK package.")
   }
   x_vars = model$model_info$x_vars
   y_var = model$model_info$y_var
@@ -69,7 +68,7 @@ validate_metamodel = function(model = NULL,
   if (method == "cross_validation"){
     ## Re-sample the data and make folds
     df_validation = df[sample(nrow(df)),]
-    folds_ind = cut(seq(1,nrow(df_validation)),breaks=folds,labels=FALSE)
+    folds_ind = cut(seq(1, nrow(df_validation)), breaks = folds,labels = FALSE)
 
     r_squared_validation = rep(NA,folds)
     mae_validation = rep(NA,folds)
@@ -77,7 +76,7 @@ validate_metamodel = function(model = NULL,
     mse_validation = rep(NA,folds)
 
     for (i in 1:folds){
-      test_indices = which(folds_ind==i)
+      test_indices = which(folds_ind == i)
       df_test = df_validation[test_indices,]
       df_train = df_validation[-test_indices,]
 
@@ -96,7 +95,7 @@ validate_metamodel = function(model = NULL,
         )
         ## Test on test data
         preds = predict(rf_fit_validation, newdata = df_test)$predicted
-        tests = df_test[,y_var]
+        tests = df_test[, y_var]
       }
       else if (model_type == "lm"){
         ## Fit on training data
@@ -107,8 +106,8 @@ validate_metamodel = function(model = NULL,
         tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
       }
       else if (model_type == "lasso"){
-        x_train = model.matrix(model_form,df_train)
-        y_train = df_train[,y_var]
+        x_train = model.matrix(model_form, df_train)
+        y_train = df_train[, y_var]
 
         x_test = model.matrix(model_form,df_test)
         y_test = df_test[,y_var]
@@ -118,7 +117,7 @@ validate_metamodel = function(model = NULL,
         bestlam = cv_out$lambda.min
         lasso_fit = glmnet::glmnet(x_train,y_train,alpha=1,lambda=bestlam)
 
-        preds = predict(lasso_fit,s=bestlam,newx=x_test)
+        preds = predict(lasso_fit, s = bestlam, newx = x_test)
         tests = y_test
       }
 
