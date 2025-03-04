@@ -3,10 +3,6 @@
 #' @param df a dataframe.
 #' @param y_var character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
 #' @param x_vars character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.
-#' @param x_poly_2 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.
-#' @param x_poly_3 character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.
-#' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
-#' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.
 #' @param tune logical. Determine whether nodesize and mtry should be tuned. Nodesize is the minimum size of terminal nodes, mtry is number of variables to possibly split at each node. If FALSE, nodesize = 15 (for regression), and mtry = number of x-variables / 3 (for regression). Default is FALSE.
 #' @param var_importance logical or character. Determine whether to compute variable importance (TRUE/FALSE), or how to compute variable importance (permute/random/anti). Default is FALSE. TRUE corresponds to "anti".
@@ -31,7 +27,7 @@
 #'  \item (if `tune` = TRUE) tune_plot: plot showing the out-of-bag error for each tested combination of 'mtry' and 'nodesize'.
 #'  \item (if validation != FALSE) stats_validation: data frame containing the R-squared, Mean absolute error, Mean relative error, Mean squared error in the test validation set.
 #'  \item (if validation = "test_train_split") calibration_plot: plot showing the rf-predicted versus observed output values in the test validation set.}
-#' If `var_importance` is set to TRUE, the variance importance plot is printed in the console.
+#' If `var_importance` is set to TRUE, the variable importance plot is printed in the console.
 #' If `pm_plot`is used, the marginal/ partial importance plot(s) - drawn using \code{\link[randomForestSRC:plot.variable.rfsrc]{randomForestSRC::plot.variable.rfsrc()}} - is (are) printed in the console.
 #' @examples
 #' # Fitting and tuning a random forest meta model with two variables using the example data
