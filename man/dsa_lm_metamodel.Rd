@@ -15,7 +15,7 @@ dsa_lm_metamodel(df, lm_metamodel)
 A dataframe with the results of deterministic sensitivity analyses performed using parameter values of the linear metamodel. The dataframe contains the results using the lower and upper bound of the 95% Confidence Interval of the probabilistic parameters.
 }
 \description{
-This function performs deterministic sensitivity analyses (DSA) using the results of a linear metamodel.
+This function performs deterministic sensitivity analyses (DSA) using the results of a linear metamodel. (STILL IN DEVELOPMENT)
 }
 \details{
 The details of the methods used in for these DSA are described in XXX.

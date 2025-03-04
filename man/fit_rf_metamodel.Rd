@@ -46,14 +46,6 @@ fit_rf_metamodel(
 \item{partition}{numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).}
 
 \item{fit_complete_model}{logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).}
-
-\item{x_poly_2}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 2.}
-
-\item{x_poly_3}{character. character or a vector for characters. Name of the input variable in the dataframe. These variables will be exponentiated by factor 3.}
-
-\item{x_exp}{character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.}
-
-\item{x_log}{character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.}
 }
 \value{
 A list containing the following elements:
@@ -70,7 +62,7 @@ A list containing the following elements:
  \item (if `tune` = TRUE) tune_plot: plot showing the out-of-bag error for each tested combination of 'mtry' and 'nodesize'.
  \item (if validation != FALSE) stats_validation: data frame containing the R-squared, Mean absolute error, Mean relative error, Mean squared error in the test validation set.
  \item (if validation = "test_train_split") calibration_plot: plot showing the rf-predicted versus observed output values in the test validation set.}
-If `var_importance` is set to TRUE, the variance importance plot is printed in the console.
+If `var_importance` is set to TRUE, the variable importance plot is printed in the console.
 If `pm_plot`is used, the marginal/ partial importance plot(s) - drawn using \code{\link[randomForestSRC:plot.variable.rfsrc]{randomForestSRC::plot.variable.rfsrc()}} - is (are) printed in the console.
 }
 \description{

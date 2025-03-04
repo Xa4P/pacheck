@@ -21,7 +21,7 @@ estimate_decision_sensitivity(df, y, x, y_binomial = FALSE, limit = 0)
 A dataframe with the parameter values of the fitted logistic regression and the decision sensitivity associated with each parameter included in the logistic regression model.
 }
 \description{
-This function performs a logistic regression analysis and determines the decision sensitivity to parameter value using the logistic regression.
+This function performs a logistic regression analysis and determines the decision sensitivity to parameter value using the logistic regression. (STILL IN DEVELOPMENT)
 }
 \details{
 The method for these analyses is described in [Merz et al. 1992](https://doi.org/10.1177%2F0272989X9201200304).

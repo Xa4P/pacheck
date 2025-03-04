@@ -1,5 +1,5 @@
 #' Fit LASSO metamodel
-#'
+#' @description This function fits a lasso metamodel using the \code{\link[glmnet]{glmnet}} package.
 #' @param df a dataframe.
 #' @param y_var character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.
 #' @param x_vars character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.
@@ -12,7 +12,9 @@
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
 #' @import glmnet
-#' @return a list
+#' @return A list contaning the following elements:
+#'  \itemize{
+#'    \item}
 #' @export
 #' @examples
 #' #Fit lasso metamodel with two variables using the probabilistic data

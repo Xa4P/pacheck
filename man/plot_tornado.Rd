@@ -17,7 +17,7 @@ plot_tornado(df, df_basecase, outcome)
 A ggplot graph.
 }
 \description{
-This function plots the results of the deterministic sensitivity analyses (DSA) in a Tornado diagram.
+This function plots the results of the deterministic sensitivity analyses (DSA) in a Tornado diagram. (STILL IN DEVELOPMENT)
 }
 \details{
 The code to draw the Tornado diagram was obtained from \url{https://stackoverflow.com/questions/55751978/tornado-both-sided-horizontal-bar-plot-in-r-with-chart-axes-crosses-at-a-given}{Stakoverflow}.
@@ -39,5 +39,4 @@ df_res_dsa <- dsa_lm_metamodel(df = df_pa,
 plot_tornado(df = df_res_dsa,
              df_basecase = df_pa,
              outcome = "Inc_QALY")
-
 }

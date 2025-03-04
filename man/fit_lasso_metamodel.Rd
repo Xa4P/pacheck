@@ -42,10 +42,12 @@ fit_lasso_metamodel(
 \item{x_inter}{character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.}
 }
 \value{
-a list
+A list contaning the following elements:
+ \itemize{
+   \item}
 }
 \description{
-Fit LASSO metamodel
+This function fits a lasso metamodel using the \code{\link[glmnet]{glmnet}} package.
 }
 \examples{
 #Fit lasso metamodel with two variables using the probabilistic data
