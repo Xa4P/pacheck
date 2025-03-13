@@ -23,7 +23,9 @@ require(cdx2cea)
 data("l_psa", package = "cdx2cea")
 ```
 
-Target journal: Pharmacoeconomics Type of paper: Practical application
+Target journal: Pharmacoeconomics
+
+Type of paper: Practical application
 
 # Introduction
 
@@ -37,15 +39,17 @@ Hence, generic (R) software tools to easily and systematically validate HE model
 
 The current paper describes the functionalities of the pacheck R package using the probabilistic inputs and outputs of published open-source HE models[@alarid-escudero2022; @incerti2019]. The validation tests included in pacheck are based on a pragmatic literature review described in @pouwels2024 . Most of the validation tests included in pacheck were identified in the TECH-VER checklist, emphasising their relevance for HE models. In comparison with other R package dedicated to HE model development and validation, pacheck may be applied to inputs and outputs of HE models developed with other software package than R once the probabilistic inputs and outputs are loaded within the R session of interest. This increases the accessibility of these validation tests to HE models developed in other software packages than R and potentially to non-R-users. The aim of the current paper is to provide a tutorial for the use of the pacheck R package, including example codes, for novice R users.
 
-# Illustrations of functionalities
+The following section describes the case studies. Afterwards, the functionalities of `pacheck`, including anotated R code, are showcased on one open-source model (the other case studies are available in the Supplementary material). We continue by reflecting on facilitators to apply `pacheck` in these different case studies, and conclude by discussing limitations and areas of further development of `pacheck`.
 
-## Case studies
+# Case studies
 
 The functionalities of pacheck are illustrated using the `cdx2cea` R package [@cdx2cea; @alarid-escudero2022] and the `iviRA` R package[@iviRA; @incerti2019]. The `cdx2cea`package has been developed to perform a *"cost-effectiveness analysis (CEA) of testing average-risk Stage II colon cancer patients for the absence of CDX2 biomarker expression followed by adjuvant chemotherap which contains"* [@alarid-escudero2022]. The CEA of this package is performed using a cohort-based health state transition model. It compares two strategies: No CDX2 testing and CDX2 testing. The PA datasets contains `r l_psa$n_sim` iterations of the HE models. The HE model contains `r length(l_psa$parnames)` input parameters and provides discounted quality-adjusted life years and discounted costs for both strategies and are stored in the `l_psa.RData` object of the `cdx2cea` R package. This case study is to demonstrate that the functionalities of `pacheck` can be used on a HE model developed according to the DARTH coding framework.
 
-The `iviRA` package is an open-source individual-level health state transition model developed to assess the costs and health effects, such as quality-ajusted life years (QALYs) of different treatment sequences for rheumatoid arthritis. Thousand probabilistic inputs and outputs were generated for 100 simulated individuals using the functions of the `iviRA` package. The (scripts used to generate these) inputs and outputs are available in the github repository of the `pacheck` package <!--# OF archiven op ZENODO -->.
+The `iviRA` package is an open-source individual-level health state transition model developed to assess the costs and health effects, such as quality-adjusted life years (QALYs) of different treatment sequences for rheumatoid arthritis. Thousand probabilistic inputs and outputs were generated for 100 simulated individuals using the functions of the `iviRA` package. The (scripts used to generate these) inputs and outputs are available in the github repository of the `pacheck` package <!--# OF archiven op ZENODO -->.
 
-All analyses were performed using `version$version.string` .
+All analyses were performed using `version$version.string`.
+
+# Illustrations of functionalities
 
 ## Validating health economic model inputs and outputs
 
@@ -174,9 +178,11 @@ v_pred <- predict_metamodel(model = lm_metamod_valid,
 v_pred # 0.036 QALYs, basecase incremental QALYs was 0.035, hence 
 ```
 
+# Facilitators to applying `pacheck` to different open-source models
+
 # Discussion
 
-The current paper presents functionalities of the `pacheck` R package and illustrates the practical use of these functionalities, with detailed R code, in two case studies <!--# OF MEER, te checken -->.\
+The current paper presents functionalities of the `pacheck` R package and illustrates the practical use of these functionalities, with detailed R code, in four case studies.\
 By no means we aimed to provide a complete list of validation tests. To our opinion, `pacheck` is a package that requires regular updates and addition of validation tests over time to ensure it remains relevant for HE model developers and reviewers.\
 From a technical point of view, `pacheck` is most likely not coded in the most efficient way. This is a choice we made to ensure transparency of the implemented validation tests and to encourage external contributors to review the code base and to contribute to the further development of the package. The source code of `pacheck` is openly available on GitHub: [https://github.com/Xa4P/pacheck](#0){.uri}. External contributors can raise "Issues" concerning the package and propose new validation tests via "Issues" and "Pull requests".\
 Finally, `pacheck` focuses on the technical verification of HE model which is only a single aspect of validity. Hence, passing the validation tests included in `pacheck` should not create a feeling of false certainty concerning the validity of HE models. HE model developers and reviewers are therefore encourage to use other validation tools such as AdviSHE and the CADTH's tool to report and review other aspects of validation[@vemer2016, @coyle2024] .
