@@ -3,11 +3,12 @@ title: "Case study - iviRA model"
 author: "Xavier G.L.V. Pouwels"
 format: pdf
 editor: visual
+bibliography: references.bib
 ---
 
 # Introduction
 
-This vignette shows how to use the functionalities of `pacheck` on the `iviRA` health economic model.
+This vignette shows how to use the functionalities of `pacheck` on the `iviRA` health economic model [@incerti2019].
 
 # Loading packages and data
 
@@ -219,3 +220,5 @@ knitr::kable(df_lm_preds,
 knitr::kable(df_rf_preds, 
              caption = "Predictions using the random forest metamodel.")
 ```
+
+# References
