@@ -246,7 +246,7 @@ The output shows the validation results: R-squared, mean absolute error, mean re
 
 Arguments: `method`, `folds`.
 
-To use k-fold cross-validation, onw needs to specify `method = "cross_validation"`. In the example, two folds are used by specifying `fold = 2`.
+To use k-fold cross-validation, one needs to specify `method = "cross_validation"`. In the example, two folds are used by specifying `fold = 2`.
 
 ```{r, warning = FALSE}
 rf_validation = validate_metamodel(rf_fit,
