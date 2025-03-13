@@ -11,10 +11,10 @@ predict_metamodel(model = NULL, inputs = NULL, output_type = "vector")
 
 \item{inputs}{dataframe or vector. When choosing a vector in the case of a three-variable model: the first, second, third, and fourth value represent the input for the first, second, third, and FIRST variable, respectively. Default gives the predictions based on the training data.}
 
-\item{output}{character. Choose an output: 'dataframe' or 'vector'.}
+\item{output_type}{character. Choose an output: 'dataframe', 'long_df' (long data.frame) or 'vector'.}
 }
 \value{
-returns a vector or a dataframe containing the predictions.
+returns a vector of the the predictions ('vector' output_type) or the parameter values used for the predictions and the predictions ('dataframe' or 'long_df' output_type).
 }
 \description{
 Predict using a fitted metamodel

@@ -1,8 +1,8 @@
 #' Predict using a fitted metamodel
 #' @param model model object. Built using a function from the PACHECK package.
 #' @param inputs dataframe or vector. When choosing a vector in the case of a three-variable model: the first, second, third, and fourth value represent the input for the first, second, third, and FIRST variable, respectively. Default gives the predictions based on the training data.
-#' @param output character. Choose an output: 'dataframe' or 'vector'.
-#' @return returns a vector or a dataframe containing the predictions.
+#' @param output_type character. Choose an output: 'dataframe', 'long_df' (long data.frame) or 'vector'.
+#' @return returns a vector of the the predictions ('vector' output_type) or the parameter values used for the predictions and the predictions ('dataframe' or 'long_df' output_type).
 #' @export
 #' @examples
 #' #Making 3 predictions for a two-variable metamodel, using a vector as input, and yielding a dataframe as output.
@@ -22,8 +22,8 @@ predict_metamodel = function(model = NULL,
                              inputs = NULL,
                              output_type = "vector"){
   # Flag errors
-  if(!(output_type %in% c("dataframe","vector"))){
-    stop("Please choose a valid output type: 'dataframe' or 'vector'.")
+  if(!(output_type %in% c("dataframe","vector", "long_df"))){
+    stop("Please choose a valid output type: 'dataframe', 'long_df' or 'vector'.")
   }
 
   # Retrieve model info & flag errors
@@ -80,8 +80,14 @@ predict_metamodel = function(model = NULL,
   if(output_type == "dataframe"){
     newdata['predictions'] = preds
     return(newdata)
-  }
-  else if(output_type == "vector"){
+  } else if(output_type == "long_df") {
+    newdata['predictions'] = preds
+    df_res <- data.frame(t(newdata))
+    names(df_res)[[1]] <- "Value"
+    df_res['Name'] = rownames(df_res)
+    rownames(df_res) <- NULL
+    return(df_res[, c("Name", "Value")])
+  } else if(output_type == "vector"){
     return(preds)
   }
 }
