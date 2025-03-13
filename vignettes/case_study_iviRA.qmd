@@ -14,6 +14,7 @@ This vignette shows how to use the functionalities of `pacheck` on the `iviRA` h
 ```{r}
 #library(pacheck)
 devtools::load_all()
+set.seed(1234)
 data("l_iviRA_pa_params")
 data("l_iviRA_out_summ_1")
 data("l_iviRA_out_summ_2")
@@ -55,7 +56,7 @@ One way to test the plausibility of model inputs and outputs is simply to inspec
 
 ```{r}
 # Summary stats
-generate_sum_stats(df = df_iviRA_pa)
+generate_sum_stats(df = df_iviRA_pa[, 1:10]) #only for the 10 first parameters for the sake of brievety
 
 # Specific checks
 ## Proportions & probabilities between 0 and 1
@@ -114,6 +115,107 @@ plot_nb(df = df_nb)
 
 # Metamodelling
 
-```{r}
+In this section, we will perform metamodelling using two techniques: linear regression modelling (lm) and random forest (rf) using all input parameters of the probabilistic analysis data frame. Before performing metamodelling, we will standardise the inputs using their respective mean and standard deviation.
 
+## Fit
+
+The metamodels are first developed on the full data sets, variable selection for the Note that we did not perform variable selection first, which is an important step if the model is used for prediction. We have used the `stepAIC` function from the `MASS` package to perform backward variable selection using the Akaike Information Criteria (AIC) using the linear regression metamodel. For the sake of simplicity, we will use the same selected variable for the linear regression metamodel and the random forest metamodel.
+
+In the `fit_rf_metamodel`, we set the `var_importance` argument to `TRUE` to be able to extract variable importance plots and for the random forest metamodel.
+
+```{r}
+# Select parameters for metamodelling
+v_x_vars <- names(df_iviRA_pa)
+v_x_vars <- v_x_vars[-grep("t_qaly", v_x_vars)]
+v_x_vars <- v_x_vars[-grep("t_cost", v_x_vars)]
+v_x_vars <- v_x_vars[-grep("inc_cost", v_x_vars)]
+v_x_vars <- v_x_vars[-grep("inc_qaly", v_x_vars)]
+
+## standardisation
+df_iviRA_mm <- df_iviRA_pa
+df_iviRA_mm[, v_x_vars] <- as.data.frame(apply(df_iviRA_mm[, v_x_vars], 2, function(col) (col - mean(col)) / sd(col)))
+
+
+# Fit metamodels using all input parameters contained in the parameter data frame
+metamodel_lm <- fit_lm_metamodel(df = df_iviRA_mm,
+                                 y_var = "t_qaly_d_thx1",
+                                 x_vars = v_x_vars)
+# Features (variable selection)
+mm_lm_select <- MASS::stepAIC(do.call("lm", list(metamodel_lm$model_info$form,
+                                                 data = metamodel_lm$model_info$data)), 
+                              direction = "backward",
+                              trace = FALSE)
+v_select_vars <- names(mm_lm_select$coefficients)[-1]
+
+# Fit based on selected values
+metamodel_lm <- fit_lm_metamodel(df = df_iviRA_mm,
+                                 y_var = "t_qaly_d_thx1",
+                                 x_vars = v_select_vars)
+summary(metamodel_lm$fit)
+
+metamodel_rf <- fit_rf_metamodel(df = df_iviRA_mm,
+                                 y_var = "t_qaly_d_thx1",
+                                 x_vars = v_select_vars,
+                                 var_importance = TRUE)
+plot(metamodel_rf$fit, verbose = TRUE)
+```
+
+Based on the variable importance plots (but also coefficient values of the linear regression metamodel), one can conclude that the `or_mort` and `p_rebound` model parameters have the biggest impact on the results.
+
+## Validation
+
+Validation of the model will be done using cross-validation with ten folds. Note that for the validation purposes that the metamodel is re-fitted in each fold.
+
+```{r}
+# Metamodels validation
+validation_mm_lm <- validate_metamodel(
+  model = metamodel_lm,
+  method = 'cross_validation',
+  folds = 10
+)
+validation_mm_rf <- validate_metamodel(
+  model = metamodel_rf,
+  method = 'cross_validation',
+  folds = 10
+)
+
+knitr::kable(validation_mm_lm, 
+             caption = "Validation metrics of the linear regression metamodel.")
+knitr::kable(validation_mm_rf, 
+             caption = "Validation metrics of the random forest metamodel.")
+```
+
+Based on this validation step, we can see that the linear regression metamodel results in a higher proportion of the variance being explained by the parameters included in the metamodels (higher R^2^), and lower errors than the random forest metamodel.
+
+## Prediction
+
+The following code snippet shows how to make prediction using the fitted metamodels.
+
+```{r}
+# Create dataframe containing the 10th and 90th percentile of the probabilistic values of the seleted variables in the metamodels
+df_inputs_pred <- data.frame(matrix(ncol = length(v_select_vars),
+                             nrow = 2,
+                             dimnames = list(c(),
+                                             v_select_vars))
+                      )
+df_inputs_pred[1, ] <- unname(apply(df_iviRA_mm[, v_select_vars], 
+                             2, 
+                             function(rows) {quantile(rows, probs = 0.1)}))
+df_inputs_pred[2, ] <- unname(apply(df_iviRA_mm[, v_select_vars], 
+                             2, 
+                             function(rows) {quantile(rows, probs = 0.9)}))
+
+# Predict
+df_lm_preds <- predict_metamodel(model = metamodel_lm,
+                                 inputs = df_inputs_pred,
+                                 output_type = "long_df")
+df_rf_preds <- predict_metamodel(model = metamodel_rf,
+                                 inputs = df_inputs_pred,
+                                 output_type = "long_df")
+
+#Display
+knitr::kable(df_lm_preds, 
+             caption = "Predictions using the linear regression metamodel.")
+knitr::kable(df_rf_preds, 
+             caption = "Predictions using the random forest metamodel.")
 ```
