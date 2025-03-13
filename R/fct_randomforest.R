@@ -196,7 +196,7 @@ fit_rf_metamodel <- function(df,
     # Show plots
     ## variable importance plot
     if (var_importance != FALSE){
-      plot(rf_fit, verbose = TRUE, plots.one.page = TRUE)
+      p_vimp <- plot(rf_fit, verbose = F, plots.one.page = F)
     }
     ## partial and/or marginal plot
     if (pm_plot != FALSE){
