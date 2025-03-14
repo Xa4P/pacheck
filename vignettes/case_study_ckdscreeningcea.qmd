@@ -1,0 +1,130 @@
+---
+title: "Case study - Screening CKD CEA"
+author: "Xavier G.L.V. Pouwels"
+format: pdf
+editor: visual
+bibliography: references.bib
+---
+
+# Introduction
+
+This vignette showcases how to use the functionalities of `pacheck` on a health economic model developed in Python focusing on the health economic impact on screening for Chronic Kidney Disease [@cusick2023].
+
+# Loading packages and data
+
+```{r}
+#library(pacheck)
+devtools::load_all()
+set.seed(1234)
+data("df_ckd_inputs")
+data("df_ckd_results")
+```
+
+# Preparing dataset for use in `pacheck`
+
+The following code chunk prepares the inputs and outputs list of the `iviRA` package to use the `pacheck` tests. In this example, only a subset of all inputs is used for convenience.
+
+```{r, warning = FALSE}
+df_ckd_results_wide <- df_ckd_results |>
+  mutate(intervention = ifelse(intervention == "[0, 10, 20, 30, 40]", "Screening", intervention)) |>
+  select(!c(full_index, Starting.age, dapa.costs, avg.on.dapa)) |>
+  pivot_wider(names_from  = intervention,
+              names_sep = "_",
+              values_from = !intervention
+              )
+df_ckd_results_wide <- data.frame(apply(df_ckd_results_wide, 2, unlist))
+df_ckd <- cbind(df_ckd_inputs,
+                df_ckd_results_wide)
+df_ckd$Unnamed..0 <- df_ckd$iteration <- NULL
+```
+
+# Testing plausibility of model inputs and outputs
+
+One way to test the plausibility of model inputs and outputs is simply to inspect the summary statistics of each variable. This can be done with the `pacheck` package using the `generate_sum_stats` function. The correlation between (specific) inputs and outputs of the health economic model can be generated using the `generate_cor` function. This allows to investigate whether the relation between inputs and outputs
+
+```{r}
+# Summary stats
+generate_sum_stats(df = df_ckd[, c(grep("Screening", names(df_ckd)),
+                                   grep("Placebo", names(df_ckd)))]) 
+## only for the outcomes for the sake of brievety
+
+# Check correlations between inputs and outputs
+##e.g. screening costs and higher ACE.costs should lead to higher screening costs and total costs
+generate_cor(df = df_ckd,
+             vars = c("screening_cost", "ACE.cost", "ace.costs_Screening", "ace.costs_Placebo", "costs_Screening", "costs_Placebo"))
+## negative correlation between screening_cost and costs_Screening, 
+## weak positive correlation between ACE.cost and total ACE costs 
+## weak negative correlation with total costs of strategies 
+
+# Specific checks
+## utility values, specificity,  & sensitivity between 0 and 1
+v_vars_u <- grep("_QALY", names(df_ckd), value = TRUE) # returns variable names
+# containing _QALY
+v_vars_u <- v_vars_u[-grep("disc", v_vars_u)]
+
+check_binary(c(v_vars_u, "screening_sensitivity", "screening_specificity"), df = df_ckd)
+
+## Costs, prevalence, HR positive
+v_vars_prev <- grep("prev", names(df_ckd), value = TRUE)
+v_vars_c <- grep("_cost", names(df_ckd), value = TRUE)
+v_vars_hr <- grep(".HR", names(df_ckd), value = TRUE)
+# v_vars_c <- v_vars_c[-grep("inc_", v_vars_c)]
+check_positive(c(v_vars_prev, v_vars_c, v_vars_hr), df = df_ckd)
+
+## Discounted results lower than undiscounted results
+do_discount_check(
+  df = df_ckd,
+  v_outcomes = c(
+    "QALY_Screening",
+    "costs_Screening",
+    "QALY_Placebo",
+    "costs_Placebo"
+  ),
+  v_outcomes_d = c(
+    "QALY.disc_Screening",
+    "cost.disc_Screening",
+    "QALY.disc_Placebo",
+    "cost.disc_Placebo"
+  )
+)
+```
+
+# Drawing health economic figures
+
+`pacheck` also contains figures to draw standard figures for health economic evaluations, such as the cost-effectiveness plane (`plot_ce` function), the incremental cost-effectiveness plane (`plot_ice` function), the cost-effectiveness acceptability curves (`plot_ceac` function), and net benefit curves (`plot_nb` function). Both the `plot_ceac` and `plot_nb` functions require data frames containing specific variable names, which can respectively be obtained with the accompanying functions `calculate_ceac` and `calculate_nb`.
+
+```{r}
+plot_ce(
+  df = df_ckd,
+  e_int = "QALY.disc_Screening",
+  e_comp = "QALY.disc_Placebo",
+  c_int = "cost.disc_Screening",
+  c_comp = "cost.disc_Placebo"
+)  
+plot_ice(
+  df = df_ckd,
+  e_int = "QALY.disc_Screening",
+  e_comp = "QALY.disc_Placebo",
+  c_int = "cost.disc_Screening",
+  c_comp = "cost.disc_Placebo"
+)  
+df_ceac <- calculate_ceac(
+  df = df_ckd,
+  e_int = "QALY.disc_Screening",
+  e_comp = "QALY.disc_Placebo",
+  c_int = "cost.disc_Screening",
+  c_comp = "cost.disc_Placebo"
+) 
+plot_ceac(df = df_ceac, name_wtp = "WTP_threshold")  
+df_nb <- calculate_nb(
+  df = df_ckd,
+  e_int = "QALY.disc_Screening",
+  e_comp = "QALY.disc_Placebo",
+  c_int = "cost.disc_Screening",
+  c_comp = "cost.disc_Placebo",
+  wtp = 80000
+) 
+plot_nb(df = df_nb)
+```
+
+# Reference
