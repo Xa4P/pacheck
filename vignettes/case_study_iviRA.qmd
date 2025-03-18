@@ -73,11 +73,6 @@ do_check(df = df_iviRA_pa,
          v_vars = c(v_vars_n, v_vars_c, "or_mort"),
          check = ~ .x >= 0,
          label_check = "positive") # alternative
-
-## Discounted results lower than undiscounted results
-do_discount_check(df = df_iviRA_pa,
-                  v_outcomes = c("t_qaly_thx1", "t_qaly_thx2"),
-                  v_outcomes_d = c("t_qaly_d_thx1", "t_qaly_d_thx2"))
 ```
 
 # Metamodelling

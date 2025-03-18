@@ -22,7 +22,7 @@ data("df_ckd_results")
 
 # Preparing dataset for use in `pacheck`
 
-The following code chunk prepares the inputs and outputs list of the `iviRA` package to use the `pacheck` tests. In this example, only a subset of all inputs is used for convenience.
+The following code chunk prepares the inputs and outputs list of the CKD Screening CEA to use the `pacheck` tests. In this example, only a subset of all inputs is used for convenience.
 
 ```{r, warning = FALSE}
 df_ckd_results_wide <- df_ckd_results |>
@@ -36,11 +36,29 @@ df_ckd_results_wide <- data.frame(apply(df_ckd_results_wide, 2, unlist))
 df_ckd <- cbind(df_ckd_inputs,
                 df_ckd_results_wide)
 df_ckd$Unnamed..0 <- df_ckd$iteration <- NULL
+
+# Add utility values defined in model script
+## General population utility values
+df_ckd$male_35_QALY <- 0.925
+df_ckd$male_45_QALY <- 0.894 
+df_ckd$male_55_QALY <- 0.870 
+df_ckd$male_65_QALY <- 0.852
+df_ckd$male_75_QALY <- 0.816
+df_ckd$male_85_QALY <- 0.807
+
+df_ckd$female_35_QALY <- 0.900
+df_ckd$female_45_QALY <- 0.871 
+df_ckd$female_55_QALY <- 0.846 
+df_ckd$female_65_QALY <- 0.822
+df_ckd$female_75_QALY <- 0.784
+df_ckd$female_85_QALY <- 0.747
 ```
 
 # Testing plausibility of model inputs and outputs
 
-One way to test the plausibility of model inputs and outputs is simply to inspect the summary statistics of each variable. This can be done with the `pacheck` package using the `generate_sum_stats` function. The correlation between (specific) inputs and outputs of the health economic model can be generated using the `generate_cor` function. This allows to investigate whether the relation between inputs and outputs
+One way to test the plausibility of model inputs and outputs is simply to inspect the summary statistics of each variable. This can be done with the `pacheck` package using the `generate_sum_stats` function. The correlation between (specific) inputs and outputs of the health economic model can be generated using the `generate_cor` function. This allows to investigate whether the relation between inputs and outputs.
+
+In addition, one can check whether the mean quality of life of individuals within the model (total undiscounted quality adjusted life years divided by total undiscounted life years) lies within the minimal and maximal utility value in each iteration (using the `check_mean_qol` function).
 
 ```{r}
 # Summary stats
@@ -57,74 +75,26 @@ generate_cor(df = df_ckd,
 ## weak negative correlation with total costs of strategies 
 
 # Specific checks
-## utility values, specificity,  & sensitivity between 0 and 1
-v_vars_u <- grep("_QALY", names(df_ckd), value = TRUE) # returns variable names
-# containing _QALY
-v_vars_u <- v_vars_u[-grep("disc", v_vars_u)]
+## mean quality of life between minimal and maximal utility values
+v_vars_u <- grep("_QALY", names(df_ckd), value = TRUE) 
+v_vars_u <- v_vars_u[-grep("dis", v_vars_u)]
 
-check_binary(c(v_vars_u, "screening_sensitivity", "screening_specificity"), df = df_ckd)
+check_mean_qol(df = df_ckd,
+               t_qaly = "QALY_Screening",
+               t_ly = "LY_Screening",
+               u_values = v_vars_u)
 
-## Costs, prevalence, HR positive
+check_mean_qol(df = df_ckd,
+               t_qaly = "QALY_Placebo",
+               t_ly = "LY_Placebo",
+               u_values = v_vars_u)
+
+## Costs, prevalence, HR are positive
 v_vars_prev <- grep("prev", names(df_ckd), value = TRUE)
 v_vars_c <- grep("_cost", names(df_ckd), value = TRUE)
 v_vars_hr <- grep(".HR", names(df_ckd), value = TRUE)
 # v_vars_c <- v_vars_c[-grep("inc_", v_vars_c)]
 check_positive(c(v_vars_prev, v_vars_c, v_vars_hr), df = df_ckd)
-
-## Discounted results lower than undiscounted results
-do_discount_check(
-  df = df_ckd,
-  v_outcomes = c(
-    "QALY_Screening",
-    "costs_Screening",
-    "QALY_Placebo",
-    "costs_Placebo"
-  ),
-  v_outcomes_d = c(
-    "QALY.disc_Screening",
-    "cost.disc_Screening",
-    "QALY.disc_Placebo",
-    "cost.disc_Placebo"
-  )
-)
-```
-
-# Drawing health economic figures
-
-`pacheck` also contains figures to draw standard figures for health economic evaluations, such as the cost-effectiveness plane (`plot_ce` function), the incremental cost-effectiveness plane (`plot_ice` function), the cost-effectiveness acceptability curves (`plot_ceac` function), and net benefit curves (`plot_nb` function). Both the `plot_ceac` and `plot_nb` functions require data frames containing specific variable names, which can respectively be obtained with the accompanying functions `calculate_ceac` and `calculate_nb`.
-
-```{r}
-plot_ce(
-  df = df_ckd,
-  e_int = "QALY.disc_Screening",
-  e_comp = "QALY.disc_Placebo",
-  c_int = "cost.disc_Screening",
-  c_comp = "cost.disc_Placebo"
-)  
-plot_ice(
-  df = df_ckd,
-  e_int = "QALY.disc_Screening",
-  e_comp = "QALY.disc_Placebo",
-  c_int = "cost.disc_Screening",
-  c_comp = "cost.disc_Placebo"
-)  
-df_ceac <- calculate_ceac(
-  df = df_ckd,
-  e_int = "QALY.disc_Screening",
-  e_comp = "QALY.disc_Placebo",
-  c_int = "cost.disc_Screening",
-  c_comp = "cost.disc_Placebo"
-) 
-plot_ceac(df = df_ceac, name_wtp = "WTP_threshold")  
-df_nb <- calculate_nb(
-  df = df_ckd,
-  e_int = "QALY.disc_Screening",
-  e_comp = "QALY.disc_Placebo",
-  c_int = "cost.disc_Screening",
-  c_comp = "cost.disc_Placebo",
-  wtp = 80000
-) 
-plot_nb(df = df_nb)
 ```
 
 # Reference

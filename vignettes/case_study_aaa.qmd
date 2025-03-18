@@ -1,0 +1,136 @@
+---
+title: "Case Study - Abdominal aortic aneurysm"
+author: "Xavier G.L.V. Pouwels"
+format: pdf
+editor: visual
+bibliography: references.bib
+---
+
+# Introduction
+
+This vignette showcases the functionalities of `pacheck` on the [AAA_DES_model](https://github.com/mikesweeting/AAA_DES_model), which is described in @sweeting2018 . The probabilistic set of inputs and outputs has been obtained by running the `Main file_men 30years_FullModel.R` file under the `models` folder of the R project. To limit computational time, we only simulated 1,000 iterations containing 1,000 individuals (which may not be enough to obtain stable results).
+
+# Loading packages and data
+
+```{r}
+#library(pacheck)
+library(purrr)
+devtools::load_all()
+set.seed(1234)
+data("l_psa_aaa")
+```
+
+# Preparing dataset for use in `pacheck`
+
+The following code chunk prepares the inputs and outputs list of the AAA DES model to use the `pacheck` tests. In this example, only a subset of all inputs is used for convenience.
+
+```{r}
+# Inputs
+## Input parameters are stored in a list and 
+##have attributes that are used here to retrieve 
+##the different types of parameters
+##using the `map_depth` function from the `purrr` package
+v_attr_type <- unlist(lapply(l_psa_aaa$v2values[[1]], function(l_obj)
+  attr(l_obj, which = "type")), use.names = F)
+v_probnames <- names(l_psa_aaa$v2value[[1]])[which(v_attr_type == "probability")]
+v_ratenames <- names(l_psa_aaa$v2value[[1]])[grep("rate", v_attr_type)]
+v_qalynames <- names(l_psa_aaa$v2value[[1]])[grep("qaly", v_attr_type)]
+v_costnames <- names(l_psa_aaa$v2value[[1]])[grep("cost", v_attr_type)]
+v_parmodnames <- names(l_psa_aaa$v2value[[1]])[grep("par", v_attr_type)]
+m_aaa_inputs <- sapply(c(v_probnames, 
+                         v_ratenames, 
+                         # v_qalynames, # omitted because fixed
+                         # v_costnames, # omitted because fixed
+                         v_parmodnames), function(name)
+                           unlist(purrr::map_depth(l_psa_aaa$v2values, 1, name), use.names = F))
+# Outputs
+## Outputs are stored in the 3D arra
+m_aaa_res <- l_psa_aaa$psaQuantities
+dim(m_aaa_res) <- c(unname(
+  dim(l_psa_aaa$psaQuantities)[[1]] * dim(l_psa_aaa$psaQuantities)[[2]]
+), unname(dim(l_psa_aaa$psaQuantities)[[3]]))
+m_aaa_res <- t(m_aaa_res)
+colnames(m_aaa_res) <- paste0(unlist(dimnames(l_psa_aaa$psaQuantities)[1]), "_", rep(unlist(dimnames(
+  l_psa_aaa$psaQuantities
+)[2]), each = length(unlist(
+  dimnames(l_psa_aaa$psaQuantities)[1]
+))))
+
+df_aaa <- data.frame(cbind(m_aaa_inputs, m_aaa_res))
+```
+
+# Testing plausibility of model inputs and outputs
+
+In this section, we test the plausibility of multiple groups of parameters and outcomes using the `do_quick_check` function. We also check whether discounted results are lower than corresponding non-discounted results using the `do_discount_check` function.
+
+```{r}
+# Quick checks of groups of input parameter values
+do_quick_check(df = df_aaa,
+               v_probs = v_probnames,
+               v_r = v_ratenames,
+               v_costs = c("noScreening_cost",
+                           "screening_cost",
+                           "noScreening_discountedCost",
+                           "screening_discountedCost"))
+
+# Discounted results lower than undiscounted results
+do_discount_check(
+  df = df_aaa,
+  v_outcomes = c(
+    "noScreening_lifeYears",
+    "screening_lifeYears",
+    "noScreening_qalys",
+    "screening_qalys",
+    "noScreening_cost",
+    "screening_cost"
+  ),
+  v_outcomes_d = c(
+    "noScreening_discountedLifeYears",
+    "screening_discountedLifeYears",
+    "noScreening_discountedQalys",
+    "screening_discountedQalys",
+    "noScreening_discountedCost",
+    "screening_discountedCost"
+  )
+)
+```
+
+# Drawing health economic figures
+
+`pacheck` also contains figures to draw standard figures for health economic evaluations, such as the cost-effectiveness plane (`plot_ce` function), the incremental cost-effectiveness plane (`plot_ice` function), the cost-effectiveness acceptability curves (`plot_ceac` function), and net benefit curves (`plot_nb` function). Both the `plot_ceac` and `plot_nb` functions require data frames containing specific variable names, which can respectively be obtained with the accompanying functions `calculate_ceac` and `calculate_nb`.
+
+```{r}
+plot_ce(
+  df = df_aaa,
+  e_int = "screening_discountedQalys",
+  e_comp = "noScreening_discountedQalys",
+  c_int = "screening_discountedCost",
+  c_comp = "noScreening_discountedCost"
+)
+plot_ice(
+  df = df_aaa,
+  e_int = "screening_discountedQalys",
+  e_comp = "noScreening_discountedQalys",
+  c_int = "screening_discountedCost",
+  c_comp = "noScreening_discountedCost"
+)
+df_ceac <- calculate_ceac(
+  df = df_aaa,
+  e_int = "screening_discountedQalys",
+  e_comp = "noScreening_discountedQalys",
+  c_int = "screening_discountedCost",
+  c_comp = "noScreening_discountedCost"
+)  
+plot_ceac(df = df_ceac, name_wtp = "WTP_threshold")
+df_nb <- calculate_nb(
+  df = df_aaa,
+  e_int = "screening_discountedQalys",
+  e_comp = "noScreening_discountedQalys",
+  c_int = "screening_discountedCost",
+  c_comp = "noScreening_discountedCost",
+  wtp = 80000
+)
+plot_nb(df = df_nb)
+```
+
+# Reference
