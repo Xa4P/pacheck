@@ -97,8 +97,8 @@ generate_cor <- function(df,
   df_cor_long <- reshape2::melt(df_out) |>
     dplyr::rename(Correlation = value)
   p_out <- ggplot2::ggplot(data = df_cor_long,
-                           ggplot2::aes(x = Var1, y = Var2, fill = value)) +
-    ggplot2::guides(x = ggplot2::guide_axis(angle = 45))+
+                           ggplot2::aes(x = Var1, y = Var2, fill = Correlation)) +
+    ggplot2::guides(x = ggplot2::guide_axis(angle = 45)) +
     ggplot2::geom_tile()
   }
   # Export
@@ -783,7 +783,8 @@ check_positive <- function(..., df, max_view = 50){
     } else if(length(l) == 1 ) {
       res = l
     } else if(length(l) > 1) {
-      res = paste(l[1:max_view], collapse = ",")
+      n_view <- ifelse(length(l) < max_view, length(l), max_view)
+      res = paste(l[1:n_view], collapse = ",")
     }
     return(res)
   })
@@ -927,7 +928,8 @@ check_binary <- function(..., df, max_view = 50) {
     } else if(length(l) == 1 ) {
       res = l
     } else if(length(l) > 1) {
-      res = paste(l[1:max_view], collapse = ",")
+      n_view <- ifelse(length(l) < max_view, length(l), max_view)
+      res = paste(l[1:n_view], collapse = ",")
     }
     return(res)
   })
@@ -945,7 +947,8 @@ check_binary <- function(..., df, max_view = 50) {
     } else if(length(l) == 1 ) {
       res = l
     } else if(length(l) > 1) {
-      res = paste(l[1:max_view], collapse = ",")
+      n_view <- ifelse(length(l) < max_view, length(l), max_view)
+      res = paste(l[1:n_view], collapse = ",")
     }
     return(res)
   })
