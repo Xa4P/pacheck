@@ -566,6 +566,8 @@ fit_dist <- function(df,
 #' @param param character string. Name of variable of the dataframe for which to plot the moving average.
 #' @param block_size numeric. Define the size of the blocks at which the mean of the variable (`param`) has to be defined and plotted. Default is 500 iterations.
 #' @param conv_limit numeric. Define the convergence limit, under which the relative change between block of iterations should lie.
+#' @param y_min numeric. Define the minimum value of the parameter to display on th y-axis of the convergence plot.If NULL (default, not defined), this will automatically be set near the minimum value of `param`.
+#' @param y_max numeric. Define the maximum value of the parameter to display on th y-axis of the convergence plot. If NULL (default, not defined), this will automatically be set near the maximum value of `param`.
 #' @param breaks numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `param` is used.
 #' @param variance logical. Determine whether the variance of the vector should be plotted instead of the mean. Default is FALSE.
 #' @return A ggplot graph.
@@ -582,6 +584,8 @@ plot_convergence <- function(df,
                              param,
                              block_size = 500,
                              conv_limit = 0,
+                             y_min = NULL,
+                             y_max = NULL,
                              breaks = NULL,
                              variance = FALSE) {
   # Checks
@@ -593,6 +597,14 @@ plot_convergence <- function(df,
                           msg = "'param' argument is not a character.")
   assertthat::assert_that(block_size < length(df[, param]),
                           msg = "'block_size' is greater than the number of iterations. 'block_size' should be smaller than the number of rows in 'df'.")
+  if(!is.null(y_min)){
+    assertthat::assert_that(is.numeric(y_min),
+                          msg = "The provided 'y_min' argument is not a numeric value.")
+  }
+  if(!is.null(y_max)){
+    assertthat::assert_that(is.numeric(y_max),
+                            msg = "The provided 'y_max' argument is not a numeric value.")
+  }
   if(conv_limit > 1 ||
      conv_limit < 0) {
     stop("`conv_limit` should be a numeric between 0 and 1.")
@@ -658,6 +670,12 @@ plot_convergence <- function(df,
     } else {
       p <- ggplot2::ggplot(data = df_plot, ggplot2::aes_string(x = "log(Iterations)", y = paste0("Variance_", param)))
     }
+  }
+  if(!is.null(y_min) | !is.null(y_max)) {
+    y_min <- ifelse(!is.null(y_min), y_min, NA)
+    y_max <- ifelse(!is.null(y_max), y_max, NA)
+    p <- p +
+      ggplot2::ylim(c(y_min, y_max))
   }
   p_out <- p +
     ggplot2::xlab("Iterations (log scale)") +

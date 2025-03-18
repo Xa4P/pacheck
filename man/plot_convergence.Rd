@@ -9,6 +9,8 @@ plot_convergence(
   param,
   block_size = 500,
   conv_limit = 0,
+  y_min = NULL,
+  y_max = NULL,
   breaks = NULL,
   variance = FALSE
 )
@@ -21,6 +23,10 @@ plot_convergence(
 \item{block_size}{numeric. Define the size of the blocks at which the mean of the variable (`param`) has to be defined and plotted. Default is 500 iterations.}
 
 \item{conv_limit}{numeric. Define the convergence limit, under which the relative change between block of iterations should lie.}
+
+\item{y_min}{numeric. Define the minimum value of the parameter to display on th y-axis of the convergence plot.If NULL (default, not defined), this will automatically be set near the minimum value of `param`.}
+
+\item{y_max}{numeric. Define the maximum value of the parameter to display on th y-axis of the convergence plot. If NULL (default, not defined), this will automatically be set near the maximum value of `param`.}
 
 \item{breaks}{numeric. Number of iterations at which the breaks should be placed on the plot. Default is NULL, hence a tenth of the length of the vector `param` is used.}
 
