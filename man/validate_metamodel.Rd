@@ -27,7 +27,7 @@ validate_metamodel(
 
 \item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.}
 
-\item{validate_df}{dataframe. The dataframe to be used for validating the model. By default the dataframe used when building the model is used.}
+\item{df_validate}{dataframe. The dataframe to be used for validating the model. By default the dataframe used when building the model is used.}
 }
 \value{
 .........................

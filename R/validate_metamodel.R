@@ -5,7 +5,7 @@
 #' @param folds numeric. Number of folds for the cross-validation. Default is 1 (so an error occurs when not specifying this argument when cross-validation is chosen).
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param seed_num numeric. Determine which seed number to use to split the dataframe in fitting and validation sets.
-#' @param validate_df dataframe. The dataframe to be used for validating the model. By default the dataframe used when building the model is used.
+#' @param df_validate dataframe. The dataframe to be used for validating the model. By default the dataframe used when building the model is used.
 #' @return .........................
 #' @examples
 #' #Validating meta model with two variables using the probabilistic data, using cross-validation.
