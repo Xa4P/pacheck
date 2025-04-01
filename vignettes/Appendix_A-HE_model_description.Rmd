@@ -5,7 +5,7 @@ output: html_document
 ---
 
 ```{r setup, include = FALSE}
-devtools::load_all()
+library(pacheck)
 # library(DiagrammeR)
 # library(DiagrammeRsvg)
 # library(rsvg)
