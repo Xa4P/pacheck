@@ -44,6 +44,18 @@
       ],
       "Hash": "584c1e1cbb6f9b6c3b0f4ef0ad960966"
     },
+    "IMIS": {
+      "Package": "IMIS",
+      "Version": "0.1",
+      "Source": "URL",
+      "Repository": "CRAN",
+      "RemoteType": "url",
+      "RemoteUrl": "http://cran.r-project.org/src/contrib/Archive/IMIS/IMIS_0.1.tar.gz",
+      "Requirements": [
+        "mvtnorm"
+      ],
+      "Hash": "f99142c7bd9dc8c18985fe394c83afde"
+    },
     "MASS": {
       "Package": "MASS",
       "Version": "7.3-61",
@@ -219,6 +231,23 @@
       ],
       "Hash": "4f572fbc586294afff277db583b9060f"
     },
+    "bookdown": {
+      "Package": "bookdown",
+      "Version": "0.40",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "htmltools",
+        "jquerylib",
+        "knitr",
+        "rmarkdown",
+        "tinytex",
+        "xfun",
+        "yaml"
+      ],
+      "Hash": "896a79478a50c78fb035a37148638f4e"
+    },
     "boot": {
       "Package": "boot",
       "Version": "1.3-31",
@@ -293,6 +322,45 @@
         "utils"
       ],
       "Hash": "d7e13f49c19103ece9e58ad2d83a7354"
+    },
+    "cdx2cea": {
+      "Package": "cdx2cea",
+      "Version": "0.1.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "cdx2cea",
+      "RemoteUsername": "feralaes",
+      "RemoteSha": "ceba5ef3ade589628e50524c46636acb3073357c",
+      "Requirements": [
+        "IMIS",
+        "R",
+        "bookdown",
+        "doParallel",
+        "dplyr",
+        "foreach",
+        "lhs",
+        "logitnorm",
+        "magrittr",
+        "plotrix",
+        "plyr",
+        "reshape2",
+        "rlang",
+        "utils"
+      ],
+      "Hash": "bb4779e84112b5d4accf3ac7aa2c3b0a"
+    },
+    "cellranger": {
+      "Package": "cellranger",
+      "Version": "1.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "rematch",
+        "tibble"
+      ],
+      "Hash": "f61dbaec772ccd2e17705c1e872e9e7c"
     },
     "cli": {
       "Package": "cli",
@@ -391,6 +459,31 @@
         "R"
       ],
       "Hash": "d91263322a58af798f6cf3b13fd56dde"
+    },
+    "dampack": {
+      "Package": "dampack",
+      "Version": "1.0.2.1000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "dampack",
+      "RemoteUsername": "DARTH-git",
+      "RemoteSha": "0430fee8b8b3736cdc7dda353bd39ffa8b8480a2",
+      "Requirements": [
+        "R",
+        "dplyr",
+        "ellipse",
+        "ggplot2",
+        "ggrepel",
+        "mgcv",
+        "rlang",
+        "scales",
+        "stringr",
+        "tidyr",
+        "triangle",
+        "truncnorm"
+      ],
+      "Hash": "78229e2159291abb93c803eeb98adf77"
     },
     "data.table": {
       "Package": "data.table",
@@ -515,6 +608,20 @@
       ],
       "Hash": "33698c4b3127fc9f506654607fb73676"
     },
+    "doParallel": {
+      "Package": "doParallel",
+      "Version": "1.0.17",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "foreach",
+        "iterators",
+        "parallel",
+        "utils"
+      ],
+      "Hash": "451e5edf411987991ab6a5410c45011f"
+    },
     "downlit": {
       "Package": "downlit",
       "Version": "0.4.4",
@@ -557,6 +664,18 @@
         "vctrs"
       ],
       "Hash": "fedd9d00c2944ff00a0e2696ccf048ec"
+    },
+    "ellipse": {
+      "Package": "ellipse",
+      "Version": "0.5.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "graphics",
+        "stats"
+      ],
+      "Hash": "4aa52573ccedf7dc635a0eb471944a36"
     },
     "ellipsis": {
       "Package": "ellipsis",
@@ -773,6 +892,22 @@
         "withr"
       ],
       "Hash": "44c6a2f8202d5b7e878ea274b1092426"
+    },
+    "ggrepel": {
+      "Package": "ggrepel",
+      "Version": "0.9.6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp",
+        "ggplot2",
+        "grid",
+        "rlang",
+        "scales",
+        "withr"
+      ],
+      "Hash": "3d4156850acc1161f2f24bc61c9217c1"
     },
     "gh": {
       "Package": "gh",
@@ -1145,6 +1280,17 @@
       ],
       "Hash": "cc5ac1ba4c238c7ca9fa6a87ca11a7e2"
     },
+    "lhs": {
+      "Package": "lhs",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp"
+      ],
+      "Hash": "6d18e58d3d1de31b6e5415c1fe291113"
+    },
     "lifecycle": {
       "Package": "lifecycle",
       "Version": "1.0.4",
@@ -1157,6 +1303,13 @@
         "rlang"
       ],
       "Hash": "b8552d117e1b808b09a832f589b79035"
+    },
+    "logitnorm": {
+      "Package": "logitnorm",
+      "Version": "0.8.39",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "71d2221022019f5ae69ac21e55088a57"
     },
     "magrittr": {
       "Package": "magrittr",
@@ -1414,6 +1567,20 @@
       ],
       "Hash": "2ec30ffbeec83da57655b850cf2d3e0e"
     },
+    "plotrix": {
+      "Package": "plotrix",
+      "Version": "3.8-4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "grDevices",
+        "graphics",
+        "stats",
+        "utils"
+      ],
+      "Hash": "d47fdfc45aeba360ce9db50643de3fbd"
+    },
     "plyr": {
       "Package": "plyr",
       "Version": "1.8.9",
@@ -1623,6 +1790,28 @@
         "vroom"
       ],
       "Hash": "9de96463d2117f6ac49980577939dfb3"
+    },
+    "readxl": {
+      "Package": "readxl",
+      "Version": "1.4.5",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "cellranger",
+        "cpp11",
+        "progress",
+        "tibble",
+        "utils"
+      ],
+      "Hash": "18948de59f05d38a44d3e5065a76b4b6"
+    },
+    "rematch": {
+      "Package": "rematch",
+      "Version": "2.0.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "cbff1b666c6fa6d21202f07e2318d4f1"
     },
     "remotes": {
       "Package": "remotes",
@@ -2105,6 +2294,29 @@
         "utils"
       ],
       "Hash": "eb44585f3ca1164f1c952944ee51450c"
+    },
+    "triangle": {
+      "Package": "triangle",
+      "Version": "1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "assertthat",
+        "methods",
+        "stats4"
+      ],
+      "Hash": "bb53ec299ffd2f74d64157f7f9f162b1"
+    },
+    "truncnorm": {
+      "Package": "truncnorm",
+      "Version": "1.0-9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R"
+      ],
+      "Hash": "ef5b32c5194351ff409dfb37ca9468f1"
     },
     "tzdb": {
       "Package": "tzdb",
