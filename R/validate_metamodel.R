@@ -240,10 +240,10 @@ validate_metamodel = function(model = NULL,
       lasso_fit_validation = model$fit
 
       ## Test on test data
-      x_test = model.matrix(model_form,df_validate)
+      # x_test = model.matrix(model_form, df_validate)
       y_test = df_validate[,y_var]
 
-      preds = predict(lasso_fit_validation,newx=x_test)
+      preds = predict(lasso_fit_validation, newx = as.matrix(df_validate))
       tests = y_test
     }
 
