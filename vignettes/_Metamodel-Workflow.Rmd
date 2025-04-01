@@ -285,15 +285,7 @@ lasso_fit2 <- fit_lasso_metamodel(df = df_original,
 
 lasso_validation <- validate_metamodel(lasso_fit2,
                                    method = "new_test_set",
-                                   df_validate = df_new[, c("rr",
-                                             "u_pfs",
-                                             "u_pd",
-                                             "c_pfs",
-                                             "c_pd",
-                                             "c_thx",
-                                             "p_pfspd",
-                                             "p_pfsd",
-                                             "p_pdd")],
+                                   df_validate = df_new,
                                    seed_num = 24)
 rf_validation$stats_validation
 ```

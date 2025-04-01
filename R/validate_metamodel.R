@@ -170,10 +170,10 @@ validate_metamodel = function(model = NULL,
       tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
     }
     else if (model_type == "lasso"){
-      x_train = model.matrix(model_form,df_train)
+      x_train = model.matrix(model_form, df_train)
       y_train = df_train[,y_var]
 
-      x_test = model.matrix(model_form,df_test)
+      x_test = model.matrix(model_form, df_test)
       y_test = df_test[,y_var]
 
       ## Tune lambda and fit the model with best lambda
@@ -231,7 +231,7 @@ validate_metamodel = function(model = NULL,
 
       ## Test on test data
       preds          <- as.numeric(as.character(unlist(predict(lm_fit_validation, newdata = df_validate))))
-      tests            <- as.numeric(as.character(df_validate[, paste(y_var)]))
+      tests           <- as.numeric(as.character(df_validate[, paste(y_var)]))
     }
     else if(model_type == "lasso"){
       ## Retrieve bestlam
@@ -241,9 +241,9 @@ validate_metamodel = function(model = NULL,
 
       ## Test on test data
       # x_test = model.matrix(model_form, df_validate)
-      y_test = df_validate[,y_var]
+      y_test = df_validate[, y_var]
 
-      preds = predict(lasso_fit_validation, newx = as.matrix(df_validate))
+      preds = predict(lasso_fit_validation, newx = as.matrix(df_validate[, x_vars]))
       tests = y_test
     }
 
