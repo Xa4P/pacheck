@@ -10,7 +10,7 @@ calculate_ceac(
   e_comp,
   c_int,
   c_comp,
-  v_wtp = seq(from = 0, to = 100000, by = 1000)
+  v_wtp = seq(from = 0, to = 1e+05, by = 1000)
 )
 }
 \arguments{
