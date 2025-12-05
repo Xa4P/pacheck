@@ -9,6 +9,7 @@
 #' @param n_it (vector of) numeric value(s). Designate which iteration should be coloured in the colour red.
 #' @param wtp numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.
 #' @param currency character. Default is "euro". Determines the currency sign to use in the incremental cost effectiveness plane. Currently included signs: "euro", "dollar", "yen", "none".
+#' @param axes logical. Default is TRUE, axes are plotted at x = 0 and y = 0. If FALSE, no axes are plotted.
 #' @return A ggplot2 graph.
 #' @examples
 #' # Generating plot using the example dataframe, and a willlingness-to-pay threshold of 80,0000 euros.
@@ -32,7 +33,8 @@ plot_ice <- function(df,
                      col = NULL,
                      n_it = NULL,
                      wtp = NULL,
-                     currency = "euro") {
+                     currency = "euro",
+                     axes = T) {
   # Checks
   assertthat::assert_that(e_int %in% names(df), msg = glue::glue("{e_int} is not a valid column name of the dataframe."))
   assertthat::assert_that(c_int %in% names(df), msg = glue::glue("{c_int} is not a valid column name of the dataframe."))

@@ -13,7 +13,8 @@ plot_ice(
   col = NULL,
   n_it = NULL,
   wtp = NULL,
-  currency = "euro"
+  currency = "euro",
+  axes = T
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ plot_ice(
 \item{wtp}{numeric. Default is NULL. If different than NULL, plots a linear line with intercept 0 and the defined slope.}
 
 \item{currency}{character. Default is "euro". Determines the currency sign to use in the incremental cost effectiveness plane. Currently included signs: "euro", "dollar", "yen", "none".}
+
+\item{axes}{logical. Default is TRUE, axes are plotted at x = 0 and y = 0. If FALSE, no axes are plotted.}
 }
 \value{
 A ggplot2 graph.
