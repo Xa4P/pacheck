@@ -13,16 +13,15 @@ This vignette showcases the functionalities of `pacheck` on the [AAA_DES_model](
 # Loading packages and data
 
 ```{r}
-#library(pacheck)
+library(pacheck)
 library(purrr)
-devtools::load_all()
 set.seed(1234)
 data("l_psa_aaa")
 ```
 
 # Preparing dataset for use in `pacheck`
 
-The following code chunk prepares the inputs and outputs list of the AAA DES model to use the `pacheck` tests. In this example, only a subset of all inputs is used for convenience.
+The following code chunk prepares the inputs and outputs list of the AAA DES model to use the `pacheck` tests. In this example, only a subset of all inputs is used to limit the size of the output provided by `pacheck`.
 
 ```{r}
 # Inputs
@@ -42,20 +41,20 @@ m_aaa_inputs <- sapply(c(v_probnames,
                          # v_qalynames, # omitted because fixed
                          # v_costnames, # omitted because fixed
                          v_parmodnames), function(name)
-                           unlist(purrr::map_depth(l_psa_aaa$v2values, 1, name), use.names = F))
+                           unlist(purrr::map_depth(l_psa_aaa$v2values, 1, name),
+                                  use.names = F))
 # Outputs
-## Outputs are stored in the 3D arra
+## Outputs are stored in the 3D array
 m_aaa_res <- l_psa_aaa$psaQuantities
 dim(m_aaa_res) <- c(unname(
   dim(l_psa_aaa$psaQuantities)[[1]] * dim(l_psa_aaa$psaQuantities)[[2]]
 ), unname(dim(l_psa_aaa$psaQuantities)[[3]]))
 m_aaa_res <- t(m_aaa_res)
-colnames(m_aaa_res) <- paste0(unlist(dimnames(l_psa_aaa$psaQuantities)[1]), "_", rep(unlist(dimnames(
-  l_psa_aaa$psaQuantities
-)[2]), each = length(unlist(
-  dimnames(l_psa_aaa$psaQuantities)[1]
-))))
-
+colnames(m_aaa_res) <- paste0(unlist(dimnames(l_psa_aaa$psaQuantities)[1]), 
+                              "_", 
+                              rep(unlist(dimnames(l_psa_aaa$psaQuantities)[2]),
+                                  each = length(unlist(
+                                    dimnames(l_psa_aaa$psaQuantities)[1]))))
 df_aaa <- data.frame(cbind(m_aaa_inputs, m_aaa_res))
 ```
 

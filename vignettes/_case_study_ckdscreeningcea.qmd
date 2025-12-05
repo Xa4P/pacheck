@@ -22,7 +22,7 @@ data("df_ckd_results")
 
 # Preparing dataset for use in `pacheck`
 
-The following code chunk prepares the inputs and outputs list of the CKD Screening CEA to use the `pacheck` tests. In this example, only a subset of all inputs is used for convenience.
+The following code chunk prepares the inputs and outputs list of the CKD Screening CEA to use the `pacheck` tests. In this example, only a subset of all inputs is used to limit the size of the output provided by `pacheck`.
 
 ```{r, warning = FALSE}
 df_ckd_results_wide <- df_ckd_results |>
