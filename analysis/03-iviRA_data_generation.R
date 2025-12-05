@@ -35,6 +35,23 @@ l_iviRA_out_summ_2 <- iviRA::sim_iviRA(
 )
 
 # Save datasets ----
-# save(l_iviRA_pa_params, file = "data/l_iviRA_pa_params.rda")
-# save(l_iviRA_out_summ_1, file = "data/l_iviRA_out_summ_1.rda")
-# save(l_iviRA_out_summ_2, file = "data/l_iviRA_out_summ_2.rda")
+df_iviRA_pa <- data.frame(
+  p_discount = l_iviRA_pa_params$tx.cost$discount,
+  p_rebound = l_iviRA_pa_params$rebound,
+  or_mort = exp(l_iviRA_pa_params$mort.logor),
+  r_haq_prog = l_iviRA_pa_params$haq.lprog.tx,
+  n_hosp_days = l_iviRA_pa_params$hosp.cost$hosp.days,
+  c_hosp_pday = l_iviRA_pa_params$hosp.cost$cost.pday,
+  c_si   = l_iviRA_pa_params$si.cost,
+  c_prod_loss = l_iviRA_pa_params$prod.loss,
+  u_model_wailoo = l_iviRA_pa_params$utility.wailoo,
+  t_qaly_thx1 = l_iviRA_out_summ_1$means$qalys,
+  t_qaly_d_thx1 = l_iviRA_out_summ_1$means$dqalys,
+  t_cost_d_thx1 = l_iviRA_out_summ_1$means$dtot_cost,
+  t_qaly_thx2 = l_iviRA_out_summ_2$means$qalys,
+  t_qaly_d_thx2 = l_iviRA_out_summ_2$means$dqalys,
+  t_cost_d_thx2 = l_iviRA_out_summ_2$means$dtot_cost
+)
+df_iviRA_pa$inc_qaly <- df_iviRA_pa$t_qaly_d_thx1 - df_iviRA_pa$t_qaly_d_thx2
+df_iviRA_pa$inc_cost <- df_iviRA_pa$t_cost_d_thx1 - df_iviRA_pa$t_cost_d_thx2
+# save(df_iviRA_pa, file = "data/df_iviRA_pa.rda")
