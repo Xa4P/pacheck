@@ -48,6 +48,9 @@ generate_det_inputs <- function() {
 #' @import assertthat
 #' @import glue
 #' @import gtools
+#' @importFrom stats rbeta
+#' @importFrom stats rgamma
+#' @importFrom stats rnorm
 #' @export
 generate_pa_inputs <- function(n_sim = 10000,
                                sd_var = 0.2,
@@ -369,6 +372,7 @@ perform_dowsa <- function(df,
 #' @import flexsurv
 #' @import gtools
 #' @import simsurv
+#' @importFrom survival Surv
 #' @export
 generate_pa_inputs_psm <- function(n_sim = 10000,
                                    sd_var = 0.2,
@@ -446,7 +450,7 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
   # Function to fit exponential model to bootstrap sample
   fct_surv_params_exp <- function(df, i){
     df_boot <- df[i,]
-    l_exp <- flexsurv::flexsurvreg(Surv(eventtime, status) ~ trt,
+    l_exp <- flexsurv::flexsurvreg(survival::Surv(eventtime, status) ~ trt,
                                    data = df_boot,
                                    dist = "exp")
     v_out <- c(l_exp$res[1, 1], exp(l_exp$res[2, 1]))
@@ -456,7 +460,7 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
   # Function to fit weibull model to bootstrap sample
   fct_surv_params_weib <- function(df, i){
     df_boot <- df[i,]
-    l_weib <- flexsurv::flexsurvreg(Surv(eventtime, status) ~ trt,
+    l_weib <- flexsurv::flexsurvreg(survival::Surv(eventtime, status) ~ trt,
                                     data = df_boot,
                                     dist = "weibull")
     v_out <- c(l_weib$res[1, 1], l_weib$res[2, 1], exp(l_weib$res[3, 1]))
