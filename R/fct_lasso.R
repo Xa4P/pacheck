@@ -11,11 +11,12 @@
 #' @param x_exp character. character or a vector for characters. Name of the input variable in the dataframe. The exponential of these variables will be included in the metamodel.
 #' @param x_log character. character or a vector for characters. Name of the input variable in the dataframe. The logarithm of these variables will be included in the metamodel.
 #' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
-#' @import glmnet
 #' @return A list contaning the following elements:
 #'  \itemize{
 #'    \item}
 #' @export
+#' @import glmnet
+#' @importFrom stats model.matrix
 #' @examples
 #' #Fit lasso metamodel with two variables using the probabilistic data
 #' data(df_pa)

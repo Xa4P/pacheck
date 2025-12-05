@@ -13,6 +13,7 @@
 #' @param show_intercept logical. Determine whether to show the intercept of the perfect prediction line (x = 0, y = 0). Default is FALSE.
 #' @param partition numeric. Value between 0 and 1 to determine the proportion of the observations to use to fit the metamodel. Default is 1 (fitting the metamodel using all observations).
 #' @param fit_complete_model logical. Determine whether to fit the (final) full model. So the model trained on all available data (as opposed to the model used in validation which is trained on the test data).
+#' @inheritParams randomForestSRC::rfsrc
 #' @return A list containing the following elements:
 #'  \itemize{
 #'   \item fit: a list, see \code{\link[randomForestSRC:rfsrc]{randomForestSRC::rfsrc()}} for a description of the outputs contained in this list.
@@ -40,10 +41,12 @@
 #' @import interp
 #' @import ggplot2
 #' @import randomForestSRC
+#' @importFrom stats na.omit
 #' @export
 fit_rf_metamodel <- function(df,
                              y_var = NULL,
                              x_vars = NULL,
+                             ntree = 500,
                              seed_num = 1,
                              tune = FALSE,
                              var_importance = FALSE, #or permute/random/ TRUE(=anti)/FALSE
@@ -185,6 +188,7 @@ fit_rf_metamodel <- function(df,
     # Fit random forest model with tuned parameters
     rf_fit = rfsrc(form,
                    data = df,
+                   ntree = ntree,
                    splitrule = "mse",
                    nodesize = nodesize,
                    mtry = mtry,
@@ -249,6 +253,7 @@ fit_rf_metamodel <- function(df,
       ## Fit with tuned (if specified) or default parameters
       rf_fit_validation = rfsrc(form,
                                 data = df_train,
+                                ntree = ntree,
                                 splitrule = "mse",
                                 nodesize = nodesize_validation,
                                 mtry = mtry_validation,
@@ -260,10 +265,10 @@ fit_rf_metamodel <- function(df,
       tests = df_test[, y_var]
 
       ## Store performance metrics
-      r_squared_validation[i] = cor(preds, tests) ^ 2
-      mae_validation[i] = mean(abs(preds - tests))
-      mre_validation[i] = mean(abs(preds - tests)/abs(tests))
-      mse_validation[i] = mean((preds - tests) ^ 2)
+      r_squared_validation[i] =  1 - sum((tests-preds)^2)/sum((tests-mean(tests))^2)
+      mae_validation[i] = mean(abs(tests - preds))
+      mre_validation[i] = mean(abs(tests - preds) / tests)
+      mse_validation[i] = mean((tests - preds) ^ 2)
     }
     ## Store results
     stats_validation = data.frame(
@@ -298,6 +303,7 @@ fit_rf_metamodel <- function(df,
     ## Fit with tuned (if specified) or default parameters
     rf_fit_validation = rfsrc(form,
                    data = df_train,
+                   ntree = ntree,
                    splitrule = "mse",
                    nodesize = nodesize_validation,
                    mtry = mtry_validation,
@@ -308,10 +314,10 @@ fit_rf_metamodel <- function(df,
     preds = predict(rf_fit_validation, newdata = df_test)$predicted
     tests = df_test[,y_var]
 
-    r_squared_validation = cor(preds,tests)^2
-    mae_validation = mean(abs(preds-tests))
-    mre_validation = mean(abs(preds-tests)/abs(tests))
-    mse_validation = mean((preds-tests)^2)
+    r_squared_validation = 1 - sum((tests-preds)^2)/sum((tests-mean(tests))^2)
+    mae_validation = mean(abs(tests - preds))
+    mre_validation = mean(abs(tests - preds)/ tests)
+    mse_validation = mean((tests - preds)^2)
 
     ## Calibration plot: predicted versus observed
     df_test$y_pred = preds
@@ -330,8 +336,17 @@ fit_rf_metamodel <- function(df,
     }
 
     stats_validation = data.frame(
-      Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
-      Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
+      Statistics = c("R-squared",
+                     "Mean absolute error",
+                     "Mean relative error",
+                     "Mean squared error"),
+      Value = round(c(
+        r_squared_validation,
+        mae_validation,
+        mre_validation,
+        mse_validation
+      ),
+      3)
     )
     names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: train/test split)"
     l_out[1] = list(stats_validation)

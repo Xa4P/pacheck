@@ -68,7 +68,7 @@ validate_metamodel = function(model = NULL,
   if (method == "cross_validation"){
     ## Re-sample the data and make folds
     df_validation = df[sample(nrow(df)),]
-    folds_ind = cut(seq(1, nrow(df_validation)), breaks = folds,labels = FALSE)
+    folds_ind = cut(seq(1, nrow(df_validation)), breaks = folds, labels = FALSE)
 
     r_squared_validation = rep(NA,folds)
     mae_validation = rep(NA,folds)
@@ -103,7 +103,7 @@ validate_metamodel = function(model = NULL,
 
         ## Test on test data
         preds          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
-        tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
+        tests          <- as.numeric(as.character(df_test[, paste(y_var)]))
       }
       else if (model_type == "lasso"){
         x_train = model.matrix(model_form, df_train)
@@ -122,7 +122,7 @@ validate_metamodel = function(model = NULL,
       }
 
       ## Store performance metrics
-      r_squared_validation[i] = cor(preds,tests)^2
+      r_squared_validation[i] = 1 - sum((tests-preds)^2)/sum((tests-mean(tests))^2)
       mae_validation[i] = mean(abs(preds-tests))
       mre_validation[i] = mean(abs(preds-tests)/abs(tests))
       mse_validation[i] = mean((preds-tests)^2)
@@ -207,8 +207,17 @@ validate_metamodel = function(model = NULL,
     }
 
     stats_validation = data.frame(
-      Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
-      Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
+      Statistics = c("R-squared",
+                     "Mean absolute error",
+                     "Mean relative error",
+                     "Mean squared error"),
+      Value = round(c(
+        r_squared_validation,
+        mae_validation,
+        mre_validation,
+        mse_validation
+      ),
+      3)
     )
     names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: train/test split)"
     l_out[1] = list(stats_validation)

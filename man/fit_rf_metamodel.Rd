@@ -8,6 +8,7 @@ fit_rf_metamodel(
   df,
   y_var = NULL,
   x_vars = NULL,
+  ntree = 500,
   seed_num = 1,
   tune = FALSE,
   var_importance = FALSE,
@@ -26,6 +27,8 @@ fit_rf_metamodel(
 \item{y_var}{character. Name of the output variable in the dataframe. This will be the dependent variable of the metamodel.}
 
 \item{x_vars}{character or a vector for characters. Name of the input variable(s) in the dataframe. This will be the independent variable of the metamodel.}
+
+\item{ntree}{Number of trees to grow.}
 
 \item{seed_num}{numeric. Determine which seed number to use to split the dataframe in fitting an validation sets.}
 
