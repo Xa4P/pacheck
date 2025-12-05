@@ -4,8 +4,11 @@
 #' @param output_type character. Choose an output: 'dataframe', 'long_df' (long data.frame) or 'vector'.
 #' @return returns a vector of the the predictions ('vector' output_type) or the parameter values used for the predictions and the predictions ('dataframe' or 'long_df' output_type).
 #' @export
+#' @importFrom randomForestSRC predict.rfsrc
+#' @importFrom stats predict
 #' @examples
-#' #Making 3 predictions for a two-variable metamodel, using a vector as input, and yielding a dataframe as output.
+#' #Making 3 predictions for a two-variable metamodel,
+#' # using a vector as input, and yielding a dataframe as output.
 #' data(df_pa)
 #' lm_fit = fit_lm_metamodel(df = df_pa,
 #'                  y_var = "inc_qaly",
@@ -83,10 +86,14 @@ predict_metamodel = function(model = NULL,
   } else if(output_type == "long_df") {
     newdata['predictions'] = preds
     df_res <- data.frame(t(newdata))
-    names(df_res)[[1]] <- "Value"
-    df_res['Name'] = rownames(df_res)
+    names(df_res) <- ifelse(length(df_res == 1),
+                            paste0("Value"),
+                            paste0("Value ",  1:length(df_res))
+    )
+    df_res <- cbind(Name = rownames(df_res),
+                    df_res)
     rownames(df_res) <- NULL
-    return(df_res[, c("Name", "Value")])
+    return(df_res)
   } else if(output_type == "vector"){
     return(preds)
   }

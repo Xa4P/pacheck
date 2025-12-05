@@ -20,7 +20,8 @@ returns a vector of the the predictions ('vector' output_type) or the parameter 
 Predict using a fitted metamodel
 }
 \examples{
-#Making 3 predictions for a two-variable metamodel, using a vector as input, and yielding a dataframe as output.
+#Making 3 predictions for a two-variable metamodel,
+# using a vector as input, and yielding a dataframe as output.
 data(df_pa)
 lm_fit = fit_lm_metamodel(df = df_pa,
                  y_var = "inc_qaly",
