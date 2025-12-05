@@ -5,7 +5,7 @@ require(iviRA)
 set.seed(123)
 
 # Estimate model inputs ----
-n_pats <- 100
+n_pats <- 1000
 pop <- iviRA::sample_pop(n = n_pats, type = "heterog")
 l_inputs <- iviRA::get_input_data(pop = pop)
 l_iviRA_pa_params <- iviRA::sample_pars(n = 1000, input_data = l_inputs)
