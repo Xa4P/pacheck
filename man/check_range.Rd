@@ -29,7 +29,7 @@ If only `max_val` is specified, the proportion of iteration below this value wil
 # Checking how often the "u_pfs" values falls within 0.55 and 0.72.
 data(df_pa)
 check_range(df = df_pa,
-            outcome = "u_pfs",
+            param = "u_pfs",
             min_val = 0.55,
             max_val = 0.72
                  )

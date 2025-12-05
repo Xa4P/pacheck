@@ -21,8 +21,9 @@ This function tests whether the value of variables remain between 0 and 1 (for i
 }
 \examples{
 # Checking whether a variable is strictly positive
+data(df_pa)
 check_binary("u_pfs", df = df_pa)
 # Checking whether two variables are strictly positive
-# Descreasing the number of iterations to display to 20.
+# Decreasing the number of iterations to display to 20.
 check_binary("u_pfs", "p_pfspd", df = df_pa)
 }

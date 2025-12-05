@@ -35,5 +35,4 @@ estimate_decision_sensitivity(df = df_pa,
                               x = c("p_pfsd", "p_pdd"),
                               y_binomial = FALSE
                               )
-
 }
