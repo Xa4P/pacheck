@@ -4,7 +4,7 @@
 \alias{generate_cor}
 \title{Generate correlation matrix}
 \usage{
-generate_cor(df, vars = NULL, figure = FALSE)
+generate_cor(df, vars = NULL, figure = FALSE, digits = 3)
 }
 \arguments{
 \item{df}{a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.}
@@ -12,6 +12,8 @@ generate_cor(df, vars = NULL, figure = FALSE)
 \item{vars}{a vector of strings. Contains the name of the variables to include in the correlation matrix. Default is NULL meaning all variables will be included.}
 
 \item{figure}{logical. Should the correlation matrix be plotted in a figure? Default is FALSE (no figure generated).}
+
+\item{digits}{integer. Number of decimals to display in correlation matrix. Default is 3.}
 }
 \value{
 If figure == FALSE: a matrix with summary statistics for the selected inputs and outputs. If figure == TRUE: a tile ggplot2 of the correlation matrix.

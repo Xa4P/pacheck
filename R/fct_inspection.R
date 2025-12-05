@@ -20,6 +20,9 @@
 #' df_summary <- generate_sum_stats(df_pa)
 #' @import assertthat
 #' @import moments
+#' @importFrom stats quantile
+#' @importFrom stats sd
+#' @importFrom stats median
 #' @export
 generate_sum_stats <- function(df,
                                vars = NULL
@@ -62,6 +65,7 @@ generate_sum_stats <- function(df,
 #' @param df a dataframe. This dataframe contains the probabilistic inputs and outputs of the health economic model.
 #' @param vars a vector of strings. Contains the name of the variables to include in the correlation matrix. Default is NULL meaning all variables will be included.
 #' @param figure logical. Should the correlation matrix be plotted in a figure? Default is FALSE (no figure generated).
+#' @param digits integer. Number of decimals to display in correlation matrix. Default is 3.
 #' @return If figure == FALSE: a matrix with summary statistics for the selected inputs and outputs. If figure == TRUE: a tile ggplot2 of the correlation matrix.
 #' @examples
 #' # Generating summary data of all inputs using the example dataframe
@@ -71,10 +75,12 @@ generate_sum_stats <- function(df,
 #' @import reshape2
 #' @import ggplot2
 #' @import dplyr
+#' @importFrom stats cor
 #' @export
 generate_cor <- function(df,
                          vars = NULL,
-                         figure = FALSE){
+                         figure = FALSE,
+                         digits = 3){
   # Checks
   if(!is.null(vars)) {
     assertthat::assert_that(length(vars) > 1,
@@ -90,7 +96,7 @@ generate_cor <- function(df,
   }
 
   # Correlation
-  df_out <- cor(df)
+  df_out <- cor(df) #TODO: check of round() hieromheen gebruikt kan worden!
 
   # Plot
   if(figure == TRUE) {
@@ -129,6 +135,10 @@ generate_cor <- function(df,
 #' @import assertthat
 #' @import fitdistrplus
 #' @import ggplot2
+#' @importFrom stats dbeta
+#' @importFrom stats dgamma
+#' @importFrom stats dnorm
+#' @importFrom stats dlnorm
 #' @export
 vis_1_param <- function(df,
                         param = NULL,
@@ -327,7 +337,7 @@ vis_1_param <- function(df,
 #' # Checking how often the "u_pfs" values falls within 0.55 and 0.72.
 #' data(df_pa)
 #' check_range(df = df_pa,
-#'             outcome = "u_pfs",
+#'             param = "u_pfs",
 #'             min_val = 0.55,
 #'             max_val = 0.72
 #'                  )
@@ -579,6 +589,7 @@ fit_dist <- function(df,
 #'                  )
 #' @import assertthat
 #' @import ggplot2
+#' @importFrom stats var
 #' @export
 plot_convergence <- function(df,
                              param,
@@ -791,7 +802,7 @@ check_positive <- function(..., df, max_view = 50){
   m_res <- do.call(rbind, l_neg_v)
 
   df_res <- data.frame(
-    Input = rownames(m_res),
+    Input = v_vars,
     Negative_values = m_res[, 1]
   )
   rownames(df_res) <- NULL
@@ -879,7 +890,7 @@ do_check <- function(df, v_vars, check, label_check, template_ok = "all variable
                           msg = "'label_check' argument is not a character.")
 
   # Perform checks
-  pass <- reframe(df, across(!!v_vars, check)) %>%
+  pass <- reframe(df, across(!!v_vars, check)) |>
     reframe(across(everything(), all))
   if (all(pass == TRUE)){
     messages <- tibble::tibble(ok = TRUE, message = glue::glue(template_ok))
@@ -897,9 +908,10 @@ do_check <- function(df, v_vars, check, label_check, template_ok = "all variable
 #' @return A dataframe.
 #' @examples
 #' # Checking whether a variable is strictly positive
+#' data(df_pa)
 #' check_binary("u_pfs", df = df_pa)
 #' # Checking whether two variables are strictly positive
-#' # Descreasing the number of iterations to display to 20.
+#' # Decreasing the number of iterations to display to 20.
 #' check_binary("u_pfs", "p_pfspd", df = df_pa)
 #' @import assertthat
 #' @import stringi
@@ -955,7 +967,7 @@ check_binary <- function(..., df, max_view = 50) {
   m_res_high <- do.call(rbind, l_high_v)
 
   df_res <- data.frame(
-    Input = rownames(m_res_neg),
+    Input = v_vars,
     Negative_values = m_res_neg[, 1],
     Values_above_1 = m_res_high[, 1]
   )
