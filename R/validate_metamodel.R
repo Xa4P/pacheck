@@ -84,6 +84,7 @@ validate_metamodel = function(model = NULL,
         ## Retrieve model nodesize and mtry
         nodesize_validation = model$fit$nodesize
         mtry_validation = model$fit$mtry
+        ntree_validation = model$fit$ntree
 
         ## Fit on training data
         rf_fit_validation = rfsrc(model_form,
@@ -91,6 +92,7 @@ validate_metamodel = function(model = NULL,
                                   splitrule = "mse",
                                   nodesize = nodesize_validation,
                                   mtry = mtry_validation,
+                                  ntree = ntree_validation,
                                   forest = TRUE
         )
         ## Test on test data
@@ -129,8 +131,16 @@ validate_metamodel = function(model = NULL,
     }
     ## Store results
     stats_validation = data.frame(
-      Statistic = c("R-squared", "Mean absolute error", "Mean relative error","Mean squared error"),
-      Value = round(c(mean(r_squared_validation),mean(mae_validation),mean(mre_validation),mean(mse_validation)),3)
+      Statistic = c("R-squared",
+                    "Mean absolute error",
+                    "Mean relative error",
+                    "Mean squared error"),
+      Value = round(c(
+        mean(r_squared_validation),
+        mean(mae_validation),
+        mean(mre_validation),
+        mean(mse_validation)
+      ), 3)
     )
     names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: cross-validation)"
 
@@ -167,7 +177,7 @@ validate_metamodel = function(model = NULL,
 
       ## Test on test data
       preds          <- as.numeric(as.character(unlist(predict(lm_fit, newdata = df_test))))
-      tests            <- as.numeric(as.character(df_test[, paste(y_var)]))
+      tests          <- as.numeric(as.character(df_test[, paste(y_var)]))
     }
     else if (model_type == "lasso"){
       x_train = model.matrix(model_form, df_train)
@@ -185,7 +195,7 @@ validate_metamodel = function(model = NULL,
       tests = y_test
     }
 
-    r_squared_validation = cor(preds,tests)^2
+    r_squared_validation = 1 - sum((tests-preds)^2)/sum((tests-mean(tests))^2)
     mae_validation = mean(abs(preds-tests))
     mre_validation = mean(abs(preds-tests)/abs(tests))
     mse_validation = mean((preds-tests)^2)
@@ -256,7 +266,7 @@ validate_metamodel = function(model = NULL,
       tests = y_test
     }
 
-    r_squared_validation = cor(preds,tests)^2
+    r_squared_validation = 1 - sum((tests-preds)^2)/sum((tests-mean(tests))^2)
     mae_validation = mean(abs(preds-tests))
     mre_validation = mean(abs(preds-tests)/abs(tests))
     mse_validation = mean((preds-tests)^2)
@@ -278,16 +288,21 @@ validate_metamodel = function(model = NULL,
     }
 
     stats_validation = data.frame(
-      Statistics = c("R-squared","Mean absolute error","Mean relative error","Mean squared error"),
-      Value = round(c(r_squared_validation,mae_validation,mre_validation,mse_validation),3)
+      Statistics = c("R-squared",
+                     "Mean absolute error",
+                     "Mean relative error",
+                     "Mean squared error"),
+      Value = round(c(
+        r_squared_validation,
+        mae_validation,
+        mre_validation,
+        mse_validation
+      ),
+      3)
     )
     names(stats_validation)[names(stats_validation) == "Value"] <- "Value (method: new test set)"
     l_out[1] = list(stats_validation)
     l_out[2] = list(calibration_plot)
-
-
     }
-
   return(l_out)
-
 }
