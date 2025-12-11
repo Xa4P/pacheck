@@ -13,15 +13,15 @@ This vignette showcases the functionalities of `pacheck` on the [AAA_DES_model](
 # Loading packages and data
 
 ```{r}
-library(pacheck)
-library(purrr)
-set.seed(1234)
+require(pacheck)
+require(purrr)
 data("l_psa_aaa")
+set.seed(1234)
 ```
 
 # Preparing dataset for use in `pacheck`
 
-The following code chunk prepares the inputs and outputs list of the AAA DES model to use the `pacheck` tests. In this example, only a subset of all inputs is used to limit the size of the output provided by `pacheck`.
+The following code chunk prepares the inputs and outputs list of the AAA DES model to use the `pacheck` tests. The examples included in this appendix are performed on a subset of all model inputs and outputs to limit the size of the outputs provided by the `pacheck` tests. The functionalities of `pacheck` still work on a larger number of HE model inputs since the tests included in `pacheck` are performed on the column-level of the dataframe of inputs and outputs. The number of columns/ parameters included in the check therefore does not affect the working of the tests implemented in `pacheck`.
 
 ```{r}
 # Inputs
@@ -36,8 +36,10 @@ v_ratenames <- names(l_psa_aaa$v2value[[1]])[grep("rate", v_attr_type)]
 v_qalynames <- names(l_psa_aaa$v2value[[1]])[grep("qaly", v_attr_type)]
 v_costnames <- names(l_psa_aaa$v2value[[1]])[grep("cost", v_attr_type)]
 v_parmodnames <- names(l_psa_aaa$v2value[[1]])[grep("par", v_attr_type)]
+v_fixed <- names(l_psa_aaa$v2value[[1]])[grep("fixed", v_attr_type)]
 m_aaa_inputs <- sapply(c(v_probnames, 
                          v_ratenames, 
+                         v_fixed,
                          # v_qalynames, # omitted because fixed
                          # v_costnames, # omitted because fixed
                          v_parmodnames), function(name)
@@ -104,7 +106,8 @@ plot_ce(
   e_int = "screening_discountedQalys",
   e_comp = "noScreening_discountedQalys",
   c_int = "screening_discountedCost",
-  c_comp = "noScreening_discountedCost"
+  c_comp = "noScreening_discountedCost",
+  axes = F
 )
 plot_ice(
   df = df_aaa,

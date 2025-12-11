@@ -10,7 +10,7 @@ output:
 ---
 
 ```{r setup, include = FALSE}
-devtools::load_all()
+require(pacheck)
 library(knitr)
 library(ggplot2)
 data(df_pa)

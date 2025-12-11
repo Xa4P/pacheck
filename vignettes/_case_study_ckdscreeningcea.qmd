@@ -13,8 +13,7 @@ This vignette showcases how to use the functionalities of `pacheck` on a health 
 # Loading packages and data
 
 ```{r}
-#library(pacheck)
-devtools::load_all()
+require(pacheck)
 set.seed(1234)
 data("df_ckd_inputs")
 data("df_ckd_results")
@@ -26,7 +25,9 @@ The following code chunk prepares the inputs and outputs list of the CKD Screeni
 
 ```{r, warning = FALSE}
 df_ckd_results_wide <- df_ckd_results |>
-  mutate(intervention = ifelse(intervention == "[0, 10, 20, 30, 40]", "Screening", intervention)) |>
+  mutate(intervention = ifelse(intervention == "[0, 10, 20, 30, 40]", 
+                               "Screening", 
+                               intervention)) |>
   select(!c(full_index, Starting.age, dapa.costs, avg.on.dapa)) |>
   pivot_wider(names_from  = intervention,
               names_sep = "_",
@@ -56,7 +57,7 @@ df_ckd$female_85_QALY <- 0.747
 
 # Testing plausibility of model inputs and outputs
 
-One way to test the plausibility of model inputs and outputs is simply to inspect the summary statistics of each variable. This can be done with the `pacheck` package using the `generate_sum_stats` function. The correlation between (specific) inputs and outputs of the health economic model can be generated using the `generate_cor` function. This allows to investigate whether the relation between inputs and outputs.
+One way to test the plausibility of model inputs and outputs is simply to inspect the summary statistics of each variable. This can be done with the `pacheck` package using the `generate_sum_stats` function. The correlation between (specific) inputs and outputs of the health economic model can be generated using the `generate_cor` function. This allows to investigate the direction and strengths of the relationships between HE model inputs and outputs.
 
 In addition, one can check whether the mean quality of life of individuals within the model (total undiscounted quality adjusted life years divided by total undiscounted life years) lies within the minimal and maximal utility value in each iteration (using the `check_mean_qol` function).
 
@@ -64,13 +65,21 @@ In addition, one can check whether the mean quality of life of individuals withi
 # Summary stats
 generate_sum_stats(df = df_ckd[, c(grep("Screening", names(df_ckd)),
                                    grep("Placebo", names(df_ckd)))]) 
-## only for the outcomes for the sake of brievety
+## only for the outcomes for the sake of brevety
 
 # Check correlations between inputs and outputs
 ##e.g. screening costs and higher ACE.costs should lead to higher screening costs and total costs
 generate_cor(df = df_ckd,
-             vars = c("screening_cost", "ACE.cost", "ace.costs_Screening", "ace.costs_Placebo", "costs_Screening", "costs_Placebo"))
-## negative correlation between screening_cost and costs_Screening, 
+             vars = c(
+               "screening_cost",
+               "ACE.cost",
+               "ace.costs_Screening",
+               "ace.costs_Placebo",
+               "costs_Screening",
+               "costs_Placebo"
+             ),
+             digits = 3)
+## weak negative correlation between screening_cost and costs_Screening, 
 ## weak positive correlation between ACE.cost and total ACE costs 
 ## weak negative correlation with total costs of strategies 
 

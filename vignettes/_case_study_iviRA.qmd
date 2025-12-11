@@ -13,21 +13,16 @@ This vignette shows how to use the functionalities of `pacheck` on the `iviRA` h
 # Loading packages and data
 
 ```{r}
-library(pacheck)
+require(pacheck)
 set.seed(1234)
 data("df_iviRA_pa")
 ```
 
 # Generating the probabilistic inputs and outputs
 
-The source code to generate the model inputs and outputs of the `iviRA` cost-effectiveness model is available in the source code of the `pacheck` package on github (<https://github.com/Xa4P/pacheck/blob/master/analysis/03-iviRA_data_generation.R>).
+The source code to generate the model inputs and outputs of the `iviRA` cost-effectiveness model is available in the source code of the `pacheck` package on github (<https://github.com/Xa4P/pacheck/blob/master/analysis/03-iviRA_data_generation.R>). This script converts the probabilistic inputs and outputs list of a health economic analysis performed using the `iviRA` package to a dataframe of probabilistic inputs and outputs on which the `pacheck` tests can be performed.
 
-# Preparing dataset for use in `pacheck`
-
-The following code chunk prepares the inputs and outputs list of the `iviRA` package to use the `pacheck` tests. In this example, only a subset of all inputs is used to limit the size of the outputs provided by `pacheck`. The functionalities of `pacheck` still work on a larger number of HE model inputs since the tests included in `pacheck` are performed on the column-level. The number of columns/ parameters included in the check therefore does not affect the working of the tests implemented in `pacheck`.
-
-```{}
-```
+The examples included in this appendix are performed on a subset of all model inputs and outputs to limit the size of the outputs provided by the `pacheck` tests. The functionalities of `pacheck` still work on a larger number of health economic (HE) model inputs since the tests included in `pacheck` are performed on the column-level of the dataframe of inputs and outputs. The number of columns/ parameters included in the check therefore does not affect the working of the tests implemented in `pacheck`.
 
 # Testing plausibility of model inputs and outputs
 
@@ -62,7 +57,7 @@ In this section, we will perform metamodelling using two techniques: linear regr
 
 ## Fit
 
-The metamodels were first developed on the full data sets, using all input parameters. Afterwards, we have used the `stepAIC` function from the `MASS` package to perform backward variable selection using the Akaike Information Criteria (AIC) using the linear regression metamodel. For the sake of simplicity, we will use the same selected variable for the linear regression metamodel and the random forest metamodel.
+The metamodels were first developed on the full data sets, using all input parameters. The dependent variable of these metamodels is the "incremental QALY" between the two strategies we evaluated using the health economic model implemented in `iviRA`. Note that wew did not perform variable selection, which could be performed to improve the metamodels' fit. For the sake of simplicity, we will use the same input variables for the linear regression metamodel and the random forest metamodel.
 
 In the `fit_rf_metamodel`, we set the `var_importance` argument to `TRUE` to be able to extract variable importance plots and for the random forest metamodel.
 
@@ -73,6 +68,9 @@ v_x_vars <- v_x_vars[-grep("t_qaly", v_x_vars)]
 v_x_vars <- v_x_vars[-grep("t_cost", v_x_vars)]
 v_x_vars <- v_x_vars[-grep("inc_cost", v_x_vars)]
 v_x_vars <- v_x_vars[-grep("inc_qaly", v_x_vars)]
+v_x_vars <- v_x_vars[-grep("p_discount", v_x_vars)]
+v_x_vars <- v_x_vars[-grep("^c_", v_x_vars)]
+#remove cost-related parameters
 
 ## standardisation
 df_iviRA_mm <- df_iviRA_pa
@@ -83,26 +81,18 @@ df_iviRA_mm[, v_x_vars] <- as.data.frame(apply(df_iviRA_mm[, v_x_vars],
                                                )
                                          )
 
-# Fit metamodels using all input parameters contained in the parameter data frame
+# Fit linear regression metamodel using all inputs contained in the dataframe
 metamodel_lm <- fit_lm_metamodel(df = df_iviRA_mm,
-                                 y_var = "t_qaly_d_thx1",
+                                 y_var = "inc_qaly",
                                  x_vars = v_x_vars)
-# Features (variable selection)
-mm_lm_select <- MASS::stepAIC(do.call("lm", list(metamodel_lm$model_info$form,
-                                                 data =
-                                                   metamodel_lm$model_info$data)), 
-                              direction = "backward",
-                              trace = FALSE)
-v_select_vars <- names(mm_lm_select$coefficients)[-1]
-
-# Fit based on selected values
-metamodel_lm <- fit_lm_metamodel(df = df_iviRA_mm,
-                                 y_var = "t_qaly_d_thx1",
-                                 x_vars = v_select_vars)
+summary(metamodel_lm$fit)
+y <- df_iviRA_mm[, metamodel_lm$model_info$y_var]
+predicted <- metamodel_lm$fit$fitted.values
+r_squared_lm <- 1 - sum((y-predicted)^2)/sum((y-mean(y))^2)
 
 metamodel_rf <- fit_rf_metamodel(df = df_iviRA_mm,
-                                 y_var = "t_qaly_d_thx1",
-                                 x_vars = v_select_vars,
+                                 y_var = "inc_qaly",
+                                 x_vars = v_x_vars,
                                  ntree = 1000,
                                  var_importance = TRUE # plots variable importance
                                  ) 
@@ -110,14 +100,18 @@ metamodel_rf <- fit_rf_metamodel(df = df_iviRA_mm,
 y <- metamodel_rf$fit$yvar
 predicted <- metamodel_rf$fit$predicted
 r_squared_rf <- 1 - sum((y-predicted)^2)/sum((y-mean(y))^2)
-r_squared_rf # higher than the linear model
 ```
 
-Based on the first plot where the number of trees in the random forest is plotted against the error rate, one can see that the error rate is not decreasing anymore around the 1,000 trees. Based on the variable importance plots (second plot), one can conclude that the `or_mort` and `p_rebound` model parameters have the highest impact on the results.
+### Interpretation
+
+The R^2^ of the linear regression metamodel, `r round(r_squared_lm, 3)` is lower for this HE model than for the HE model implemented in the `cdx2cea` package. This can partly be explained by the patient-level nature of the HE model implemented in `iviRA` which may result in a less linear relationship between HE model inputs and outputs. In contrast, the R^2^ of the random forest metamodel is `r round(r_squared_rf, 3)`, which is substantially higher than the R^2^ of the linear regression metamodel. These two R^2^ estimates indicate how well the both metamodel fit the training data, they however do not indicate how accurate the models are at predicting outcomes in data that is not used to train the metamodels. This is something we will investigate under the validation subheading.
+
+Concerning the random forest metamodel, one can see that the error rate is not decreasing anymore once 1,000 are used in the random forest algorithm. This suggests that investigating the use of more trees within the algorithm may not lead to a further reduction of the error rate. Based on the values of the coefficients of the linear regression metamodels and the variable importance plots of the random forest metamodel (second plot), one can conclude that the model parameters relating to the progression of the HAQ score have the highest impact on the incremental QALYs.
+
+\newpage
 
 ## Validation
-
-Validation of the model will be done using cross-validation with ten folds. Note that for the validation purposes that the metamodel is re-fitted in each fold.
+Validation of the metamodel will be done using cross-validation with ten folds.
 
 ```{r}
 # Metamodels validation
@@ -131,30 +125,29 @@ validation_mm_rf <- validate_metamodel(
   method = 'cross_validation',
   folds = 10
 )
-
-knitr::kable(validation_mm_lm, 
+knitr::kable(validation_mm_lm$stats_validation, 
              caption = "Validation metrics of the linear regression metamodel.")
-knitr::kable(validation_mm_rf, 
+knitr::kable(validation_mm_rf$stats_validation, 
              caption = "Validation metrics of the random forest metamodel with 1,000 trees.")
 ```
 
-Based on this validation step, we can see that the linear regression metamodel results in a higher proportion of the variance being explained by the parameters included in the metamodels (higher R^2^), and lower errors than the random forest metamodel.
+### Interpretation
+Based on this validation step, both metamodels result in low R^2^ estimates and high mean absolute and relative errors in the training sets. These high R^2^ in the training sets but low R^2^ in the validation sets may indicate overfitting of the metamodels in the training set and a low generalisability of the metamodels. Hence, both models should actually not be used for making predictions. We will however perform some predictions using these metamodels only for illustration purposes.
 
 ## Prediction
-
 The following code snippet shows how to make prediction using the fitted metamodels.
 
 ```{r}
 # Create dataframe containing the 10th and 90th percentile of the probabilistic values of the seleted variables in the metamodels
-df_inputs_pred <- data.frame(matrix(ncol = length(v_select_vars),
+df_inputs_pred <- data.frame(matrix(ncol = length(v_x_vars),
                              nrow = 2,
                              dimnames = list(c(),
-                                             v_select_vars))
+                                             v_x_vars))
                       )
-df_inputs_pred[1, ] <- unname(apply(df_iviRA_mm[, v_select_vars], 
+df_inputs_pred[1, ] <- unname(apply(df_iviRA_mm[, v_x_vars], 
                              2, 
                              function(rows) {quantile(rows, probs = 0.1)}))
-df_inputs_pred[2, ] <- unname(apply(df_iviRA_mm[, v_select_vars], 
+df_inputs_pred[2, ] <- unname(apply(df_iviRA_mm[, v_x_vars], 
                              2, 
                              function(rows) {quantile(rows, probs = 0.9)}))
 
@@ -166,7 +159,7 @@ df_rf_preds <- predict_metamodel(model = metamodel_rf,
                                  inputs = df_inputs_pred,
                                  output_type = "long_df")
 
-#Display
+# Display
 knitr::kable(df_lm_preds, 
              caption = "Input parameter values and predictions using the linear regression metamodel.")
 knitr::kable(df_rf_preds, 
