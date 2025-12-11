@@ -172,7 +172,7 @@ df_ceac <- calculate_ceac(df = df_pa,
                      c_comp = "t_costs_d_comp")
 
 plot_ceac(df = df_ceac,
-          wtp = "WTP_threshold")
+          name_wtp = "WTP_threshold")
 df_ceac
 ```
 

@@ -155,7 +155,7 @@ m_res_ceac <- calculate_ceac(df_pa,
 df_ceac_p <- as.data.frame(m_res_ceac)
 
 plot_ceac(df = df_ceac_p,
-          wtp = "WTP_threshold") +
+          name_wtp = "WTP_threshold") +
   ggplot2::ggtitle("Cost-effectiveness acceptability curves")
 ```
 
@@ -193,6 +193,6 @@ m_res_ceac <- calculate_ceac(df_pa_psm,
 df_ceac_p <- as.data.frame(m_res_ceac)
 
 plot_ceac(df = df_ceac_p,
-          wtp = "WTP_threshold") +
+          name_wtp = "WTP_threshold") +
   ggplot2::ggtitle("Cost-effectiveness acceptability curves")
 ```
