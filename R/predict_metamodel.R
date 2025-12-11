@@ -86,10 +86,11 @@ predict_metamodel = function(model = NULL,
   } else if(output_type == "long_df") {
     newdata['predictions'] = preds
     df_res <- data.frame(t(newdata))
-    names(df_res) <- ifelse(length(df_res == 1),
-                            paste0("Value"),
-                            paste0("Value ",  1:length(df_res))
-    )
+    if(ncol(df_res) == 1){
+      names(df_res) <- "Value"
+    } else{
+      names(df_res) <- paste0("Value ",  1:length(df_res))
+    }
     df_res <- cbind(Name = rownames(df_res),
                     df_res)
     rownames(df_res) <- NULL
