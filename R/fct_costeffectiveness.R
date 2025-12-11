@@ -73,8 +73,6 @@ plot_ice <- function(df,
 
   # Adding formatting to plot
   p_out <- p_out +
-    ggplot2::geom_hline(yintercept = 0) +
-    ggplot2::geom_vline(xintercept = 0) +
     ggplot2::xlab ("Incremental effects") +
     ggplot2::ylab("Incremental costs") +
     ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
@@ -82,6 +80,11 @@ plot_ice <- function(df,
     ggplot2::theme_bw()
 
   if(!is.null(wtp)) {p_out <- p_out + ggplot2::geom_abline(intercept = 0, slope = wtp, lty = 2, colour = "orange")}
+
+  if(axes == T) {
+    p_out <- p_out +
+      ggplot2::geom_hline(yintercept = 0) +
+      ggplot2::geom_vline(xintercept = 0)}
 
   #Export
   p_out
@@ -110,7 +113,8 @@ plot_ce <- function (df,
                      e_comp,
                      c_int,
                      c_comp,
-                     currency = "euro") {
+                     currency = "euro",
+                     axes = T) {
   # Checks
   assertthat::assert_that(e_int %in% names(df), msg = glue::glue("{e_int} is not a valid column name of the dataframe."))
   assertthat::assert_that(c_int %in% names(df), msg = glue::glue("{c_int} is not a valid column name of the dataframe."))
@@ -136,8 +140,6 @@ plot_ce <- function (df,
       ggplot2::geom_point(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Comparator")), shape = 1) +
       ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Mean comparator"))) +
       ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_comp]), y = mean(df[, c_comp]), colour = factor("Mean comparator")), shape = 2) +
-      ggplot2::geom_hline(yintercept = 0) +
-      ggplot2::geom_vline(xintercept = 0) +
       ggplot2::xlab ("Total effects") +
       ggplot2::ylab("Total costs") +
       ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
@@ -150,6 +152,11 @@ plot_ce <- function (df,
                                               `Mean comparator` = "blue")
       ) +
       ggplot2::theme_bw()
+
+  if(axes == T) {
+    p_out <- p_out +
+      ggplot2::geom_hline(yintercept = 0) +
+      ggplot2::geom_vline(xintercept = 0)}
 
   # Export
   p_out
