@@ -42,4 +42,6 @@ URL: https://xa4p.github.io/pacheck/
 Suggests: 
     knitr,
     rmarkdown
+Depends:
+    R (>= 4.1.0)
 VignetteBuilder: knitr
