@@ -2,9 +2,15 @@
 title: "Do-It-Yourself model validation: a practical illustration of the Probabilistic Analysis Check R Package in four case studies"
 author: "X.G.L.V. Pouwels & H. Koffijberg"
 date: "`r Sys.Date()`"
-output: word_document
+output: 
+  html_document: default
+  word_document: default
 bibliography: references.bib
 csl: pharmacoeconomics.csl
+vignette: >
+  %\VignetteIndexEntry{Do-It-Yourself model validation: a practical illustration of the Probabilistic Analysis Check R Package in four case studies}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{css, echo=FALSE}
@@ -19,8 +25,9 @@ csl: pharmacoeconomics.csl
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(class.source = "box-style")
 options(scipen = 999)
-require(cdx2cea)
-require(readxl)
+library(cdx2cea)
+library(readxl)
+library(pacheck)
 data("l_psa", package = "cdx2cea")
 ```
 
@@ -75,9 +82,9 @@ Functionalities of `pacheck` to assess the validity of the model input parameter
 # devtools::install_github("DARTH-git/dampack")
 # devtools::install_github("Xa4P/pacheck")
 # install.packages("foreach")
-require(cdx2cea)
-require(dampack)
-require(pacheck)
+library(cdx2cea)
+library(dampack)
+library(pacheck)
 
 # Load & prepare dataframes for validation tests
 data("l_psa", package = "cdx2cea")
