@@ -67,7 +67,7 @@ fit_lm_metamodel <- function(df,
   if(!(validation %in% c(FALSE,"cross_validation","train_test_split"))) {
     stop("Validation must be one of: FALSE, 'cross_validation','train_test_split'.")
   }
-  if(folds < 1 || folds > nrow(df_pa)){
+  if(folds < 1 || folds > nrow(df)){
     stop("Folds must be bigger than 0 and smaller than or equal to the number of rows of the dataframe.")
   }
 
@@ -184,7 +184,7 @@ fit_lm_metamodel <- function(df,
     ## Calibration plot: predicted versus observed
     df_plot <- data.frame(cbind(df_valid[, y_var], y_pred = v_y_predict))
     names(df_plot)[1] <- "y_var"
-    p <- ggplot2::ggplot(ggplot2::aes(x = y_pred, y = y_var), data = df_plot) +
+    p <- ggplot2::ggplot(ggplot2::aes(x = .data[["y_pred"]], y = .data[["y_var"]]), data = df_plot) +
       ggplot2::geom_point(shape = 1) +
       ggplot2::xlab("Predicted values") +
       ggplot2::ggtitle(paste("Calibration plot for", y_var)) +

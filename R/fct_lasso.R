@@ -15,7 +15,8 @@
 #'  \itemize{
 #'    \item}
 #' @export
-#' @import glmnet
+#' @importFrom glmnet cv.glmnet
+#' @importFrom glmnet glmnet
 #' @importFrom stats model.matrix
 #' @examples
 #' #Fit lasso metamodel with two variables using the probabilistic data

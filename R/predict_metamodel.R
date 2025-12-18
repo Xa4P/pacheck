@@ -6,6 +6,7 @@
 #' @export
 #' @importFrom randomForestSRC predict.rfsrc
 #' @importFrom stats predict
+#' @importFrom glmnet predict.glmnet
 #' @examples
 #' #Making 3 predictions for a two-variable metamodel,
 #' # using a vector as input, and yielding a dataframe as output.

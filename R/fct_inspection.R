@@ -18,7 +18,7 @@
 #' # Generating summary data of all inputs
 #' data(df_pa)
 #' df_summary <- generate_sum_stats(df_pa)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import moments
 #' @importFrom stats quantile
 #' @importFrom stats sd
@@ -29,7 +29,7 @@ generate_sum_stats <- function(df,
                                ){
   # Checks
   if(!is.null(vars)){
-    assertthat::assert_that(all(vars %in% names(df_pa)),
+    assertthat::assert_that(all(vars %in% names(df)),
                             msg = "At least one variable of 'vars' is not included in the dataframe")
   }
 
@@ -71,7 +71,7 @@ generate_sum_stats <- function(df,
 #' # Generating summary data of all inputs using the example dataframe
 #' data(df_pa)
 #' generate_cor(df_pa)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import reshape2
 #' @import ggplot2
 #' @import dplyr
@@ -96,14 +96,14 @@ generate_cor <- function(df,
   }
 
   # Correlation
-  df_out <- cor(df) #TODO: check of round() hieromheen gebruikt kan worden!
+  df_out <- round(cor(df), 3)
 
   # Plot
   if(figure == TRUE) {
   df_cor_long <- reshape2::melt(df_out) |>
-    dplyr::rename(Correlation = value)
+    dplyr::rename(Correlation = .data$value)
   p_out <- ggplot2::ggplot(data = df_cor_long,
-                           ggplot2::aes(x = Var1, y = Var2, fill = Correlation)) +
+                           ggplot2::aes(x = .data$Var1, y = .data$Var2, fill = .data$Correlation)) +
     ggplot2::guides(x = ggplot2::guide_axis(angle = 45)) +
     ggplot2::geom_tile()
   }
@@ -132,7 +132,7 @@ generate_cor <- function(df,
 #' # Generating histogram for the costs of progression-free health state, bins of 50 euros
 #' data(df_pa)
 #' vis_1_param(df = df_pa, param = "c_pfs", binwidth = 50)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import fitdistrplus
 #' @import ggplot2
 #' @importFrom stats dbeta
@@ -144,7 +144,7 @@ vis_1_param <- function(df,
                         param = NULL,
                         binwidth = NULL,
                         type = "histogram",
-                        dist = c("lnorm", "norm", "beta", "gamma"),
+                        dist = NULL,
                         user_dist = NULL,
                         user_param_1 = NULL,
                         user_param_2 = NULL,
@@ -230,26 +230,24 @@ vis_1_param <- function(df,
   df_legend <- df_legend[order(df_legend$dist_call),]
 
   # Plot
-  p <- ggplot2::ggplot(data = df, ggplot2::aes_string(x = param)) +
+  p <- ggplot2::ggplot(data = df, ggplot2::aes(x = .data[[param]])) +
     ggplot2::theme_bw()
   if(type == "histogram") {
     p_out <- p + ggplot2::geom_histogram(binwidth = binwidth)
   } else if(type == "density") {
     p_out <- p +
-      ggplot2::geom_histogram(ggplot2::aes(y = ..density..),
-                              colour = "grey",
-                              fill = "lightgrey",
-                              binwidth = binwidth)
+      ggplot2::geom_density(colour = "grey")
     if("beta" %in% dist &
        all(df[, param] <= 1) &
        all(df[, param] >= 0)) {
       df_beta <- data.frame(
         x = seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
-        y = dbeta(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), beta_dist$estimate[[1]], beta_dist$estimate[[2]]))
+        y = dbeta(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001),
+                  beta_dist$estimate[[1]], beta_dist$estimate[[2]]))
 
       p_out <- p_out + ggplot2::geom_line(data = df_beta,
-                                          ggplot2::aes(x = x,
-                                                       y = y,
+                                          ggplot2::aes(x = .data[["x"]],
+                                                       y = .data[["y"]],
                                                        colour = "Beta")
       )
     }
@@ -260,8 +258,8 @@ vis_1_param <- function(df,
         y = dgamma(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), gamma_dist$estimate[[1]], gamma_dist$estimate[[2]]))
 
       p_out <- p_out + ggplot2::geom_line(data = df_gamma,
-                                          ggplot2::aes(x = x,
-                                                       y = y,
+                                          ggplot2::aes(x = .data[["x"]],
+                                                       y = .data[["y"]],
                                                        colour = "Gamma")
       )
     }
@@ -271,8 +269,8 @@ vis_1_param <- function(df,
         y = dnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), norm_dist$estimate[[1]], norm_dist$estimate[[2]]))
 
       p_out <- p_out + ggplot2::geom_line(data = df_norm,
-                                          ggplot2::aes(x = x,
-                                          y = y,
+                                          ggplot2::aes(x = .data[["x"]],
+                                                       y = .data[["y"]],
                                           colour = "Normal")
                                           )
     }
@@ -283,8 +281,8 @@ vis_1_param <- function(df,
         y = dlnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), lnorm_dist$estimate[[1]], lnorm_dist$estimate[[2]]))
 
       p_out <- p_out + ggplot2::geom_line(data = df_lnorm,
-                                          ggplot2::aes(x = x,
-                                                       y = y,
+                                          ggplot2::aes(x = .data[["x"]],
+                                                       y = .data[["y"]],
                                                        colour = "Lognormal")
                                           )
     }
@@ -304,8 +302,8 @@ vis_1_param <- function(df,
         }
       )
       p_out <- p_out + ggplot2::geom_line(data = df_user,
-                                          ggplot2::aes(x = x,
-                                          y = y,
+                                          ggplot2::aes(x = .data[["x"]],
+                                                       y = .data[["y"]],
                                           colour = "User")
                                           )
     }
@@ -341,7 +339,7 @@ vis_1_param <- function(df,
 #'             min_val = 0.55,
 #'             max_val = 0.72
 #'                  )
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @export
 check_range <- function(df,
                         param,
@@ -413,7 +411,7 @@ check_range <- function(df,
 #' # Generating plot for the costs of progression-free health state versus incremental costs
 #' data(df_pa)
 #' vis_2_params(df = df_pa, param_1 = "c_pfs", "inc_costs")
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import ggplot2
 #' @export
 vis_2_params <- function(df,
@@ -505,7 +503,7 @@ vis_2_params <- function(df,
 #' fit_dist(df = df_pa,
 #'          param = "u_pfs",
 #'          dist = c("norm", "beta"))
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import fitdistrplus
 #' @export
 fit_dist <- function(df,
@@ -587,7 +585,7 @@ fit_dist <- function(df,
 #' plot_convergence(df = df_pa,
 #'                  param = "inc_qaly"
 #'                  )
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import ggplot2
 #' @importFrom stats var
 #' @export
@@ -714,7 +712,7 @@ plot_convergence <- function(df,
 #' # Checking the sum of the two probabilities equals 1 using a vector to select them,
 #' # Rounding off to two digits, and extending the number of iterations to display to 250.
 #' check_sum_probs(c("p_pfspd", "p_pfsd"), df = df_pa, digits = 2, check = "equal", max_view = 250)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @export
 check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 100){
 
@@ -768,7 +766,7 @@ check_sum_probs <- function(..., df, digits = NULL, check = "lower", max_view = 
 #' # Checking whether two variables are strictly positive
 #' # Descreasing the number of iterations to display to 20.
 #' check_positive("c_pfs", "c_pd", df = df_pa)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import stringi
 #' @export
 check_positive <- function(..., df, max_view = 50){
@@ -868,7 +866,7 @@ check_sum_vars <- function(...,
 #' of status and message for each test (messages).
 #' The list of messages in the result contains a single line if the test passed,
 #' or if a test failed for one or more variables, a line for each failure.
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import dplyr
 #' @import glue
 #' @import tibble
@@ -913,7 +911,7 @@ do_check <- function(df, v_vars, check, label_check, template_ok = "all variable
 #' # Checking whether two variables are strictly positive
 #' # Decreasing the number of iterations to display to 20.
 #' check_binary("u_pfs", "p_pfspd", df = df_pa)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import stringi
 #' @export
 check_binary <- function(..., df, max_view = 50) {
@@ -1502,15 +1500,17 @@ plot_surv_mod <- function(df,
   # Make plot
   df_plot <- data.frame(
     Time = rep(time, 2),
-    Label = c(rep(label_surv_1, length(time)),rep(label_surv_2, length(time))),
-    Survival = c(1 - do.call(paste0("p", surv_mod_1), c(list(time), unname(as.list(df[iteration, v_names_param_mod_1])))),
-                 1 - do.call(paste0("p", surv_mod_2), c(list(time), unname(as.list(df[iteration, v_names_param_mod_2]))))
-    )
+    Label = c(rep(label_surv_1, length(time)), rep(label_surv_2, length(time))),
+    Survival = c(1 - do.call(
+      paste0("p", surv_mod_1), c(list(time), unname(as.list(df[iteration, v_names_param_mod_1])))
+    ), 1 - do.call(
+      paste0("p", surv_mod_2), c(list(time), unname(as.list(df[iteration, v_names_param_mod_2])))
+    ))
   )
 
-  p <- ggplot2::ggplot(ggplot2::aes(x = Time,
-                                    y = Survival,
-                                    col = Label),
+  p <- ggplot2::ggplot(ggplot2::aes(x = .data[["Time"]],
+                                    y = .data[["Survival"]],
+                                    col = .data[["Label"]]),
                        data = df_plot) +
     ggplot2::geom_line() +
     ggplot2::xlab("Time") +

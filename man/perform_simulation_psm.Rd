@@ -18,7 +18,7 @@ A vector. This vector contains the (un)discounted intermediate and final outcome
 This function performs the simulation of the partitioned survival health economic model developed to test the functionalities of the package.
 }
 \examples{
-# Perform the simulation using the deterministic model inputs
-l_inputs_det <- generate_det_inputs()
+# Perform the simulation using one iteration of the probabilistic model inputs
+l_inputs_det <- as.list(generate_pa_inputs_psm(n_sim = 1))
 v_results_det <- perform_simulation_psm(l_inputs_det)
 }

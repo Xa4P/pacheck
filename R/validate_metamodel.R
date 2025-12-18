@@ -20,7 +20,9 @@
 #'                  folds = 5
 #'                  )
 #' @import randomForestSRC
-#' @import glmnet
+#' @importFrom glmnet predict.glmnet
+#' @importFrom glmnet cv.glmnet
+#' @importFrom glmnet glmnet
 #' @export
 validate_metamodel = function(model = NULL,
                               method = NULL,
@@ -42,7 +44,7 @@ validate_metamodel = function(model = NULL,
   if(is.null(method)){
     stop("Please choose a validation method: 'cross_validation' or 'train_test_split'.")
   }
-  if(folds < 2 && method == "cross_validation" || folds > nrow(df_pa) && method == "cross_validation"){
+  if(folds < 2 && method == "cross_validation" || folds > nrow(model$model_info$data) && method == "cross_validation") {
     stop("Folds must be bigger than 1 and smaller than or equal to the number of rows of the dataframe.")
   }
   if(is.null(df_validate) && method == "new_test_set" || !(is.data.frame(df_validate)) && method == "new_test_set"){
@@ -119,7 +121,7 @@ validate_metamodel = function(model = NULL,
         bestlam = cv_out$lambda.min
         lasso_fit = glmnet::glmnet(x_train,y_train,alpha=1,lambda=bestlam)
 
-        preds = predict(lasso_fit, s = bestlam, newx = x_test)
+        preds = glmnet::predict.glmnet(lasso_fit, s = bestlam, newx = x_test)
         tests = y_test
       }
 
@@ -191,7 +193,7 @@ validate_metamodel = function(model = NULL,
       bestlam = cv_out$lambda.min
       lasso_fit = glmnet::glmnet(x_train,y_train,alpha=1,lambda=bestlam)
 
-      preds = predict(lasso_fit,s=bestlam,newx=x_test)
+      preds = glmnet::predict.glmnet(lasso_fit,s=bestlam,newx=x_test)
       tests = y_test
     }
 
@@ -262,7 +264,7 @@ validate_metamodel = function(model = NULL,
       # x_test = model.matrix(model_form, df_validate)
       y_test = df_validate[, y_var]
 
-      preds = predict(lasso_fit_validation, newx = as.matrix(df_validate[, x_vars]))
+      preds = glmnet::predict.glmnet(lasso_fit_validation, newx = as.matrix(df_validate[, x_vars]))
       tests = y_test
     }
 

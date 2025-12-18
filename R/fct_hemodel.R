@@ -45,9 +45,9 @@ generate_det_inputs <- function() {
 #' @examples
 #' # Generating deterministic model inputs and storing them in an object.
 #' df_inputs_prob <- generate_pa_inputs()
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
-#' @import gtools
+#' @importFrom gtools rdirichlet
 #' @importFrom stats rbeta
 #' @importFrom stats rgamma
 #' @importFrom stats rnorm
@@ -124,7 +124,7 @@ generate_pa_inputs <- function(n_sim = 10000,
 #' # Perform the simulation using the deterministic model inputs
 #' l_inputs_det <- generate_det_inputs()
 #' v_results_det <- perform_simulation(l_inputs_det)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @export
 perform_simulation <- function(l_params) {
   # Checks
@@ -279,13 +279,13 @@ perform_simulation <- function(l_params) {
 #' data(df_pa)
 #' df_res_dowsa <- perform_dowsa(df = df_pa,
 #'                               vars = c("rr", "c_pfs", "p_pfsd", "u_pfs", "u_pd"))
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @export
 perform_dowsa <- function(df,
                           vars,
                           wtp = 120000) {
   # Checks
-  assertthat::assert_that(all(vars %in% names(df_pa)),
+  assertthat::assert_that(all(vars %in% names(df)),
                           msg = "At least one variable of 'vars' is not included in the dataframe")
   assertthat::assert_that(is.numeric(wtp),
                           msg = "'wtp' should be a numeric value")
@@ -366,11 +366,11 @@ perform_dowsa <- function(df,
 #' @examples
 #' # Generating deterministic model inputs and storing them in an object.
 #' df_inputs_prob <- generate_pa_inputs_psm()
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import boot
 #' @import glue
 #' @import flexsurv
-#' @import gtools
+#' @importFrom  gtools rdirichlet
 #' @import simsurv
 #' @importFrom survival Surv
 #' @export
@@ -510,10 +510,10 @@ generate_pa_inputs_psm <- function(n_sim = 10000,
 #' @param min_fct logical. Should a minimum function be used to ensure PFS remains lower than OS? Default is TRUE.
 #' @return A vector. This vector contains the (un)discounted intermediate and final outcomes of the health economic model.
 #' @examples
-#' # Perform the simulation using the deterministic model inputs
-#' l_inputs_det <- generate_det_inputs()
+#' # Perform the simulation using one iteration of the probabilistic model inputs
+#' l_inputs_det <- as.list(generate_pa_inputs_psm(n_sim = 1))
 #' v_results_det <- perform_simulation_psm(l_inputs_det)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @export
 perform_simulation_psm <- function(l_params,
                                    min_fct = TRUE) {

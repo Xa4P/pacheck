@@ -19,10 +19,11 @@
 #'          e_comp = "t_qaly_d_comp",
 #'          c_int = "t_costs_d_int",
 #'          c_comp = "t_costs_d_comp",
-#'          wtp = 8000)
+#'          wtp = 8000,
+#'          currency = "none")
 #' @import ggplot2
 #' @import scales
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
 #' @export
 plot_ice <- function(df,
@@ -63,11 +64,11 @@ plot_ice <- function(df,
 
   # Backbone plot
   p_out <- if (is.null(col)) {
-    ggplot2::ggplot(data = df, ggplot2::aes_string(x = "inc_effects", y = "inc_costs")) +
+    ggplot2::ggplot(data = df, ggplot2::aes(x = .data$inc_effects, y = .data$inc_costs)) +
       ggplot2::geom_point(shape = 1, colour = "grey")
   } else {
     ggplot2::ggplot(data = df,
-                    ggplot2::aes_string(x = "inc_effects", y = "inc_costs", colour = col)) +
+                    ggplot2::aes(x = .data$inc_effects, y = .data$inc_costs, colour = col)) +
       ggplot2::geom_point(shape = 1)
   }
 
@@ -76,7 +77,7 @@ plot_ice <- function(df,
     ggplot2::xlab ("Incremental effects") +
     ggplot2::ylab("Incremental costs") +
     ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
-    ggplot2::geom_point(data = df[n_it, ], ggplot2::aes_string(x = "inc_effects", y = "inc_costs"), colour = "red", shape = 1) +
+    ggplot2::geom_point(data = df[n_it, ], ggplot2::aes(x = .data$inc_effects, y = .data$inc_costs), colour = "red", shape = 1) +
     ggplot2::theme_bw()
 
   if(!is.null(wtp)) {p_out <- p_out + ggplot2::geom_abline(intercept = 0, slope = wtp, lty = 2, colour = "orange")}
@@ -101,11 +102,12 @@ plot_ice <- function(df,
 #'         e_int = "t_qaly_d_int",
 #'         e_comp = "t_qaly_d_comp",
 #'         c_int = "t_costs_d_int",
-#'         c_comp = "t_costs_d_comp"
+#'         c_comp = "t_costs_d_comp",
+#'         currency = "none"
 #'         )
 #' @import ggplot2
 #' @import scales
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
 #' @export
 plot_ce <- function (df,
@@ -131,32 +133,33 @@ plot_ce <- function (df,
                 yen = "\u00a5 ",
                 none = "")
 
+  df_means = as.data.frame(t(colMeans(df[, c(e_int, e_comp, c_int, c_comp)])))
+
   # Plot
   p_out <-
-    ggplot2::ggplot(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Intervention"))) +
+    ggplot2::ggplot(data = df, ggplot2::aes(x = .data[[e_int]], y = .data[[c_int]], colour = factor("Intervention"))) +
       ggplot2::geom_point(shape = 1) +
-      ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_int, y = c_int, colour = factor("Mean intervention"))) +
-      ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_int]), y = mean(df[, c_int]), colour = factor("Mean intervention")), shape = 2) +
-      ggplot2::geom_point(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Comparator")), shape = 1) +
-      ggplot2::stat_ellipse(data = df, ggplot2::aes_string(x = e_comp, y = c_comp, colour = factor("Mean comparator"))) +
-      ggplot2::geom_point(data = df, ggplot2::aes_string(x = mean(df[, e_comp]), y = mean(df[, c_comp]), colour = factor("Mean comparator")), shape = 2) +
+      ggplot2::stat_ellipse(data = df, ggplot2::aes(x = .data[[e_int]], y = .data[[c_int]], colour = factor("Mean intervention"))) +
+      ggplot2::geom_point(data = df_means, ggplot2::aes(x = .data[[e_int]], y = .data[[c_int]], colour = factor("Mean intervention")), shape = 2) +
+      ggplot2::geom_point(data = df, ggplot2::aes(x = .data[[e_comp]], y = .data[[c_comp]], colour = factor("Comparator")), shape = 1) +
+      ggplot2::stat_ellipse(data = df, ggplot2::aes(x = .data[[e_comp]], y = .data[[c_comp]], colour = factor("Mean comparator"))) +
+      ggplot2::geom_point(data = df_means, ggplot2::aes(x = .data[[e_comp]], y = .data[[c_comp]], colour = factor("Mean comparator")), shape = 2) +
       ggplot2::xlab ("Total effects") +
       ggplot2::ylab("Total costs") +
-      ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
+      ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur)) +
       ggplot2::scale_colour_manual(name = "Strategy",
-                                   # labels = c("Intervention", "Comparator", "Mean intervention", "Mean comparator"),
-                                   # breaks = c(1, 2, 3, 4),
                                    values = c(Intervention = "grey",
                                               Comparator = "orange",
                                               `Mean intervention` = "black",
                                               `Mean comparator` = "blue")
-      ) +
+                                   ) +
       ggplot2::theme_bw()
 
   if(axes == T) {
     p_out <- p_out +
       ggplot2::geom_hline(yintercept = 0) +
-      ggplot2::geom_vline(xintercept = 0)}
+      ggplot2::geom_vline(xintercept = 0)
+    }
 
   # Export
   p_out
@@ -176,10 +179,11 @@ plot_ce <- function (df,
 #' plot_ce_mult(df = df_pa,
 #'              outcomes = c("t_qaly_d_int", "t_qaly_d_comp", "t_qaly_d_int2"),
 #'              costs = c("t_costs_d_int","t_costs_d_comp", "t_costs_d_int2"),
-#'              ellipse = TRUE)
+#'              ellipse = TRUE,
+#'              currency = "none")
 #' @import ggplot2
 #' @import scales
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
 #' @import dplyr
 #' @import tidyr
@@ -223,20 +227,20 @@ plot_ce_mult <- function(df,
     dplyr::rename_all( ~ gsub("t_qaly_d", "QALY", .)) |>
     dplyr::rename_all( ~ gsub("t_costs_d", "Costs", .)) |>
     dplyr::mutate(Iteration = 1:nrow(df)) |>
-    tidyr::pivot_longer(!Iteration,
+    tidyr::pivot_longer(!.data[["Iteration"]],
                         names_to = c("Outcome", "Strategy"),
                         names_sep = "_") |>
     tidyr::pivot_wider(
-      names_from = Outcome ,
-      values_from = value
+      names_from = .data[["Outcome"]],
+      values_from = .data[["value"]]
     )
   df_plot_mean <- df_plot |>
-    dplyr::group_by(Strategy) |>
-    dplyr::summarise(QALY = mean(QALY),
-                     Costs = mean(Costs))
+    dplyr::group_by(.data[["Strategy"]]) |>
+    dplyr::summarise(QALY = mean(.data[["QALY"]]),
+                     Costs = mean(.data[["Costs"]]))
 
   # Plot
-  p_out <- ggplot2::ggplot(data = df_plot, ggplot2::aes(x = QALY, y = Costs, colour = Strategy)) +
+  p_out <- ggplot2::ggplot(data = df_plot, ggplot2::aes(x = .data[["QALY"]], y = .data[["Costs"]], colour = .data[["Strategy"]])) +
     ggplot2::scale_y_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
     ggplot2::geom_hline(yintercept = 0) +
     ggplot2::geom_vline(xintercept = 0) +
@@ -247,7 +251,7 @@ plot_ce_mult <- function(df,
   if(ellipse == TRUE) {
     p_out <- p_out+
       ggplot2::stat_ellipse() +
-      ggplot2::geom_point(data = df_plot_mean, ggplot2::aes(x = QALY, y = Costs, colour = Strategy))
+      ggplot2::geom_point(data = df_plot_mean, ggplot2::aes(x = .data[["QALY"]], y = .data[["Costs"]], colour = .data[["Strategy"]]))
   } else {
     p_out <- p_out+
       ggplot2::geom_point()
@@ -270,7 +274,7 @@ plot_ce_mult <- function(df,
 #'             c_int = "t_costs_d_int",
 #'             c_comp = "t_costs_d_comp"
 #'             )
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
 #' @export
 summary_ice <- function(df,
@@ -323,7 +327,7 @@ summary_ice <- function(df,
 #'                c_int = "t_costs_d_int",
 #'                c_comp = "t_costs_d_comp",
 #'                v_wtp = seq(from = 0, to = 50000, by = 1000))
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
 #' @export
 calculate_ceac <- function (df,
@@ -379,7 +383,7 @@ calculate_ceac <- function (df,
 #'              outcomes = c("t_qaly_d_int", "t_qaly_d_comp", "t_qaly_d_int2"),
 #'              costs = c("t_costs_d_int","t_costs_d_comp", "t_costs_d_int2")
 #'              )
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
 #' @import dplyr
 #' @import tidyr
@@ -414,12 +418,12 @@ calculate_ceac_mult <- function (df,
     dplyr::rename_all( ~ gsub("t_qaly_d", "QALY", .)) |>
     dplyr::rename_all( ~ gsub("t_costs_d", "Costs", .)) |>
     dplyr::mutate(Iteration = 1:nrow(df)) |>
-    tidyr::pivot_longer(!Iteration,
+    tidyr::pivot_longer(!.data$Iteration,
                         names_to = c("Outcome", "Strategy"),
                         names_sep = "_") |>
     tidyr::pivot_wider(
-      names_from = Outcome ,
-      values_from = value
+      names_from = .data$Outcome ,
+      values_from = .data$value
     )
 
   # Initiate matrices
@@ -470,10 +474,11 @@ calculate_ceac_mult <- function (df,
 #'                             c_int = "t_costs_d_int",
 #'                             c_comp = "t_costs_d_comp")
 #' plot_ceac(df = df_ceac_p,
-#'           name_wtp = "WTP_threshold")
+#'           name_wtp = "WTP_threshold",
+#'           currency = "none")
 #' @import ggplot2
 #' @import scales
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import glue
 #' @import tidyr
 #' @import dplyr
@@ -502,7 +507,7 @@ plot_ceac <- function(df,
 
 
   # Plot
-  p_out <- ggplot2::ggplot(data = df_graph, ggplot2::aes_string(x = name_wtp, y = "`Probability of cost effectiveness`", colour = "Strategy")) +
+  p_out <- ggplot2::ggplot(data = df_graph, ggplot2::aes(x = .data[[name_wtp]], y = .data[["Probability of cost effectiveness"]], colour = .data[["Strategy"]])) +
     ggplot2::geom_line() +
     ggplot2::xlab ("Willingness-to-pay threshold") +
     ggplot2::scale_x_continuous(labels = scales::dollar_format(prefix = cur, suffix = "")) +
@@ -536,7 +541,7 @@ plot_ceac <- function(df,
 #'              c_int = "t_costs_d_int",
 #'              c_comp = "t_costs_d_comp",
 #'              wtp = 80000)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @export
 calculate_nb <- function(df,
                          e_int,
@@ -582,7 +587,7 @@ calculate_nb <- function(df,
 #'                   costs = c("t_costs_d_int", "t_costs_d_comp2", "t_costs_d_comp"),
 #'                   wtp = 50000
 #'                   )
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @export
 calculate_nb_mult <- function(df,
                               outcomes,
@@ -657,13 +662,13 @@ plot_nb <- function(df,
     if(comparators == TRUE){
       if(!"NMB_int" %in% names(df)) {stop("There is no variable called 'NMB_int' in the dataframe")}
       if(!"NMB_comp" %in% names(df)) {stop("There is no variable called 'NMB_comp' in the dataframe")}
-      p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NMB_int", colour = factor("Intervention"))) +
-        ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NMB_comp", colour = factor("Comparator"))) +
+      p <- p + ggplot2::geom_density(data = df, ggplot2::aes(x = .data[["NMB_int"]], colour = factor("Intervention"))) +
+        ggplot2::geom_density(data = df, ggplot2::aes(x = .data[["NMB_comp"]], colour = factor("Comparator"))) +
         ggplot2::xlab("Net monetary benefit")
     }
     if(incremental == TRUE) {
       if(!"iNMB" %in% names(df)) {stop("There is no variable called 'iNMB' in the dataframe")}
-      p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "iNMB", colour = factor("Incremental")))
+      p <- p + ggplot2::geom_density(data = df, ggplot2::aes(x = .data[["iNMB"]], colour = factor("Incremental")))
     }
     p <- p + ggplot2::scale_colour_manual("Strategy",
                                           values = c(Intervention = "grey",
@@ -676,13 +681,13 @@ plot_nb <- function(df,
       if(!"NHB_int" %in% names(df)) {stop("There is no variable called 'NHB_int' in the dataframe")}
       if(!"NHB_comp" %in% names(df)) {stop("There is no variable called 'NHB_comp' in the dataframe")}
       p <-
-        p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NHB_int", colour = factor("Intervention"))) +
-        ggplot2::geom_density(data = df, ggplot2::aes_string(x = "NHB_comp", colour = factor("Comparator"))) +
+        p + ggplot2::geom_density(data = df, ggplot2::aes(x = .data[["NHB_int"]], colour = factor(.data[["Intervention"]]))) +
+        ggplot2::geom_density(data = df, ggplot2::aes(x = .data[["NHB_comp"]], colour = factor(.data[["Comparator"]]))) +
         ggplot2::xlab("Net health benefit")
     }
     if(incremental == TRUE) {
       if(!"iNHB" %in% names(df)) {stop("There is no variable called 'iNHB' in the dataframe")}
-      p <- p + ggplot2::geom_density(data = df, ggplot2::aes_string(x = "iNHB", colour = factor("Incremental")))
+      p <- p + ggplot2::geom_density(data = df, ggplot2::aes(x = .data[["iNHB"]], colour = factor(.data[["Incremental"]])))
     }
     p <- p + ggplot2::scale_colour_manual("Strategy",
                                           values = c(Intervention = "grey",
@@ -711,7 +716,7 @@ plot_nb <- function(df,
 #'              outcomes = c("t_qaly_d_int2", "t_qaly_d_int", "t_qaly_d_comp"),
 #'              costs = c("t_costs_d_int", "t_costs_d_int2", "t_costs_d_comp"),
 #'              wtp = 50000)
-#' @import assertthat
+#' @importFrom assertthat assert_that
 #' @import tidyr
 #' @import dplyr
 #' @export
@@ -755,7 +760,7 @@ plot_nb_mult <- function(df,
       tidyr::pivot_longer(everything(),
                           names_to = "Strategy",
                           values_to = "Net benefit") |>
-      dplyr::mutate(Strategy = gsub("NMB_", "", Strategy))
+      dplyr::mutate(Strategy = gsub("NMB_", "", .data[["Strategy"]]))
     x_lab <- 'Net monetary benefit'
   } else if(NMB == F) {
     df_p_select <- df_p |>
@@ -763,13 +768,15 @@ plot_nb_mult <- function(df,
       tidyr::pivot_longer(everything(),
                           names_to = "Strategy",
                           values_to = "Net benefit") |>
-      dplyr::mutate(Strategy = gsub("NHB_", "", Strategy))
+      dplyr::mutate(Strategy = gsub("NHB_", "", .data[["Strategy"]]))
     x_lab <- 'Net health benefit (QALY)'
   }
 
   # Plot
   p <- ggplot2::ggplot() +
-    ggplot2::geom_density(data = df_p_select, ggplot2::aes_string(x = "`Net benefit`", group = "Strategy", colour = "Strategy")) +
+    ggplot2::geom_density(data = df_p_select, ggplot2::aes(x = .data[["Net benefit"]],
+                                                           group = .data[["Strategy"]],
+                                                           colour = .data[["Strategy"]])) +
     ggplot2::theme_bw() +
     ggplot2::xlab(x_lab)
 

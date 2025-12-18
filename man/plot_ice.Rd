@@ -52,5 +52,6 @@ plot_ice(df = df_pa,
          e_comp = "t_qaly_d_comp",
          c_int = "t_costs_d_int",
          c_comp = "t_costs_d_comp",
-         wtp = 8000)
+         wtp = 8000,
+         currency = "none")
 }

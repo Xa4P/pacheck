@@ -9,7 +9,7 @@ vis_1_param(
   param = NULL,
   binwidth = NULL,
   type = "histogram",
-  dist = c("lnorm", "norm", "beta", "gamma"),
+  dist = NULL,
   user_dist = NULL,
   user_param_1 = NULL,
   user_param_2 = NULL,
