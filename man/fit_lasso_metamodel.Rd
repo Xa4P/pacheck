@@ -44,7 +44,9 @@ fit_lasso_metamodel(
 \value{
 A list contaning the following elements:
  \itemize{
-   \item}
+   \item An object of the fitted metamodel,
+   \item The coefficient of the fitted metamodel,
+   \item information on the data used to fit the metamodel and its form.}
 }
 \description{
 This function fits a lasso metamodel using the \code{\link[glmnet]{glmnet}} package.

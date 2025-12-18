@@ -42,5 +42,5 @@ A list. The first element is a message, the second element contains the number o
 This function tests whether the first of two parametric survival model is lower than a second parametric survival model.
 }
 \details{
-The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
+The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{exp}}), Weibull (\code{\link[stats:pweibull]{weibull}}), gamma (\code{\link[stats:pgamma]{gamma}}), loglogistic (\code{\link[stats:plogis]{logis}}), and lognormal (\code{\link[stats:plnorm]{lnorm}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
 }

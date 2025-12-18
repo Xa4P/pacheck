@@ -1387,7 +1387,7 @@ do_discount_check <- function(df,
 #' @param label_surv_1 character vector. The label to provide to the first survival curve (relevant for export).
 #' @param label_surv_2 character vector. The label to provide to the second survival curve (relevant for export).
 #' @param n_view integer. Number of iterations to mention in which the curves are crossing. Default is 10.
-#' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
+#' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{exp}}), Weibull (\code{\link[stats:pweibull]{weibull}}), gamma (\code{\link[stats:pgamma]{gamma}}), loglogistic (\code{\link[stats:plogis]{logis}}), and lognormal (\code{\link[stats:plnorm]{lnorm}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
 #' @return A list. The first element is a message, the second element contains the number of the iterations in which the the first curve is higher than the second curve.
 #' @import glue
 #' @export
@@ -1461,7 +1461,7 @@ check_surv_mod <- function(df,
 #' @param label_surv_2 character vector. The label to provide to the second survival curve (relevant for export).
 #' @param iteration integer. The row number of the iterations for which the parametric survival models have to be plotted.
 #' @param time a numerical vector. Determine at which time points survival probabilities have to be estimated for both survival models. For each of these time points, it will be checked whether the first survival model results in higher survival probabilities than the second survival model.
-#' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{`exp`}}), Weibull (\code{\link[stats:pweibull]{`weibull`}}), gamma (\code{\link[stats:pgamma]{`gamma`}}), loglogistic (\code{\link[stats:plogis]{`logis`}}), and lognormal (\code{\link[stats:plnorm]{`lnorm`}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
+#' @details The parametric models that can be used are the following: exponential (\code{\link[stats:pexp]{exp}}), Weibull (\code{\link[stats:pweibull]{weibull}}), gamma (\code{\link[stats:pgamma]{gamma}}), loglogistic (\code{\link[stats:plogis]{logis}}), and lognormal (\code{\link[stats:plnorm]{lnorm}}). All these functions are implemented following their distribution function as documented in the \link[=stats]{stats} package.
 #' @return A ggplot object.
 #' @import glue
 #' @export

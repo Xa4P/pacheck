@@ -2,8 +2,10 @@ Type: Package
 Package: pacheck
 Title: Probabilistic Analysis Check Package
 Version: 0.2.1
-Author: Xavier G.L.V. Pouwels [aut, cre, cph]
-Maintainer: Xavier G.L.V. Pouwels <x.g.l.v.pouwels@utwente.nl>
+Maintainer: Xavier Pouwels <x.g.l.v.pouwels@utwente.nl>
+Author: Xavier Pouwels <x.g.l.v.pouwels@utwente.nl>
+Authors@R: c(person(given = "Xavier", family = "Pouwels", role = c("aut",
+    "cre", "cph"), email = "x.g.l.v.pouwels@utwente.nl"))
 Description: Investigate (analytically or visually) the inputs and outputs 
     of probabilistic analyses of health economic models using standard
     health economic visualisation and metamodelling methods.
@@ -31,8 +33,6 @@ Imports:
     glmnet,
     tibble,
     survival
-Author@R: c(person(given = "Xavier", family = "Pouwels", role = c("aut",
-    "cre"), email = "x.g.l.v.pouwels@utwente.nl"))
 Config/testthat/edition: 3
 Encoding: UTF-8
 LazyDataCompression: xz

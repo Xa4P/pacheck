@@ -13,7 +13,9 @@
 #' @param x_inter character. character or a vector for characters. Name of the input variables in the dataframe. This vector contains the variables for which the interaction should be considered. The interaction terms of two consecutive variables will be considered in the linear model; hence, the length of this vector should be even.
 #' @return A list contaning the following elements:
 #'  \itemize{
-#'    \item}
+#'    \item An object of the fitted metamodel,
+#'    \item The coefficient of the fitted metamodel,
+#'    \item information on the data used to fit the metamodel and its form.}
 #' @export
 #' @importFrom glmnet cv.glmnet
 #' @importFrom glmnet glmnet
