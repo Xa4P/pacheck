@@ -258,8 +258,8 @@ vis_1_param <- function(df,
         y = dgamma(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), gamma_dist$estimate[[1]], gamma_dist$estimate[[2]]))
 
       p_out <- p_out + ggplot2::geom_line(data = df_gamma,
-                                          ggplot2::aes(x = .data[["x"]],
-                                                       y = .data[["y"]],
+                                          ggplot2::aes(x = .data$x,
+                                                       y = .data$y,
                                                        colour = "Gamma")
       )
     }
@@ -269,8 +269,8 @@ vis_1_param <- function(df,
         y = dnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), norm_dist$estimate[[1]], norm_dist$estimate[[2]]))
 
       p_out <- p_out + ggplot2::geom_line(data = df_norm,
-                                          ggplot2::aes(x = .data[["x"]],
-                                                       y = .data[["y"]],
+                                          ggplot2::aes(x = .data$x,
+                                                       y = .data$y,
                                           colour = "Normal")
                                           )
     }
@@ -281,8 +281,8 @@ vis_1_param <- function(df,
         y = dlnorm(seq(from = min(df[, param]), to = max(df[, param]), by = 0.001), lnorm_dist$estimate[[1]], lnorm_dist$estimate[[2]]))
 
       p_out <- p_out + ggplot2::geom_line(data = df_lnorm,
-                                          ggplot2::aes(x = .data[["x"]],
-                                                       y = .data[["y"]],
+                                          ggplot2::aes(x = .data$x,
+                                                       y = .data$y,
                                                        colour = "Lognormal")
                                           )
     }
@@ -302,8 +302,8 @@ vis_1_param <- function(df,
         }
       )
       p_out <- p_out + ggplot2::geom_line(data = df_user,
-                                          ggplot2::aes(x = .data[["x"]],
-                                                       y = .data[["y"]],
+                                          ggplot2::aes(x = .data$x,
+                                                       y = .data$y,
                                           colour = "User")
                                           )
     }
