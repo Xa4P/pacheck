@@ -2,6 +2,10 @@
 title: "Health Economic Model Description" 
 date: "`r paste(Sys.Date())`"
 output: html_document
+vignette: >
+  %\VignetteIndexEntry{Health Economic Model Description}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}

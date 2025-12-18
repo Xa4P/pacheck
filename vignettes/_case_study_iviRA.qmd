@@ -13,7 +13,7 @@ This vignette shows how to use the functionalities of `pacheck` on the `iviRA` h
 # Loading packages and data
 
 ```{r}
-require(pacheck)
+library(pacheck)
 set.seed(1234)
 data("df_iviRA_pa")
 ```
@@ -111,6 +111,7 @@ Concerning the random forest metamodel, one can see that the error rate is not d
 \newpage
 
 ## Validation
+
 Validation of the metamodel will be done using cross-validation with ten folds.
 
 ```{r}
@@ -132,9 +133,11 @@ knitr::kable(validation_mm_rf$stats_validation,
 ```
 
 ### Interpretation
+
 Based on this validation step, both metamodels result in low R^2^ estimates and high mean absolute and relative errors in the training sets. These high R^2^ in the training sets but low R^2^ in the validation sets may indicate overfitting of the metamodels in the training set and a low generalisability of the metamodels. Hence, both models should actually not be used for making predictions. We will however perform some predictions using these metamodels only for illustration purposes.
 
 ## Prediction
+
 The following code snippet shows how to make prediction using the fitted metamodels.
 
 ```{r}

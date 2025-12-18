@@ -7,10 +7,14 @@ output:
     toc: true
     toc_float: true
     toc_depth: 3
+vignette: >
+  %\VignetteIndexEntry{Example workflow using the `pacheck` R package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
-require(pacheck)
+library(pacheck)
 library(knitr)
 library(ggplot2)
 data(df_pa)

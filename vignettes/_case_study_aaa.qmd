@@ -13,8 +13,8 @@ This vignette showcases the functionalities of `pacheck` on the [AAA_DES_model](
 # Loading packages and data
 
 ```{r}
-require(pacheck)
-require(purrr)
+library(pacheck)
+library(purrr)
 data("l_psa_aaa")
 set.seed(1234)
 ```

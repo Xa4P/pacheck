@@ -13,7 +13,7 @@ This vignette showcases how to use the functionalities of `pacheck` on a health 
 # Loading packages and data
 
 ```{r}
-require(pacheck)
+library(pacheck)
 set.seed(1234)
 data("df_ckd_inputs")
 data("df_ckd_results")
