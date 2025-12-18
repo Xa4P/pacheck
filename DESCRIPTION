@@ -38,10 +38,11 @@ Encoding: UTF-8
 LazyDataCompression: xz
 LazyData: true
 RoxygenNote: 7.3.2
-URL: https://xa4p.github.io/pacheck/
+URL: https://xa4p.github.io/pacheck/, https://github.com/Xa4P/pacheck
 Suggests: 
     knitr,
     rmarkdown
 Depends:
     R (>= 4.1.0)
 VignetteBuilder: knitr
+BugReports: https://github.com/Xa4P/pacheck/issues

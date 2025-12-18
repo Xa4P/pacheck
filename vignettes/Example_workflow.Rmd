@@ -122,8 +122,6 @@ p_2p
 ```
 
 ### e.	Possibility to fit user-selected distributions (beta, gamma, lognormal, normal) + visualisation + parameters of the fitted distribution.
-*To cross check with parameters reported in documentation/report/ journal article, as an implementation check*  
-- To do XP: Add probabilistic mean value per distribution  
 ```{r dist_plot_2, echo = T}
 p_2 <- vis_1_param(df = df_pa,
             param = "u_pfs",
@@ -201,8 +199,6 @@ check_mean_qol(df = df_pa,
 
 ## 4.	Investigate relation between inputs and outputs
 ### Single  
-
-- To do XP: Add R^2^  
 
 ```{r fit_metamod_single, echo = T}
 lm_rr <- fit_lm_metamodel(df = df_pa,

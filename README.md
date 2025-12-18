@@ -19,3 +19,9 @@ You can install the development version from
 # install.packages("devtools")
 devtools::install_github("Xa4P/pacheck")
 ```
+
+You can install the version on CRAN using:
+
+``` r
+install.packages("pacheck")
+```

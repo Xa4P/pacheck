@@ -17,7 +17,8 @@
 #' @return A list containing the fit of the model and validation estimates and plots when selected.
 #' @details Standardisation of the parameters is obtained by \deqn{(x - u(x)) / sd(x)}
 #' where \eqn{x} is the variable value, \eqn{u(x)} the mean over the variable and \eqn{sd(x)} the standard deviation of \eqn{x}.
-#' For more details, see \href{https://doi.org/10.1177/0272989X13492014}{Jalal et al. 2013}.
+#'
+#' For more details, see Jalal H, Dowd B, Sainfort F, Kuntz KM. Linear Regression Metamodeling as a Tool to Summarize and Present Simulation Model Results. Medical Decision Making. 2013;33(7):880-890. doi:10.1177/0272989X13492014
 #'
 #' @examples
 #' # Fitting linear meta model with two variables using the probabilistic data
