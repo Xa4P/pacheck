@@ -10,7 +10,7 @@ See the documentation of the \code{\link[iviRA:sample_pars]{iviRA::sample_pars}}
 \source{
 Incerti D, Curtis JR, Shafrin J, Lakdawalla DN, Jansen JP (2019). “ A Flexible Open-Source Decision Model for Value Assessment of Biologic Treatment for Rheumatoid Arthritis.” PharmacoEconomics. doi: 10.1007/s40273-018-00765-2.
 
-https://innovationvalueinitiative.github.io/IVI-RA/index.html
+Link to Github repository: \url{https://innovationvalueinitiative.github.io/IVI-RA/index.html}
 }
 \usage{
 df_iviRA_pa
