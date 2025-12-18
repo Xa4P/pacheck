@@ -2,11 +2,10 @@ Type: Package
 Package: pacheck
 Title: Probabilistic Analysis Check Package
 Version: 0.2.1
-Author: Xavier G.L.V. Pouwels [aut, cre]
+Author: Xavier G.L.V. Pouwels [aut, cre, cph]
 Maintainer: Xavier G.L.V. Pouwels <x.g.l.v.pouwels@utwente.nl>
-Description: This package contains a suite of functions to investigate
-    (analytically or visually) the inputs and outputs of probabilistic
-    analyses of health economic models. The package makes use of standard
+Description: Investigate (analytically or visually) the inputs and outputs 
+    of probabilistic analyses of health economic models using standard
     health economic visualisation and metamodelling methods.
 License: GPL (>= 3)
 Imports: 
@@ -18,11 +17,12 @@ Imports:
     ggplot2,
     glue,
     gtools,
-    moments,
     interp,
+    moments,
     randomForestSRC,
     reshape2,
     scales,
+    signal,
     simsurv,
     stats,
     stringi,
