@@ -10,7 +10,7 @@ The dataframe contains the 1,000 probabilistic inputs and outputs obtained by ex
 \source{
 Sweeting MJ, Masconi KL, Jones E, Ulug P, Glover MJ, Michaels JA, Bown MJ, Powell JT, Thompson SG. Analysis of clinical benefit, harms, and cost-effectiveness of screening women for abdominal aortic aneurysm. Lancet. 2018 Aug 11;392(10146):487-495. doi: 10.1016/S0140-6736(18)31222-4.
 
-Github repository of the model: \code{\link[https://github.com/mikesweeting/AAA_DES_model]{https://github.com/mikesweeting/AAA_DES_model}}
+https://github.com/mikesweeting/AAA_DES_model
 }
 \usage{
 l_psa_aaa
