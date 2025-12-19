@@ -1,7 +1,7 @@
 Type: Package
 Package: pacheck
 Title: Probabilistic Analysis Check Package
-Version: 0.2.1
+Version: 0.2.2
 Maintainer: Xavier Pouwels <x.g.l.v.pouwels@utwente.nl>
 Author: Xavier Pouwels [aut, cre, cph]
 Authors@R: c(person(given = "Xavier", family = "Pouwels", role = c("aut",
