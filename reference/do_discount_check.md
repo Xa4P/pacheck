@@ -37,11 +37,8 @@ in the same order.
 
 ``` r
 # Checking whether discounted QALYs are lower than undiscounted QALYs using the example data
-do_discount_check(df = df_pa,
-                  v_outcomes = c("t_qaly_comp", "t_qaly_int"),
-                  v_outcomes_d = c("t_qaly_d_comp", "t_qaly_d_int")
-                  )
-#> Test passed with 20000 successes 🥇.
-#>                                                           Test Result
-#> 1 All discounted outcomes are lower than undiscounted outcomes   TRUE
+if (FALSE) do_discount_check(df = df_pa,
+                  v_outcomes = "t_qaly_comp",
+                  v_outcomes_d = "t_qaly_d_comp")
+                   # \dontrun{}
 ```

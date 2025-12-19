@@ -1,8 +1,8 @@
 # Dataframe of inputs and outputs of a health economic model developed and evaluated with the iviRA R package for testing
 
 A dataframe containing 1,000 sets of probabilistic inputs and outputs of
-a individual-level health state transition model developed using `iviRA`
-package.
+a individual-level health state transition model developed using iviRA
+package available on Github.
 
 ## Usage
 
@@ -12,7 +12,8 @@ df_iviRA_pa
 
 ## Format
 
-See the documentation of the `iviRA::sample_pars` function for details.
+See the documentation of the \`sample_pars\` function of the iviRA
+package for details.
 
 ## Source
 
@@ -23,3 +24,6 @@ Treatment for Rheumatoid Arthritis.” PharmacoEconomics. doi:
 
 Link to Github repository:
 <https://innovationvalueinitiative.github.io/IVI-RA/index.html>
+
+Link to iviRA website:
+<https://innovationvalueinitiative.github.io/IVI-RA/>

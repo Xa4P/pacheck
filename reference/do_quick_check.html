@@ -101,23 +101,12 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Checking costs and utility values of the example data</span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="fu">do_quick_check</span><span class="op">(</span>df <span class="op">=</span> <span class="va">df_pa</span>,</span></span>
 <span class="r-in"><span>               v_utilities <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"u_pfs"</span>, <span class="st">"u_pd"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>               v_costs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c_pfs"</span>, <span class="st">"c_pd"</span>, <span class="st">"c_thx"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>               v_costs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"c_pfs"</span>, <span class="st">"c_pd"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>               <span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Test passed with 20000 successes 🥇</span>.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Test passed with 20000 successes 🥳</span>.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Test passed with 30000 successes 🎉</span>.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                         Test        Result</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1             All probabilities are positive NOT PERFORMED</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  All probabilities are lower or equal to 1 NOT PERFORMED</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3            All utility values are positive          TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 All utility values are lower or equal to 1          TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5          All costs parameters are positive          TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6             All hazard ratios are positive NOT PERFORMED</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7            All relative risks are positive NOT PERFORMED</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8                     All rates are positive NOT PERFORMED</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9                  All outcomes are positive NOT PERFORMED</span>
+<span class="r-in"><span>               <span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

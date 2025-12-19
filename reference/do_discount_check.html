@@ -76,13 +76,10 @@
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Checking whether discounted QALYs are lower than undiscounted QALYs using the example data</span></span></span>
-<span class="r-in"><span><span class="fu">do_discount_check</span><span class="op">(</span>df <span class="op">=</span> <span class="va">df_pa</span>,</span></span>
-<span class="r-in"><span>                  v_outcomes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_qaly_comp"</span>, <span class="st">"t_qaly_int"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>                  v_outcomes_d <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"t_qaly_d_comp"</span>, <span class="st">"t_qaly_d_int"</span><span class="op">)</span></span></span>
-<span class="r-in"><span>                  <span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="font-weight: bold;">Test passed with 20000 successes 🥇</span>.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                           Test Result</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1 All discounted outcomes are lower than undiscounted outcomes   TRUE</span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="fu">do_discount_check</span><span class="op">(</span>df <span class="op">=</span> <span class="va">df_pa</span>,</span></span>
+<span class="r-in"><span>                  v_outcomes <span class="op">=</span> <span class="st">"t_qaly_comp"</span>,</span></span>
+<span class="r-in"><span>                  v_outcomes_d <span class="op">=</span> <span class="st">"t_qaly_d_comp"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                   <span class="co"># \dontrun{}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

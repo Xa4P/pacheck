@@ -38,6 +38,8 @@ dataframe.
 ## Examples
 
 ``` r
-# Generating deterministic model inputs and storing them in an object.
-df_inputs_prob <- generate_pa_inputs_psm()
+# Generating probabilistic model inputs and storing them in an object.
+if (FALSE) { # \dontrun{
+df_inputs_prob <- generate_pa_inputs_psm(n_sim = 10)
+} # }
 ```

@@ -37,7 +37,9 @@ analyses is the iNMB by default.
 
 ``` r
 # Perform the deterministic one-way sensitivity analyses for a selection of parameters
+if (FALSE) { # \dontrun{
 data(df_pa)
 df_res_dowsa <- perform_dowsa(df = df_pa,
-                              vars = c("rr", "c_pfs", "p_pfsd", "u_pfs", "u_pd"))
+                              vars = c("rr", "c_pfs"))
+                              } # }
 ```
