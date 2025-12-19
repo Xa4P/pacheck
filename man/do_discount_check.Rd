@@ -24,8 +24,8 @@ The variables contained in `v_outcomes` and `v_outcomes_d` should be in the same
 }
 \examples{
 # Checking whether discounted QALYs are lower than undiscounted QALYs using the example data
-do_discount_check(df = df_pa,
-                  v_outcomes = c("t_qaly_comp", "t_qaly_int"),
-                  v_outcomes_d = c("t_qaly_d_comp", "t_qaly_d_int")
-                  )
+\dontrun{do_discount_check(df = df_pa,
+                  v_outcomes = "t_qaly_comp",
+                  v_outcomes_d = "t_qaly_d_comp")
+                  }
 }

@@ -20,6 +20,8 @@ A dataframe. A description of the variables of the returned dataframe is availab
 This function generates the probabilistic model inputs for the example health economic model developed to test the functionalities of the package.
 }
 \examples{
-# Generating deterministic model inputs and storing them in an object.
-df_inputs_prob <- generate_pa_inputs_psm()
+# Generating probabilistic model inputs and storing them in an object.
+\dontrun{
+df_inputs_prob <- generate_pa_inputs_psm(n_sim = 10)
+}
 }

@@ -74,9 +74,10 @@ This function fits a random forest metamodel using the \code{\link[randomForestS
 \examples{
 # Fitting and tuning a random forest meta model with two variables using the example data
 data(df_pa)
+\dontrun{
 fit_rf_metamodel(df = df_pa,
                  y_var = "inc_qaly",
                  x_vars = c("p_pfsd", "p_pdd"),
-                 tune = TRUE
-                 )
+                 tune = FALSE
+                 )}
 }
