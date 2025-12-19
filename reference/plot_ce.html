@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">pacheck</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,8 +22,10 @@
     <li><a class="dropdown-item" href="../articles/Example_workflow.html">Example workflow using the `pacheck` R package</a></li>
     <li><a class="dropdown-item" href="../articles/Metamodel-Workflow.html">Metamodel-Workflow</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/Xa4P/pacheck/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -33,7 +35,7 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Plotting cost-effectiveness plane for two strategies.</h1>
-
+      <small class="dont-index">Source: <a href="https://github.com/Xa4P/pacheck/blob/master/R/fct_costeffectiveness.R" class="external-link"><code>R/fct_costeffectiveness.R</code></a></small>
       <div class="d-none name"><code>plot_ce.Rd</code></div>
     </div>
 
@@ -43,7 +45,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_ce</span><span class="op">(</span><span class="va">df</span>, <span class="va">e_int</span>, <span class="va">e_comp</span>, <span class="va">c_int</span>, <span class="va">c_comp</span>, currency <span class="op">=</span> <span class="st">"euro"</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">plot_ce</span><span class="op">(</span><span class="va">df</span>, <span class="va">e_int</span>, <span class="va">e_comp</span>, <span class="va">c_int</span>, <span class="va">c_comp</span>, currency <span class="op">=</span> <span class="st">"euro"</span>, axes <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -73,6 +75,10 @@
 <dt id="arg-currency">currency<a class="anchor" aria-label="anchor" href="#arg-currency"></a></dt>
 <dd><p>character. Default is "euro". Determines the currency sign to use in the incremental cost effectiveness plane. Currently included signs: "euro", "dollar", "yen", "none".</p></dd>
 
+
+<dt id="arg-axes">axes<a class="anchor" aria-label="anchor" href="#arg-axes"></a></dt>
+<dd><p>logical. Default is TRUE, axes are plotted at x = 0 and y = 0. If FALSE, no axes are plotted.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -87,19 +93,9 @@
 <span class="r-in"><span>        e_int <span class="op">=</span> <span class="st">"t_qaly_d_int"</span>,</span></span>
 <span class="r-in"><span>        e_comp <span class="op">=</span> <span class="st">"t_qaly_d_comp"</span>,</span></span>
 <span class="r-in"><span>        c_int <span class="op">=</span> <span class="st">"t_costs_d_int"</span>,</span></span>
-<span class="r-in"><span>        c_comp <span class="op">=</span> <span class="st">"t_costs_d_comp"</span></span></span>
+<span class="r-in"><span>        c_comp <span class="op">=</span> <span class="st">"t_costs_d_comp"</span>,</span></span>
+<span class="r-in"><span>        currency <span class="op">=</span> <span class="st">"none"</span></span></span>
 <span class="r-in"><span>        <span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`aes_string()` was deprecated in ggplot2 3.0.0.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please use tidy evaluation idioms with `aes()`.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> See also `vignette("ggplot2-in-packages")` for more information.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> The deprecated feature was likely used in the <span style="color: #0000BB;">pacheck</span> package.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   Please report the issue to the authors.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>All aesthetics have length 1, but the data has 10000 rows.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please consider using `annotate()` or provide this layer with data containing</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   a single row.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>All aesthetics have length 1, but the data has 10000 rows.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Please consider using `annotate()` or provide this layer with data containing</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span>   a single row.</span>
 <span class="r-plt img"><img src="plot_ce-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
@@ -108,7 +104,7 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Xavier G.L.V. Pouwels.</p>
+  <p>Developed by Xavier Pouwels.</p>
 </div>
 
 <div class="pkgdown-footer-right">

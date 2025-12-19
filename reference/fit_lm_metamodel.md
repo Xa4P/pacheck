@@ -112,9 +112,12 @@ plots when selected.
 
 Standardisation of the parameters is obtained by \$\$(x - u(x)) /
 sd(x)\$\$ where \\x\\ is the variable value, \\u(x)\\ the mean over the
-variable and \\sd(x)\\ the standard deviation of \\x\\. For more
-details, see [Jalal et al.
-2013](https://doi.org/10.1177/0272989X13492014).
+variable and \\sd(x)\\ the standard deviation of \\x\\.
+
+For more details, see Jalal H, Dowd B, Sainfort F, Kuntz KM. Linear
+Regression Metamodeling as a Tool to Summarize and Present Simulation
+Model Results. Medical Decision Making. 2013;33(7):880-890.
+doi:10.1177/0272989X13492014
 
 ## Examples
 
@@ -144,7 +147,7 @@ fit_lm_metamodel(df = df_pa,
 #> 
 #> $model_info$form
 #> inc_qaly ~ p_pfsd + p_pdd
-#> <environment: 0x55b71e19ed00>
+#> <environment: 0x5565177c1da8>
 #> 
 #> $model_info$data
 #>         p_pfspd     p_pfsd      p_pdd p_dd        p_ae        rr     u_pfs

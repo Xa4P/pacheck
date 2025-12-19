@@ -28,8 +28,7 @@ outcomes of the health economic model.
 ## Examples
 
 ``` r
-# Perform the simulation using the deterministic model inputs
-l_inputs_det <- generate_det_inputs()
+# Perform the simulation using one iteration of the probabilistic model inputs
+l_inputs_det <- as.list(generate_pa_inputs_psm(n_sim = 1))
 v_results_det <- perform_simulation_psm(l_inputs_det)
-#> Error in eval(substitute(expr), data, enclos = parent.frame()): object 'shape_weib_os' not found
 ```

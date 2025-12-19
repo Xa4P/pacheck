@@ -77,11 +77,10 @@ second curve.
 ## Details
 
 The parametric models that can be used are the following: exponential
-([`` `exp` ``](https://rdrr.io/r/stats/Exponential.html)), Weibull
-([`` `weibull` ``](https://rdrr.io/r/stats/Weibull.html)), gamma
-([`` `gamma` ``](https://rdrr.io/r/stats/GammaDist.html)), loglogistic
-([`` `logis` ``](https://rdrr.io/r/stats/Logistic.html)), and lognormal
-([`` `lnorm` ``](https://rdrr.io/r/stats/Lognormal.html)). All these
-functions are implemented following their distribution function as
-documented in the [stats](https://rdrr.io/r/stats/stats-package.html)
-package.
+([`exp`](https://rdrr.io/r/stats/Exponential.html)), Weibull
+([`weibull`](https://rdrr.io/r/stats/Weibull.html)), gamma
+([`gamma`](https://rdrr.io/r/stats/GammaDist.html)), loglogistic
+([`logis`](https://rdrr.io/r/stats/Logistic.html)), and lognormal
+([`lnorm`](https://rdrr.io/r/stats/Lognormal.html)). All these functions
+are implemented following their distribution function as documented in
+the [stats](https://rdrr.io/r/stats/stats-package.html) package.

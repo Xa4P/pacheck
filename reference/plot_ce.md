@@ -5,7 +5,7 @@ This function plots the cost-effectiveness plane for two strategies.
 ## Usage
 
 ``` r
-plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro")
+plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro", axes = T)
 ```
 
 ## Arguments
@@ -40,6 +40,11 @@ plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro")
   the incremental cost effectiveness plane. Currently included signs:
   "euro", "dollar", "yen", "none".
 
+- axes:
+
+  logical. Default is TRUE, axes are plotted at x = 0 and y = 0. If
+  FALSE, no axes are plotted.
+
 ## Value
 
 A ggplot2 graph.
@@ -53,17 +58,7 @@ plot_ce(df = df_pa,
         e_int = "t_qaly_d_int",
         e_comp = "t_qaly_d_comp",
         c_int = "t_costs_d_int",
-        c_comp = "t_costs_d_comp"
+        c_comp = "t_costs_d_comp",
+        currency = "none"
         )
-#> Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
-#> ℹ Please use tidy evaluation idioms with `aes()`.
-#> ℹ See also `vignette("ggplot2-in-packages")` for more information.
-#> ℹ The deprecated feature was likely used in the pacheck package.
-#>   Please report the issue to the authors.
-#> Warning: All aesthetics have length 1, but the data has 10000 rows.
-#> ℹ Please consider using `annotate()` or provide this layer with data containing
-#>   a single row.
-#> Warning: All aesthetics have length 1, but the data has 10000 rows.
-#> ℹ Please consider using `annotate()` or provide this layer with data containing
-#>   a single row.
 ```

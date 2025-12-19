@@ -50,4 +50,4 @@ creating additional outcome variable df_pa\$t_costs_d_int2 \<-
 df_pa\$t_costs_d_int \* 1.5 \# creating additional cost variable
 plot_ce_mult(df = df_pa, outcomes = c("t_qaly_d_int", "t_qaly_d_comp",
 "t_qaly_d_int2"), costs = c("t_costs_d_int","t_costs_d_comp",
-"t_costs_d_int2"), ellipse = TRUE)
+"t_costs_d_int2"), ellipse = TRUE, currency = "none")

@@ -158,15 +158,6 @@ Overview of the results of the HE model
 Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. =
 incremental; LYs = life years; QALYs = quality-adjusted life years
 
-    ## Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
-    ## ℹ Please use tidy evaluation idioms with `aes()`.
-    ## ℹ See also `vignette("ggplot2-in-packages")` for more information.
-    ## ℹ The deprecated feature was likely used in the pacheck package.
-    ##   Please report the issue to the authors.
-    ## This warning is displayed once every 8 hours.
-    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-    ## generated.
-
 ![](Appendix_A-HE_model_description_files/figure-html/ice_plot-1.png)
 
 ![](Appendix_A-HE_model_description_files/figure-html/ceac-1.png)

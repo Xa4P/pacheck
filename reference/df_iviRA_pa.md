@@ -21,4 +21,5 @@ Flexible Open-Source Decision Model for Value Assessment of Biologic
 Treatment for Rheumatoid Arthritis.” PharmacoEconomics. doi:
 10.1007/s40273-018-00765-2.
 
-https://innovationvalueinitiative.github.io/IVI-RA/index.html
+Link to Github repository:
+<https://innovationvalueinitiative.github.io/IVI-RA/index.html>

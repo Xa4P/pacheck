@@ -74,4 +74,9 @@ data(df_pa)
 plot_convergence(df = df_pa,
                  param = "inc_qaly"
                  )
+#> Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+#> ℹ Please use tidy evaluation idioms with `aes()`.
+#> ℹ See also `vignette("ggplot2-in-packages")` for more information.
+#> ℹ The deprecated feature was likely used in the pacheck package.
+#>   Please report the issue at <https://github.com/Xa4P/pacheck/issues>.
 ```
