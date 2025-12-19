@@ -3,7 +3,7 @@ Package: pacheck
 Title: Probabilistic Analysis Check Package
 Version: 0.2.1
 Maintainer: Xavier Pouwels <x.g.l.v.pouwels@utwente.nl>
-Author: Xavier Pouwels <x.g.l.v.pouwels@utwente.nl>
+Author: Xavier Pouwels [aut, cre, cph]
 Authors@R: c(person(given = "Xavier", family = "Pouwels", role = c("aut",
     "cre", "cph"), email = "x.g.l.v.pouwels@utwente.nl"))
 Description: Investigate (analytically or visually) the inputs and outputs 
