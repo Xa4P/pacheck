@@ -301,6 +301,7 @@ vis_1_param <- function(df,
 
         }
       )
+      names(df_user) <- c("x", "y")
       p_out <- p_out + ggplot2::geom_line(data = df_user,
                                           ggplot2::aes(x = .data$x,
                                                        y = .data$y,

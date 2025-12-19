@@ -129,8 +129,8 @@ p_2 <- vis_1_param(df = df_pa,
             type = "density",
             dist = c("norm", "beta", "gamma", "lnorm"),
             user_dist = "beta",
-            user_param_1 = 0.8,
-            user_param_2 = 0.2,
+            user_param_1 = 80,
+            user_param_2 = 20,
             user_mean = 0.75)
 p_2
 ```
