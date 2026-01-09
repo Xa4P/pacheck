@@ -127,7 +127,7 @@ fit_lasso_metamodel(df = df_pa,
 #> 
 #> $model_info$form
 #> inc_qaly ~ p_pfsd + p_pdd
-#> <environment: 0x55bf1cc59a80>
+#> <environment: 0x55644bfb4c80>
 #> 
 #> $model_info$data
 #>         p_pfspd     p_pfsd      p_pdd p_dd        p_ae        rr     u_pfs

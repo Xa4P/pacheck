@@ -147,7 +147,7 @@ fit_lm_metamodel(df = df_pa,
 #> 
 #> $model_info$form
 #> inc_qaly ~ p_pfsd + p_pdd
-#> <environment: 0x55bf1831d020>
+#> <environment: 0x5564475e48c8>
 #> 
 #> $model_info$data
 #>         p_pfspd     p_pfsd      p_pdd p_dd        p_ae        rr     u_pfs
