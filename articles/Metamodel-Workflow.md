@@ -52,9 +52,9 @@ lm_fit$fit
     ## 
     ## Coefficients:
     ## (Intercept)           rr        u_pfs         u_pd        c_pfs         c_pd  
-    ##   1.212e+00   -1.278e+00    6.065e-01   -3.218e-01   -6.955e-06   -2.614e-06  
+    ##   1.363e+00   -1.293e+00    6.275e-01   -3.539e-01   -7.602e-06   -4.512e-06  
     ##       c_thx      p_pfspd       p_pfsd        p_pdd  
-    ##  -1.564e-06   -2.923e-01   -3.558e+00    8.355e-01
+    ##  -1.349e-05   -2.850e-01   -3.632e+00    8.003e-01
 
 #### Variable Transformation
 
@@ -91,9 +91,9 @@ lm_fit$fit
     ## 
     ## Coefficients:
     ## (Intercept)           rr        u_pfs         u_pd        c_pfs         c_pd  
-    ##   0.2687693   -0.0857699    0.0426221   -0.0325251   -0.0013803   -0.0010496  
+    ##    0.270658    -0.085924     0.045913    -0.035886    -0.001470    -0.001818  
     ##       c_thx      p_pfspd       p_pfsd        p_pdd  
-    ##  -0.0001541   -0.0103581   -0.1054658    0.0332658
+    ##   -0.001336    -0.010220    -0.106710     0.032889
 
 Here we transform several variables: `rr` will be exponentiated by
 factor 2, `c_pfs` & `c_pd` by factor 3, we take the exponential of
@@ -119,13 +119,13 @@ lm_fit$fit
     ## 
     ## Coefficients:
     ##     (Intercept)          p_pfspd            p_pdd     poly(rr, 2)1  
-    ##       -0.978025        -0.296234         0.835575        -8.556376  
+    ##        -0.97789         -0.31460          0.81577         -2.70951  
     ##    poly(rr, 2)2  poly(c_pfs, 3)1  poly(c_pfs, 3)2  poly(c_pfs, 3)3  
-    ##        0.668141        -0.144615         0.049536        -0.018089  
+    ##         0.41879         -0.03477         -0.07427          0.01652  
     ##  poly(c_pd, 3)1   poly(c_pd, 3)2   poly(c_pd, 3)3       exp(u_pfs)  
-    ##       -0.049560        -0.012581         0.003824         0.288374  
+    ##        -0.02696          0.02767          0.03326          0.29926  
     ##       exp(u_pd)      log(p_pfsd)  
-    ##       -0.184217        -0.354622
+    ##        -0.19412         -0.35528
 
 And lastly, we can also include an interaction term between `p_pfspd`
 and `p_pdd`.
@@ -151,13 +151,13 @@ lm_fit$fit
     ## 
     ## Coefficients:
     ##     (Intercept)          p_pfspd            p_pdd     poly(rr, 2)1  
-    ##        -0.98776         -0.23112          0.88430         -8.55602  
+    ##        -0.93155         -0.61761          0.59049         -2.70483  
     ##    poly(rr, 2)2  poly(c_pfs, 3)1  poly(c_pfs, 3)2  poly(c_pfs, 3)3  
-    ##         0.66839         -0.14476          0.05002         -0.01819  
+    ##         0.41959         -0.03496         -0.07264          0.01523  
     ##  poly(c_pd, 3)1   poly(c_pd, 3)2   poly(c_pd, 3)3       exp(u_pfs)  
-    ##        -0.04949         -0.01199          0.00443          0.28843  
+    ##        -0.02689          0.02731          0.03460          0.29812  
     ##       exp(u_pd)      log(p_pfsd)    p_pfspd:p_pdd  
-    ##        -0.18427         -0.35460         -0.32533
+    ##        -0.19352         -0.35546          1.50843
 
 ### Random Forest Model
 
@@ -237,7 +237,7 @@ rf_fit$tune_fit$optimal
 ```
 
     ## nodesize     mtry 
-    ##        5        3
+    ##        1        3
 
 ``` r
 rf_fit$tune_plot
@@ -313,13 +313,13 @@ lm_fit$fit
     ## 
     ## Coefficients:
     ##     (Intercept)          p_pfspd            p_pdd     poly(rr, 2)1  
-    ##        -0.98776         -0.23112          0.88430         -8.55602  
+    ##        -0.93155         -0.61761          0.59049         -2.70483  
     ##    poly(rr, 2)2  poly(c_pfs, 3)1  poly(c_pfs, 3)2  poly(c_pfs, 3)3  
-    ##         0.66839         -0.14476          0.05002         -0.01819  
+    ##         0.41959         -0.03496         -0.07264          0.01523  
     ##  poly(c_pd, 3)1   poly(c_pd, 3)2   poly(c_pd, 3)3       exp(u_pfs)  
-    ##        -0.04949         -0.01199          0.00443          0.28843  
+    ##        -0.02689          0.02731          0.03460          0.29812  
     ##       exp(u_pd)      log(p_pfsd)    p_pfspd:p_pdd  
-    ##        -0.18427         -0.35460         -0.32533
+    ##        -0.19352         -0.35546          1.50843
 
 The plot shows the tuning results: the error rate for each lambda. The
 smallest lambda is chosen for the full model.
@@ -358,9 +358,9 @@ lm_validation$stats_validation
 ```
 
     ##            Statistics Value (method: train/test split)
-    ## 1           R-squared                            0.920
-    ## 2 Mean absolute error                            0.030
-    ## 3 Mean relative error                            0.552
+    ## 1           R-squared                            0.914
+    ## 2 Mean absolute error                            0.032
+    ## 3 Mean relative error                            0.758
     ## 4  Mean squared error                            0.002
 
 ``` r
@@ -391,10 +391,10 @@ rf_validation$stats_validation
 ```
 
     ##             Statistic Value (method: cross-validation)
-    ## 1           R-squared                            0.375
-    ## 2 Mean absolute error                            0.094
-    ## 3 Mean relative error                            1.090
-    ## 4  Mean squared error                            0.016
+    ## 1           R-squared                            0.343
+    ## 2 Mean absolute error                            0.098
+    ## 3 Mean relative error                            2.272
+    ## 4  Mean squared error                            0.017
 
 ### New Dataset and Lasso Model
 
@@ -436,10 +436,10 @@ rf_validation$stats_validation
 ```
 
     ##             Statistic Value (method: cross-validation)
-    ## 1           R-squared                            0.375
-    ## 2 Mean absolute error                            0.094
-    ## 3 Mean relative error                            1.090
-    ## 4  Mean squared error                            0.016
+    ## 1           R-squared                            0.343
+    ## 2 Mean absolute error                            0.098
+    ## 3 Mean relative error                            2.272
+    ## 4  Mean squared error                            0.017
 
 ## Making Predictions
 
@@ -519,7 +519,7 @@ predictions = predict_metamodel(lm_fit2,
 print(predictions)
 ```
 
-    ## [1] 1.0703279 0.7860253
+    ## [1] 1.0566582 0.7533956
 
 ### 2. Input: dataframe (Lasso Model)
 
@@ -531,7 +531,7 @@ predictions = predict_metamodel(lasso_fit3,
 print(predictions)
 ```
 
-    ## [1] 1.0663160 0.7835225
+    ## [1] 1.0528023 0.7510356
 
 ### 3. Output: vector (Random Forest Model)
 
@@ -543,7 +543,7 @@ predictions = predict_metamodel(rf_fit2,
 print(predictions)
 ```
 
-    ## [1] 0.6192895 0.2602858
+    ## [1] 0.5019730 0.1920559
 
 ### 4. Output: dataframe (Linear Model)
 
@@ -556,5 +556,5 @@ print(predictions)
 ```
 
     ##   p_pfspd p_pfsd p_pdd   rr predictions
-    ## 1     0.1   0.08  0.06 0.10   1.0703279
-    ## 2     0.2   0.15  0.25 0.23   0.7860253
+    ## 1     0.1   0.08  0.06 0.10   1.0566582
+    ## 2     0.2   0.15  0.25 0.23   0.7533956

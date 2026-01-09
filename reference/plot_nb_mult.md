@@ -6,7 +6,7 @@ Benefits (NHB) for an infinite amount of strategies.
 ## Usage
 
 ``` r
-plot_nb_mult(df, outcomes, costs, wtp, NMB = T)
+plot_nb_mult(df, outcomes, costs, wtp, NMB = TRUE)
 ```
 
 ## Arguments

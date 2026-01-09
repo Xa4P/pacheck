@@ -75,12 +75,12 @@ Overview of the HSTM input values
 | Parameter name       | Description                                                                                                     | Mean value | Standard Error (or 95%CI) | Distribution                                     |
 |:---------------------|:----------------------------------------------------------------------------------------------------------------|:-----------|:--------------------------|:-------------------------------------------------|
 | `r_exp_pfs_comp`     | Rate exponential progression-free survival curve of the comparator strategy                                     | 0.79\*     | 0.03\*                    | Bootstrap synthetic data                         |
-| `rr_thx_pfs`         | Effectiveness of the intervention on the rate of progression of the comparator                                  | 0.52\*     | 0.03\*                    | Bootstrap synthetic data                         |
-| `r_exp_pfs_int`      | Rate exponential progression-free survival curve of the intervention strategy                                   | 0.52\*     | 0.03\*                    | Calculation: `r_exp_pfs_comp` \* `rr_thx_pfs`    |
-| `shape_weib_os`      | Shape of the Weibull overall survival curve (same shape for both strategies)                                    | 1.88\*     | 0.16\*                    | Bootstrap synthetic data                         |
-| `scale_weib_os_comp` | Scale of the Weibull overall survival curve of the comparator strategy                                          | 13.02\*    | 1.39\*                    | Bootstrap synthetic data                         |
+| `rr_thx_pfs`         | Effectiveness of the intervention on the rate of progression of the comparator                                  | 0.52\*     | 0.02\*                    | Bootstrap synthetic data                         |
+| `r_exp_pfs_int`      | Rate exponential progression-free survival curve of the intervention strategy                                   | 0.52\*     | 0.02\*                    | Calculation: `r_exp_pfs_comp` \* `rr_thx_pfs`    |
+| `shape_weib_os`      | Shape of the Weibull overall survival curve (same shape for both strategies)                                    | 1.88\*     | 0.17\*                    | Bootstrap synthetic data                         |
+| `scale_weib_os_comp` | Scale of the Weibull overall survival curve of the comparator strategy                                          | 13\*       | 1.41\*                    | Bootstrap synthetic data                         |
 | `rr_thx_os`          | Effectiveness of the intervention on the scale of the Weibull overall survival curve of the comparator strategy | 1.16\*     | 0.11\*                    | Bootstrap synthetic data                         |
-| `scale_weib_os_int`  | Scale of the Weibull overall survival curve of the intervention strategy                                        | 15.07\*    | 1.8\*                     | Calculation: `scale_weib_os_comp` \* `rr_thx_os` |
+| `scale_weib_os_int`  | Scale of the Weibull overall survival curve of the intervention strategy                                        | 15.06\*    | 1.84\*                    | Calculation: `scale_weib_os_comp` \* `rr_thx_os` |
 | `p_ae`               | Probability of experiencing an adverse event (intervention only)                                                | 0.05       | 0.02                      | Beta                                             |
 | `u_pfs`              | Utility value of health state PF                                                                                | 0.75       | 0.07                      | Beta                                             |
 | `u_pd`               | Utility value of health state PD                                                                                | 0.55       | 0.1                       | Beta                                             |
@@ -139,10 +139,10 @@ function
 
 ## Results HSTM
 
-The intervention results in 0.28 incremental life years, 0.27
-incremental quality-adjusted life years, and € 31,658 incremental costs
+The intervention results in 0.29 incremental life years, 0.27
+incremental quality-adjusted life years, and € 31,753 incremental costs
 versus the comparator. The incremental cost effectiveness ratio of the
-intervention versus the comparator is € 117,790 per QALY.  
+intervention versus the comparator is € 117,318 per QALY.  
 The probabilistic results of this HE model are provided in the table
 below and are plotted in an incremental cost-effectiveness plane
 (displaying a willingness to pay threshold line of €80,000 per QALY) and
@@ -150,8 +150,8 @@ a cost-effectiveness acceptability curve.
 
 | Strategy     | Total LYs | Total QALYs | Total costs | Inc. QALYs | Inc. costs | ICER per QALYs |
 |:-------------|:----------|:------------|:------------|:-----------|:-----------|:---------------|
-| Comparator   | 5.67      | 3.71        | € 7,246     | \-         | \-         | \-             |
-| Intervention | 5.96      | 3.98        | € 38,904    | 0.27       | € 31,658   | € 117,790      |
+| Comparator   | 5.69      | 3.73        | € 7,215     | \-         | \-         | \-             |
+| Intervention | 5.98      | 4           | € 38,968    | 0.27       | € 31,753   | € 117,318      |
 
 Overview of the results of the HE model
 
@@ -164,10 +164,10 @@ incremental; LYs = life years; QALYs = quality-adjusted life years
 
 ## Results PSM
 
-The intervention results in 1.36 incremental life years, 0.86
-incremental quality-adjusted life years, and € 14,877 incremental costs
+The intervention results in 1.36 incremental life years, 0.87
+incremental quality-adjusted life years, and € 14,865 incremental costs
 versus the comparator. The incremental cost effectiveness ratio of the
-intervention versus the comparator is € 17,206 per QALY.  
+intervention versus the comparator is € 17,140 per QALY.  
 The probabilistic results of this HE model are provided in the table
 below and are plotted in an incremental cost-effectiveness plane
 (displaying a willingness to pay threshold line of €80,000 per QALY) and
@@ -175,8 +175,8 @@ a cost-effectiveness acceptability curve.
 
 | Strategy     | Total LYs | Total QALYs | Total costs | Inc. QALYs | Inc. costs | ICER per QALYs |
 |:-------------|:----------|:------------|:------------|:-----------|:-----------|:---------------|
-| Comparator   | 9.83      | 5.56        | € 15,750    | \-         | \-         | \-             |
-| Intervention | 11.19     | 6.42        | € 30,626    | 0.86       | € 14,877   | € 17,206       |
+| Comparator   | 9.81      | 5.53        | € 15,819    | \-         | \-         | \-             |
+| Intervention | 11.17     | 6.4         | € 30,684    | 0.87       | € 14,865   | € 17,140       |
 
 Overview of the results of the HE model
 

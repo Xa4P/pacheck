@@ -60,7 +60,7 @@
 
       <h1>Health Economic Model Description</h1>
             
-            <h4 data-toc-skip class="date">2025-12-19</h4>
+            <h4 data-toc-skip class="date">2026-01-09</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/Xa4P/pacheck/blob/master/vignettes/Appendix_A-HE_model_description.Rmd" class="external-link"><code>vignettes/Appendix_A-HE_model_description.Rmd</code></a></small>
       <div class="d-none name"><code>Appendix_A-HE_model_description.Rmd</code></div>
@@ -110,7 +110,7 @@ state or to the D health state. Once individuals are in the PD health
 state, they cannot transit back to the PF health state but they can
 transit to the D health state. The D health state is the absorbing
 health state. The model structure is provided below.</p>
-<p><img src="model_structure.png" class="r-plt" width="70%" style="display: block; margin: auto;"></p>
+<p><img src="model_structure.png" class="r-plt" alt="" width="70%" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
@@ -272,7 +272,7 @@ comparator strategy</td>
 <td align="left">Effectiveness of the intervention on the rate of
 progression of the comparator</td>
 <td align="left">0.52*</td>
-<td align="left">0.03*</td>
+<td align="left">0.02*</td>
 <td align="left">Bootstrap synthetic data</td>
 </tr>
 <tr class="odd">
@@ -280,7 +280,7 @@ progression of the comparator</td>
 <td align="left">Rate exponential progression-free survival curve of the
 intervention strategy</td>
 <td align="left">0.52*</td>
-<td align="left">0.03*</td>
+<td align="left">0.02*</td>
 <td align="left">Calculation: <code>r_exp_pfs_comp</code> *
 <code>rr_thx_pfs</code>
 </td>
@@ -290,15 +290,15 @@ intervention strategy</td>
 <td align="left">Shape of the Weibull overall survival curve (same shape
 for both strategies)</td>
 <td align="left">1.88*</td>
-<td align="left">0.16*</td>
+<td align="left">0.17*</td>
 <td align="left">Bootstrap synthetic data</td>
 </tr>
 <tr class="odd">
 <td align="left"><code>scale_weib_os_comp</code></td>
 <td align="left">Scale of the Weibull overall survival curve of the
 comparator strategy</td>
-<td align="left">13.02*</td>
-<td align="left">1.39*</td>
+<td align="left">13*</td>
+<td align="left">1.41*</td>
 <td align="left">Bootstrap synthetic data</td>
 </tr>
 <tr class="even">
@@ -313,8 +313,8 @@ Weibull overall survival curve of the comparator strategy</td>
 <td align="left"><code>scale_weib_os_int</code></td>
 <td align="left">Scale of the Weibull overall survival curve of the
 intervention strategy</td>
-<td align="left">15.07*</td>
-<td align="left">1.8*</td>
+<td align="left">15.06*</td>
+<td align="left">1.84*</td>
 <td align="left">Calculation: <code>scale_weib_os_comp</code> *
 <code>rr_thx_os</code>
 </td>
@@ -440,10 +440,10 @@ function <code><a href="../reference/perform_simulation.html">perform_simulation
 <div class="section level2">
 <h2 id="results-hstm">Results HSTM<a class="anchor" aria-label="anchor" href="#results-hstm"></a>
 </h2>
-<p>The intervention results in 0.28 incremental life years, 0.27
-incremental quality-adjusted life years, and € 31,658 incremental costs
+<p>The intervention results in 0.29 incremental life years, 0.27
+incremental quality-adjusted life years, and € 31,753 incremental costs
 versus the comparator. The incremental cost effectiveness ratio of the
-intervention versus the comparator is € 117,790 per QALY.<br>
+intervention versus the comparator is € 117,318 per QALY.<br>
 The probabilistic results of this HE model are provided in the table
 below and are plotted in an incremental cost-effectiveness plane
 (displaying a willingness to pay threshold line of €80,000 per QALY) and
@@ -471,37 +471,37 @@ a cost-effectiveness acceptability curve.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Comparator</td>
-<td align="left">5.67</td>
-<td align="left">3.71</td>
-<td align="left">€ 7,246</td>
+<td align="left">5.69</td>
+<td align="left">3.73</td>
+<td align="left">€ 7,215</td>
 <td align="left">-</td>
 <td align="left">-</td>
 <td align="left">-</td>
 </tr>
 <tr class="even">
 <td align="left">Intervention</td>
-<td align="left">5.96</td>
-<td align="left">3.98</td>
-<td align="left">€ 38,904</td>
+<td align="left">5.98</td>
+<td align="left">4</td>
+<td align="left">€ 38,968</td>
 <td align="left">0.27</td>
-<td align="left">€ 31,658</td>
-<td align="left">€ 117,790</td>
+<td align="left">€ 31,753</td>
+<td align="left">€ 117,318</td>
 </tr>
 </tbody>
 </table>
 <p>Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. =
 incremental; LYs = life years; QALYs = quality-adjusted life years</p>
 <div style="page-break-after: always;"></div>
-<p><img src="Appendix_A-HE_model_description_files/figure-html/ice_plot-1.png" class="r-plt" width="700"></p>
-<p><img src="Appendix_A-HE_model_description_files/figure-html/ceac-1.png" class="r-plt" width="700"></p>
+<p><img src="Appendix_A-HE_model_description_files/figure-html/ice_plot-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="Appendix_A-HE_model_description_files/figure-html/ceac-1.png" class="r-plt" alt="" width="700"></p>
 </div>
 <div class="section level2">
 <h2 id="results-psm">Results PSM<a class="anchor" aria-label="anchor" href="#results-psm"></a>
 </h2>
-<p>The intervention results in 1.36 incremental life years, 0.86
-incremental quality-adjusted life years, and € 14,877 incremental costs
+<p>The intervention results in 1.36 incremental life years, 0.87
+incremental quality-adjusted life years, and € 14,865 incremental costs
 versus the comparator. The incremental cost effectiveness ratio of the
-intervention versus the comparator is € 17,206 per QALY.<br>
+intervention versus the comparator is € 17,140 per QALY.<br>
 The probabilistic results of this HE model are provided in the table
 below and are plotted in an incremental cost-effectiveness plane
 (displaying a willingness to pay threshold line of €80,000 per QALY) and
@@ -529,29 +529,29 @@ a cost-effectiveness acceptability curve.</p>
 <tbody>
 <tr class="odd">
 <td align="left">Comparator</td>
-<td align="left">9.83</td>
-<td align="left">5.56</td>
-<td align="left">€ 15,750</td>
+<td align="left">9.81</td>
+<td align="left">5.53</td>
+<td align="left">€ 15,819</td>
 <td align="left">-</td>
 <td align="left">-</td>
 <td align="left">-</td>
 </tr>
 <tr class="even">
 <td align="left">Intervention</td>
-<td align="left">11.19</td>
-<td align="left">6.42</td>
-<td align="left">€ 30,626</td>
-<td align="left">0.86</td>
-<td align="left">€ 14,877</td>
-<td align="left">€ 17,206</td>
+<td align="left">11.17</td>
+<td align="left">6.4</td>
+<td align="left">€ 30,684</td>
+<td align="left">0.87</td>
+<td align="left">€ 14,865</td>
+<td align="left">€ 17,140</td>
 </tr>
 </tbody>
 </table>
 <p>Abbreviations: ICER = incremental cost-effectiveness ratio; Inc. =
 incremental; LYs = life years; QALYs = quality-adjusted life years</p>
 <div style="page-break-after: always;"></div>
-<p><img src="Appendix_A-HE_model_description_files/figure-html/ice_plot_psm-1.png" class="r-plt" width="700"></p>
-<p><img src="Appendix_A-HE_model_description_files/figure-html/ceac_psm-1.png" class="r-plt" width="700"></p>
+<p><img src="Appendix_A-HE_model_description_files/figure-html/ice_plot_psm-1.png" class="r-plt" alt="" width="700"></p>
+<p><img src="Appendix_A-HE_model_description_files/figure-html/ceac_psm-1.png" class="r-plt" alt="" width="700"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

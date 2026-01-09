@@ -5,7 +5,7 @@ This function plots the cost-effectiveness plane for two strategies.
 ## Usage
 
 ``` r
-plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro", axes = T)
+plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro", axes = TRUE)
 ```
 
 ## Arguments

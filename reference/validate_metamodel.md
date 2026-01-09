@@ -76,9 +76,9 @@ validate_metamodel(model = lm_fit,
                  )
 #> $stats_validation
 #>             Statistic Value (method: cross-validation)
-#> 1           R-squared                            0.478
-#> 2 Mean absolute error                            0.087
-#> 3 Mean relative error                            3.100
+#> 1           R-squared                            0.486
+#> 2 Mean absolute error                            0.085
+#> 3 Mean relative error                            1.275
 #> 4  Mean squared error                            0.013
 #> 
 ```

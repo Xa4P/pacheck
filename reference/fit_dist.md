@@ -53,13 +53,13 @@ fit_dist(df = df_pa,
          param = "u_pfs",
          dist = c("norm", "beta"))
 #> $Statistical_fit
-#>   Distribution    AIC    BIC Kolmorogov-Smirnov
-#> 1         norm -24724 -24710              0.026
-#> 2         beta -24980 -24966              0.008
+#>   Distribution   AIC   BIC Kolmorogov-Smirnov
+#> 1         norm -2389 -2379               0.05
+#> 2         beta -2435 -2425              0.024
 #> 
 #> $Dist_parameters
 #>   Distribution Name_param_1 Value_param_1 Name_param_2 Value_param_2
 #> 1         norm         mean          0.75           sd          0.07
-#> 2         beta       shape1          27.7       shape2          9.23
+#> 2         beta       shape1         26.05       shape2          8.72
 #> 
 ```

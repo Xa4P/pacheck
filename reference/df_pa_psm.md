@@ -1,7 +1,9 @@
 # Dataframe for testing
 
 A dataframe containing 10,000 iterations of a probabilistic analysis of
-a partitioned survival model.
+a partitioned survival model. To access the original dataframe used in
+the scientific publication of PACBOARD (Pouwels et al. 2024), follow the
+link below.
 
 ## Usage
 
@@ -232,3 +234,13 @@ variables:
 - inc_costs:
 
   Incremental costs obtained with the intervention versus the comparator
+
+## Source
+
+Pouwels XGLV, Kroeze K, van der Linden N, Kip MMA, Koffijberg H.
+Validating Health Economic Models With the Probabilistic Analysis Check
+dashBOARD. Value Health. 2024 Aug;27(8):1073-1084. doi:
+10.1016/j.jval.2024.04.008.
+
+Link to the original data ("df_pa_psm") used in the PACBOARD
+publication: <https://github.com/Xa4P/pacheck/tree/master/data-raw>

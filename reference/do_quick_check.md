@@ -64,10 +64,23 @@ A matrix.
 
 ``` r
 # Checking costs and utility values of the example data
-if (FALSE) { # \dontrun{
+# \donttest{
 do_quick_check(df = df_pa,
                v_utilities = c("u_pfs", "u_pd"),
                v_costs = c("c_pfs", "c_pd")
                )
-               } # }
+#> Test passed with 2000 successes 🥇.
+#> Test passed with 2000 successes 🥳.
+#> Test passed with 2000 successes 🎉.
+#>                                         Test        Result
+#> 1             All probabilities are positive NOT PERFORMED
+#> 2  All probabilities are lower or equal to 1 NOT PERFORMED
+#> 3            All utility values are positive          TRUE
+#> 4 All utility values are lower or equal to 1          TRUE
+#> 5          All costs parameters are positive          TRUE
+#> 6             All hazard ratios are positive NOT PERFORMED
+#> 7            All relative risks are positive NOT PERFORMED
+#> 8                     All rates are positive NOT PERFORMED
+#> 9                  All outcomes are positive NOT PERFORMED
+               # }
 ```

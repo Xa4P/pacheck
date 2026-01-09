@@ -63,6 +63,6 @@ estimate_decision_sensitivity(df = df_pa,
                               y_binomial = FALSE
                               )
 #>        Estimate  Std. Error z value   Pr(>|z|) Low_CI    High_CI   Importance
-#> p_pfsd "-43.456" "1.141"    "-38.076" "0"      "-45.693" "-41.219" "63.9 %"  
-#> p_pdd  "12.99"   "0.645"    "20.141"  "0"      "11.726"  "14.255"  "36.1 %"  
+#> p_pfsd "-48.153" "3.77"     "-12.771" "0"      "-55.543" "-40.763" "65.7 %"  
+#> p_pdd  "11.065"  "1.972"    "5.611"   "0"      "7.2"     "14.93"   "34.3 %"  
 ```

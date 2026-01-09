@@ -39,7 +39,7 @@ dataframe.
 
 ``` r
 # Generating probabilistic model inputs and storing them in an object.
-if (FALSE) { # \dontrun{
+# \donttest{
 df_inputs_prob <- generate_pa_inputs_psm(n_sim = 10)
-} # }
+# }
 ```

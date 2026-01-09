@@ -51,8 +51,8 @@ summary_ice(df = df_pa,
             c_comp = "t_costs_d_comp"
             )
 #>                                     Quadrant Percentage
-#> 1 NorthEast (more effective, more expensive)        99%
+#> 1 NorthEast (more effective, more expensive)       100%
 #> 2 SouthEast (more effective, less expensive)         0%
-#> 3 NorthWest (less effective, more expensive)         1%
+#> 3 NorthWest (less effective, more expensive)         0%
 #> 4 SouthWest (less effective, less expensive)         0%
 ```

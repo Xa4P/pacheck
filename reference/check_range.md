@@ -49,5 +49,5 @@ check_range(df = df_pa,
             min_val = 0.55,
             max_val = 0.72
                  )
-#> [1] "The proportion of iterations between 0.55 and 0.72 is 31.91%"
+#> [1] "The proportion of iterations between 0.55 and 0.72 is 30.6%"
 ```
