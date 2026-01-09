@@ -1155,7 +1155,7 @@ check_mean_qol <- function(df,
 #'
 #' @examples
 #' # Checking costs and utility values of the example data
-#' \dontrun{
+#' \donttest{
 #' do_quick_check(df = df_pa,
 #'                v_utilities = c("u_pfs", "u_pd"),
 #'                v_costs = c("c_pfs", "c_pd")
@@ -1341,7 +1341,7 @@ do_quick_check <- function(df,
 #' @return A matrix.
 #' @examples
 #' # Checking whether discounted QALYs are lower than undiscounted QALYs using the example data
-#' \dontrun{do_discount_check(df = df_pa,
+#' \donttest{do_discount_check(df = df_pa,
 #'                   v_outcomes = "t_qaly_comp",
 #'                   v_outcomes_d = "t_qaly_d_comp")
 #'                   }

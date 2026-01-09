@@ -21,7 +21,7 @@ This function performs the deterministic one-way sensitivity analyses (DOWSA) us
 }
 \examples{
 # Perform the deterministic one-way sensitivity analyses for a selection of parameters
-\dontrun{
+\donttest{
 data(df_pa)
 df_res_dowsa <- perform_dowsa(df = df_pa,
                               vars = c("rr", "c_pfs"))

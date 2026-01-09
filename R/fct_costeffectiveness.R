@@ -35,7 +35,7 @@ plot_ice <- function(df,
                      n_it = NULL,
                      wtp = NULL,
                      currency = "euro",
-                     axes = T) {
+                     axes = TRUE) {
   # Checks
   assertthat::assert_that(e_int %in% names(df), msg = glue::glue("{e_int} is not a valid column name of the dataframe."))
   assertthat::assert_that(c_int %in% names(df), msg = glue::glue("{c_int} is not a valid column name of the dataframe."))
@@ -116,7 +116,7 @@ plot_ce <- function (df,
                      c_int,
                      c_comp,
                      currency = "euro",
-                     axes = T) {
+                     axes = TRUE) {
   # Checks
   assertthat::assert_that(e_int %in% names(df), msg = glue::glue("{e_int} is not a valid column name of the dataframe."))
   assertthat::assert_that(c_int %in% names(df), msg = glue::glue("{c_int} is not a valid column name of the dataframe."))
@@ -724,7 +724,7 @@ plot_nb_mult <- function(df,
                          outcomes,
                          costs,
                          wtp,
-                         NMB = T){
+                         NMB = TRUE){
   # Checks
   assertthat::assert_that(exists("wtp"), msg = glue::glue("'wtp' argument is not defined"))
   assertthat::assert_that(is.numeric(wtp), msg = glue::glue("'wtp' argument is not a numeric value"))

@@ -4,7 +4,7 @@
 \alias{plot_nb_mult}
 \title{Plot NMB or NHB.}
 \usage{
-plot_nb_mult(df, outcomes, costs, wtp, NMB = T)
+plot_nb_mult(df, outcomes, costs, wtp, NMB = TRUE)
 }
 \arguments{
 \item{df}{a dataframe.}

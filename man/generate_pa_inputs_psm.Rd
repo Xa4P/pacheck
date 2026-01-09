@@ -21,7 +21,7 @@ This function generates the probabilistic model inputs for the example health ec
 }
 \examples{
 # Generating probabilistic model inputs and storing them in an object.
-\dontrun{
+\donttest{
 df_inputs_prob <- generate_pa_inputs_psm(n_sim = 10)
 }
 }

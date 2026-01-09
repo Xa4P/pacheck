@@ -4,7 +4,7 @@
 \alias{plot_ce}
 \title{Plotting cost-effectiveness plane for two strategies.}
 \usage{
-plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro", axes = T)
+plot_ce(df, e_int, e_comp, c_int, c_comp, currency = "euro", axes = TRUE)
 }
 \arguments{
 \item{df}{a dataframe.}

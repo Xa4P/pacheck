@@ -1,8 +1,8 @@
 #' Dataframe for testing
 #'
-#' A dataframe containing 10,000 iterations of a probabilistic analysis of a health state transition model.
-#'
-#' @format A dataframe with 10,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 44 variables:
+#' A dataframe containing 1,000 iterations of a probabilistic analysis of a health state transition model.
+#' To access the original dataframe used in the scientific publication of PACBOARD (Pouwels et al. 2024), follow the link below.
+#' @format A dataframe with 1,000 rows, each row being the inputs and (intermediate) outputs of a single probabilistic iteration, and 44 variables:
 #' \describe{
 #'   \item{p_pfspd}{Probability to transit from the progression-free survival (PFS) to progressed disease (PD) health state}
 #'   \item{p_pfsd}{Probability to transit from the PFS to Death (D) health state}
@@ -49,4 +49,6 @@
 #'   \item{inc_qaly}{Incremental QALYs obtained with the intervention versus the comparator}
 #'   \item{inc_costs}{Incremental costs obtained with the intervention versus the comparator}
 #' }
+#' @source Pouwels XGLV, Kroeze K, van der Linden N, Kip MMA, Koffijberg H. Validating Health Economic Models With the Probabilistic Analysis Check dashBOARD. Value Health. 2024 Aug;27(8):1073-1084. doi: 10.1016/j.jval.2024.04.008.
+#' @source Link to the original data ("df_pa") used in the PACBOARD publication: \url{https://github.com/Xa4P/pacheck/tree/master/data-raw}
 "df_pa"

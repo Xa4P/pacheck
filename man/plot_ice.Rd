@@ -14,7 +14,7 @@ plot_ice(
   n_it = NULL,
   wtp = NULL,
   currency = "euro",
-  axes = T
+  axes = TRUE
 )
 }
 \arguments{

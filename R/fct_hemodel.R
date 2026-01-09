@@ -276,7 +276,7 @@ perform_simulation <- function(l_params) {
 #' @return A dataframe. The outcome of the deterministic one-way sensitivity analyses is the iNMB by default.
 #' @examples
 #' # Perform the deterministic one-way sensitivity analyses for a selection of parameters
-#' \dontrun{
+#' \donttest{
 #' data(df_pa)
 #' df_res_dowsa <- perform_dowsa(df = df_pa,
 #'                               vars = c("rr", "c_pfs"))
@@ -367,7 +367,7 @@ perform_dowsa <- function(df,
 #' @return A dataframe. A description of the variables of the returned dataframe is available in the documentation of the \code{\link{df_pa_psm}} dataframe.
 #' @examples
 #' # Generating probabilistic model inputs and storing them in an object.
-#' \dontrun{
+#' \donttest{
 #' df_inputs_prob <- generate_pa_inputs_psm(n_sim = 10)
 #' }
 #' @importFrom assertthat assert_that
