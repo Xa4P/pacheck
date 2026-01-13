@@ -33,7 +33,7 @@
 #' @examples
 #' # Fitting and tuning a random forest meta model with two variables using the example data
 #' data(df_pa)
-#' \dontrun{
+#' \donttest{
 #' fit_rf_metamodel(df = df_pa,
 #'                  y_var = "inc_qaly",
 #'                  x_vars = c("p_pfsd", "p_pdd"),
