@@ -14,6 +14,8 @@ This vignette showcases how to use the functionalities of `pacheck` on a health 
 
 ```{r}
 library(pacheck)
+library(tidyr)
+library(dplyr)
 set.seed(1234)
 data("df_ckd_inputs")
 data("df_ckd_results")
