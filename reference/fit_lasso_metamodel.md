@@ -1,7 +1,7 @@
 # Fit LASSO metamodel
 
 This function fits a lasso metamodel using the
-[`glmnet`](https://rdrr.io/pkg/glmnet/man/glmnet.html) package.
+[`glmnet`](https://glmnet.stanford.edu/reference/glmnet.html) package.
 
 ## Usage
 
@@ -127,7 +127,7 @@ fit_lasso_metamodel(df = df_pa,
 #> 
 #> $model_info$form
 #> inc_qaly ~ p_pfsd + p_pdd
-#> <environment: 0x55b039bcd340>
+#> <environment: 0x55c8ccf9d230>
 #> 
 #> $model_info$data
 #>         p_pfspd     p_pfsd      p_pdd p_dd        p_ae        rr     u_pfs

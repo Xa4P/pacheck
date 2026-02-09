@@ -183,7 +183,7 @@ fit_rf_metamodel(df = df_pa,
 #> 
 #> $model_info$form
 #> inc_qaly ~ p_pfsd + p_pdd
-#> <environment: 0x55b039a5cb80>
+#> <environment: 0x55c8ccf54a08>
 #> 
 #> $model_info$data
 #>         p_pfspd     p_pfsd      p_pdd p_dd        p_ae        rr     u_pfs
